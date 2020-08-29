@@ -45,8 +45,8 @@ jobs:
           sleep 10
           kubectl port-forward service/minio 8080 8443 &
           sleep 5
-          warp mixed --host localhost:8080 --access-key dummykey --secret-key dummypass --objects 50 --duration 0m10s &&\
-          warp mixed --tls --insecure --host localhost:8443 --access-key dummykey --secret-key dummypass --objects 50 --duration 0m10s
+          warp mixed --host localhost:8080 --access-key dummykey --secret-key dummypass --objects 50 --duration 0m10s --bucket test1 &&\
+          warp mixed --tls --insecure --host localhost:8443 --access-key dummykey --secret-key dummypass --objects 50 --duration 0m10s  --bucket test2
           [ "$?" != "0" ] && exit 1
           echo "${CWM_WORKER_HELM_DEPLOY_KEY}" > cwm_worker_helm_deploy_key &&\
           chmod 400 cwm_worker_helm_deploy_key &&\
