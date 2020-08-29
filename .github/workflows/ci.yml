@@ -1,0 +1,62 @@
+name: CI
+on:
+  push:
+jobs:
+  ci:
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@v2
+    - env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        PACKAGES_READER_GITHUB_TOKEN: ${{ secrets.PACKAGES_READER_GITHUB_TOKEN }}
+        PACKAGES_READER_GITHUB_USER: ${{ secrets.PACKAGES_READER_GITHUB_USER }}
+        CWM_WORKER_HELM_DEPLOY_KEY: ${{ secrets.CWM_WORKER_HELM_DEPLOY_KEY }}
+      run: |
+        echo "${GITHUB_TOKEN}" | docker login https://docker.pkg.github.com -u cloudwebmanage --password-stdin &&\
+        docker build -t minio . &&\
+        docker tag minio docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio:$GITHUB_SHA &&\
+        docker push docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio:$GITHUB_SHA &&\
+        if [ "${GITHUB_REF}" == "refs/heads/master" ]; then
+          docker tag minio docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio:latest &&\
+          docker push docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio:latest &&\
+          curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl" &&\
+          chmod +x ./kubectl && sudo mv ./kubectl /usr/local/bin/kubectl &&\
+          kubectl version --client &&\
+          curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 &&\
+          chmod +x minikube && sudo mv minikube /usr/local/bin/minikube &&\
+          minikube version &&\
+          curl -Ls https://get.helm.sh/helm-v3.2.4-linux-amd64.tar.gz -ohelm.tar.gz &&\
+          tar -xzvf helm.tar.gz && sudo mv linux-amd64/helm /usr/local/bin/helm &&\
+          sudo chmod +x /usr/local/bin/helm &&\
+          rm -rf linux-amd64 && rm helm.tar.gz &&\
+          helm version &&\
+          minikube start --driver=docker --kubernetes-version=v1.16.14 &&\
+          kubectl get nodes &&\
+          echo '{"auths":{"docker.pkg.github.com":{"auth":"'"$(echo -n "${PACKAGES_READER_GITHUB_USER}:${PACKAGES_READER_GITHUB_TOKEN}" | base64 -w0)"'"}}}' \
+              | kubectl create secret generic github --type=kubernetes.io/dockerconfigjson --from-file=.dockerconfigjson=/dev/stdin &&\
+          helm upgrade --install cwm-worker-deployment-minio ./helm
+          [ "$?" != "0" ] && exit 1
+          mkdir warp &&\
+          curl -Lso warp/warp.tar.gz https://github.com/minio/warp/releases/download/v0.3.17/warp_0.3.17_Linux_x86_64.tar.gz &&\
+          cd warp && tar -xzvf warp.tar.gz && sudo mv warp /usr/local/bin/ && rm -rf warp &&\
+          warp --version
+          [ "$?" != "0" ] && exit 1
+          sleep 10
+          kubectl port-forward service/minio 8080 8443 &
+          warp mixed --host localhost:8080 --access-key dummykey --secret-key dummypass --objects 50 --duration 0m10s &&\
+          warp mixed --tls --insecure --host localhost:8443 --access-key dummykey --secret-key dummypass --objects 50 --duration 0m10s
+          [ "$?" != "0" ] && exit 1
+          echo "${CWM_WORKER_HELM_DEPLOY_KEY}" > cwm_worker_helm_deploy_key &&\
+          chmod 400 cwm_worker_helm_deploy_key &&\
+          export GIT_SSH_COMMAND="ssh -i $(pwd)/cwm_worker_helm_deploy_key -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" &&\
+          git clone git@github.com:CloudWebManage/cwm-worker-helm.git &&\
+          git config --global user.name "cwm-worker-deployment-minio CI" &&\
+          git config --global user.email "cwm-worker-deployment-minio-ci@localhost" &&\
+          sed -i "s/appVersion: latest/appVersion: ${GITHUB_SHA}/g" helm/Chart.yaml &&\
+          helm package ./helm --version "0.0.0-$(date +%Y%m%dT%H%M%S)" --destination ./cwm-worker-helm/cwm-worker-deployment-minio &&\
+          helm repo index --url "https://raw.githubusercontent.com/CloudWebManage/cwm-worker-helm/master/cwm-worker-deployment-minio/" ./cwm-worker-helm/cwm-worker-deployment-minio &&\
+          cd cwm-worker-helm &&\
+          git add cwm-worker-deployment-minio &&\
+          git commit -m "automatic update of cwm-worker-deployment-minio" &&\
+          git push origin master
+        fi

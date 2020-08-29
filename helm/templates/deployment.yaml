@@ -1,0 +1,99 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minio
+spec:
+  replicas: {{ $.Values.minio.replicas }}
+  revisionHistoryLimit: {{ $.Values.minio.revisionHistoryLimit }}
+  selector:
+    matchLabels:
+      app: minio
+  strategy:
+{{ $.Values.minio.strategy | indent 4 }}
+  template:
+    metadata:
+      labels:
+        app: minio
+    spec:
+      dnsPolicy: ClusterFirst
+      imagePullSecrets:
+      {{ $.Values.minio.imagePullSecrets | indent 6 }}
+      terminationGracePeriodSeconds: {{ $.Values.minio.terminationGracePeriodSeconds }}
+      automountServiceAccountToken: false
+      containers:
+      {{ range .Values.minio.enabledProtocols }}
+      - name: {{ . }}
+        image: {{ $.Values.minio.image }}:{{ $.Values.minio.tag | default $.Chart.AppVersion }}
+        imagePullPolicy: {{ $.Values.minio.imagePullPolicy }}
+        env:
+        - name: "MINIO_REGION_NAME"
+          value: {{ $.Values.minio.region_name | quote }}
+        - name: "MINIO_DOMAIN"
+          value: {{ $.Values.minio.domain_name | quote }}
+        - name: MINIO_ACCESS_KEY
+          valueFrom: {"secretKeyRef":{"name":"minio", "key":"MINIO_ACCESS_KEY"}}
+        - name: MINIO_SECRET_KEY
+          valueFrom: {"secretKeyRef":{"name":"minio", "key":"MINIO_SECRET_KEY"}}
+        {{ if eq . "https" }}
+        - name: CERTIFICATE_PEM
+          valueFrom: {"secretKeyRef":{"name":"minio", "key":"CERTIFICATE_PEM"}}
+        - name: CERTIFICATE_KEY
+          valueFrom: {"secretKeyRef":{"name":"minio", "key":"CERTIFICATE_KEY"}}
+        {{ end }}
+        {{ if $.Values.minio.cache.enabled }}
+        - name: MINIO_CACHE
+          value: "on"
+        - name: MINIO_CACHE_DRIVES
+          value: {{ $.Values.minio.cache.drives | quote }}
+        - name: MINIO_CACHE_EXCLUDE
+          value: {{ $.Values.minio.cache.exclude | quote }}
+        - name: MINIO_CACHE_QUOTA
+          value: {{ $.Values.minio.cache.quota | quote }}
+        - name: MINIO_CACHE_AFTER
+          value: {{ $.Values.minio.cache.after | quote }}
+        - name: MINIO_CACHE_WATERMARK_LOW
+          value: {{ $.Values.minio.cache.watermark_low | quote }}
+        - name: MINIO_CACHE_WATERMARK_HIGH
+          value: {{ $.Values.minio.cache.watermark_high | quote }}
+        {{ end }}
+        ports:
+        {{ if eq . "http" }}
+        - containerPort: 8080
+          name: "p8080"
+        {{ else }}
+        - containerPort: 8443
+          name: "p8443"
+        {{ end }}
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /minio/health/ready
+            {{ if eq . "http" }}
+            port: 8080
+            scheme: HTTP
+            {{ else }}
+            port: 8443
+            scheme: HTTPS
+            {{ end }}
+          initialDelaySeconds: 3
+          periodSeconds: 2
+          successThreshold: 2
+          timeoutSeconds: 2
+        resources:
+{{ if eq . "http" }}
+{{ $.Values.minio.httpResources | indent 10 }}
+{{ else }}
+{{ $.Values.minio.httpsResources | indent 10 }}
+{{ end }}
+        volumeMounts:
+        - mountPath: "/storage"
+          name: "storage"
+        - mountPath: "/cache"
+          name: "cache"
+      {{ end }}
+      volumes:
+      - name: storage
+{{ $.Values.minio.volumes.storage | indent 8 }}
+      - name: cache
+{{ $.Values.minio.volumes.cache | indent 8 }}
+
