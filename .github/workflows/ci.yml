@@ -39,7 +39,7 @@ jobs:
           [ "$?" != "0" ] && exit 1
           mkdir warp &&\
           curl -Lso warp/warp.tar.gz https://github.com/minio/warp/releases/download/v0.3.17/warp_0.3.17_Linux_x86_64.tar.gz &&\
-          cd warp && tar -xzvf warp.tar.gz && sudo mv warp /usr/local/bin/ && rm -rf warp &&\
+          cd warp && tar -xzvf warp.tar.gz && sudo mv warp /usr/local/bin/ && cd .. && rm -rf warp &&\
           warp --version
           [ "$?" != "0" ] && exit 1
           sleep 10
@@ -55,6 +55,7 @@ jobs:
           git config --global user.name "cwm-worker-deployment-minio CI" &&\
           git config --global user.email "cwm-worker-deployment-minio-ci@localhost" &&\
           sed -i "s/appVersion: latest/appVersion: ${GITHUB_SHA}/g" helm/Chart.yaml &&\
+          mkdir -p cwm-worker-helm/cwm-worker-deployment-minio &&\
           helm package ./helm --version "0.0.0-$(date +%Y%m%dT%H%M%S)" --destination ./cwm-worker-helm/cwm-worker-deployment-minio &&\
           helm repo index --url "https://raw.githubusercontent.com/CloudWebManage/cwm-worker-helm/master/cwm-worker-deployment-minio/" ./cwm-worker-helm/cwm-worker-deployment-minio &&\
           cd cwm-worker-helm &&\
