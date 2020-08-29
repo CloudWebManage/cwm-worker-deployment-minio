@@ -13,7 +13,8 @@ jobs:
         CWM_WORKER_HELM_DEPLOY_KEY: ${{ secrets.CWM_WORKER_HELM_DEPLOY_KEY }}
       run: |
         echo "${GITHUB_TOKEN}" | docker login https://docker.pkg.github.com -u cloudwebmanage --password-stdin &&\
-        docker build -t minio . &&\
+        docker pull docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio:latest &&\
+        docker build --cache-from docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio:latest -t minio . &&\
         docker tag minio docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio:$GITHUB_SHA &&\
         docker push docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio:$GITHUB_SHA &&\
         if [ "${GITHUB_REF}" == "refs/heads/master" ]; then
@@ -43,6 +44,7 @@ jobs:
           [ "$?" != "0" ] && exit 1
           sleep 10
           kubectl port-forward service/minio 8080 8443 &
+          sleep 5
           warp mixed --host localhost:8080 --access-key dummykey --secret-key dummypass --objects 50 --duration 0m10s &&\
           warp mixed --tls --insecure --host localhost:8443 --access-key dummykey --secret-key dummypass --objects 50 --duration 0m10s
           [ "$?" != "0" ] && exit 1
