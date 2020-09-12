@@ -20,6 +20,10 @@ spec:
       {{ $.Values.minio.imagePullSecrets | indent 6 }}
       terminationGracePeriodSeconds: {{ $.Values.minio.terminationGracePeriodSeconds }}
       automountServiceAccountToken: false
+      {{ if $.Values.minio.nodeSelector }}
+      nodeSelector:
+{{ $.Values.minio.nodeSelector | indent 8 }}
+      {{ end }}
       containers:
       {{ range .Values.minio.enabledProtocols }}
       - name: {{ . }}

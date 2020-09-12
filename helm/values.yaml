@@ -9,6 +9,7 @@ minio:
     rollingUpdate:
       maxUnavailable: 0
       maxSurge: 1
+  nodeSelector: ""
   createPullSecret: ""
   imagePullSecrets: |
     - name: github
