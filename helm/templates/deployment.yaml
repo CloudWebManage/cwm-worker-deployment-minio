@@ -68,10 +68,9 @@ spec:
         - containerPort: 8443
           name: "p8443"
         {{ end }}
-        readinessProbe:
-          failureThreshold: 3
+        startupProbe:
           httpGet:
-            path: /minio/health/ready
+            path: {{ $.Values.minio.startupProbe.path }}
             {{ if eq . "http" }}
             port: 8080
             scheme: HTTP
@@ -79,10 +78,41 @@ spec:
             port: 8443
             scheme: HTTPS
             {{ end }}
-          initialDelaySeconds: 3
-          periodSeconds: 2
-          successThreshold: 2
-          timeoutSeconds: 2
+          initialDelaySeconds: {{ $.Values.minio.startupProbe.initialDelaySeconds }}
+          periodSeconds: {{ $.Values.minio.startupProbe.periodSeconds }}
+          timeoutSeconds: {{ $.Values.minio.startupProbe.timeoutSeconds }}
+          successThreshold: {{ $.Values.minio.startupProbe.successThreshold }}
+          failureThreshold: {{ $.Values.minio.startupProbe.failureThreshold }}
+        livenessProbe:
+          httpGet:
+            path: {{ $.Values.minio.livenessProbe.path }}
+            {{ if eq . "http" }}
+            port: 8080
+            scheme: HTTP
+            {{ else }}
+            port: 8443
+            scheme: HTTPS
+            {{ end }}
+          initialDelaySeconds: {{ $.Values.minio.livenessProbe.initialDelaySeconds }}
+          periodSeconds: {{ $.Values.minio.livenessProbe.periodSeconds }}
+          timeoutSeconds: {{ $.Values.minio.livenessProbe.timeoutSeconds }}
+          successThreshold: {{ $.Values.minio.livenessProbe.successThreshold }}
+          failureThreshold: {{ $.Values.minio.livenessProbe.failureThreshold }}
+        readinessProbe:
+          httpGet:
+            path: {{ $.Values.minio.readinessProbe.path }}
+            {{ if eq . "http" }}
+            port: 8080
+            scheme: HTTP
+            {{ else }}
+            port: 8443
+            scheme: HTTPS
+            {{ end }}
+          initialDelaySeconds: {{ $.Values.minio.readinessProbe.initialDelaySeconds }}
+          periodSeconds: {{ $.Values.minio.readinessProbe.periodSeconds }}
+          timeoutSeconds: {{ $.Values.minio.readinessProbe.timeoutSeconds }}
+          successThreshold: {{ $.Values.minio.readinessProbe.successThreshold }}
+          failureThreshold: {{ $.Values.minio.readinessProbe.failureThreshold }}
         resources:
 {{ if eq . "http" }}
 {{ $.Values.minio.httpResources | indent 10 }}

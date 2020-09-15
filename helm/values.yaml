@@ -16,6 +16,27 @@ minio:
   image: docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio
   tag: ""
   imagePullPolicy: IfNotPresent
+  startupProbe:
+    path: /minio/health/live
+    initialDelaySeconds: 0
+    periodSeconds: 1
+    timeoutSeconds: 1
+    successThreshold: 1
+    failureThreshold: 5
+  livenessProbe:
+    path: /minio/health/live
+    initialDelaySeconds: 0
+    periodSeconds: 1
+    timeoutSeconds: 1
+    successThreshold: 1
+    failureThreshold: 2
+  readinessProbe:
+    path: /minio/health/ready
+    initialDelaySeconds: 0
+    periodSeconds: 1
+    timeoutSeconds: 1
+    successThreshold: 1
+    failureThreshold: 2
   httpResources: |
     requests:
       cpu: "0.2"
