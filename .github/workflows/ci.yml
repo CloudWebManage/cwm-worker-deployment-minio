@@ -17,9 +17,14 @@ jobs:
         docker build --cache-from docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio:latest -t minio . &&\
         docker tag minio docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio:$GITHUB_SHA &&\
         docker push docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio:$GITHUB_SHA &&\
+        docker build -t last_action_logger last_action_logger &&\
+        docker tag last_action_logger docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/last_action_logger:$GITHUB_SHA &&\
+        docker push docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/last_action_logger:$GITHUB_SHA &&\
         if [ "${GITHUB_REF}" == "refs/heads/master" ]; then
           docker tag minio docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio:latest &&\
           docker push docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio:latest &&\
+          docker tag last_action_logger docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/last_action_logger:latest &&\
+          docker push docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/last_action_logger:latest &&\
           curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl" &&\
           chmod +x ./kubectl && sudo mv ./kubectl /usr/local/bin/kubectl &&\
           kubectl version --client &&\

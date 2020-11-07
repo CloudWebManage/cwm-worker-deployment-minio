@@ -1,4 +1,7 @@
 #!/bin/sh
+if [ "${MINIO_AUDIT_WEBHOOK_ENDPOINT_target1}" != "" ]; then
+  while ! curl -sXPOST "${MINIO_AUDIT_WEBHOOK_ENDPOINT_target1}"; do sleep 1; done
+fi &&\
 ulimit -n 1024000 &&\
 if [ "${CERTIFICATE_PEM}" != "" ] && [ "${CERTIFICATE_KEY}" != "" ]; then
   mkdir -p /etc/minio/certs &&\

@@ -60,6 +60,16 @@ spec:
         - name: MINIO_CACHE_WATERMARK_HIGH
           value: {{ $.Values.minio.cache.watermark_high | quote }}
         {{ end }}
+        {{ if $.Values.minio.auditWebhookEndpoint }}
+        - name: MINIO_AUDIT_WEBHOOK_ENABLE_target1
+          value: "on"
+        - name: MINIO_AUDIT_WEBHOOK_AUTH_TOKEN_target1
+          value: ""
+        - name: MINIO_AUDIT_WEBHOOK_ENDPOINT_target1
+          value: {{ $.Values.minio.auditWebhookEndpoint | quote }}
+        {{ end }}
+        - name: MINIO_GATEWAY_DEPLOYMENT_ID
+          value: {{ $.Values.minio.MINIO_GATEWAY_DEPLOYMENT_ID | quote }}
         ports:
         {{ if eq . "http" }}
         - containerPort: 8080
@@ -115,6 +125,30 @@ spec:
           name: "storage"
         - mountPath: "/cache"
           name: "cache"
+      {{ end }}
+      {{ if $.Values.minio.lastActionLogger.enable }}
+      - name: last_action_logger
+        image: {{ $.Values.minio.lastActionLogger.image }}
+        imagePullPolicy: {{ $.Values.minio.lastActionLogger.imagePullPolicy }}
+        resources:
+{{ $.Values.minio.lastActionLogger.resources | indent 10 }}
+        env:
+        - name: REDIS_HOST
+          value: {{ $.Values.minio.lastActionLogger.REDIS_HOST | quote }}
+        - name: REDIS_PORT
+          value: {{ $.Values.minio.lastActionLogger.REDIS_PORT | quote }}
+        - name: REDIS_POOL_MAX_CONNECTIONS
+          value: {{ $.Values.minio.lastActionLogger.REDIS_POOL_MAX_CONNECTIONS | quote }}
+        - name: REDIS_POOL_TIMEOUT
+          value: {{ $.Values.minio.lastActionLogger.REDIS_POOL_TIMEOUT | quote }}
+        - name: REDIS_KEY_PREFIX_DEPLOYMENT_LAST_ACTION
+          value: {{ $.Values.minio.lastActionLogger.REDIS_KEY_PREFIX_DEPLOYMENT_LAST_ACTION | quote }}
+        - name: UPDATE_GRACE_PERIOD_SECONDS
+          value: {{ $.Values.minio.lastActionLogger.UPDATE_GRACE_PERIOD_SECONDS | quote }}
+      {{ end }}
+      {{ if $.Values.minio.lastActionLogger.withRedis }}
+      - name: redis
+        image: redis
       {{ end }}
       volumes:
       - name: storage

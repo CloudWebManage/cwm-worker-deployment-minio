@@ -2,6 +2,16 @@
 
 ## Local development
 
+### Prototyping
+
+Docker Compose is used for quick prototyping of the deployment without using Kubernetes
+
+Start the stack
+
+```
+docker-compose up --build
+```
+
 ### Install
 
 Install Kubectl
