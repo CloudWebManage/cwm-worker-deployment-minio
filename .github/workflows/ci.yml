@@ -17,7 +17,8 @@ jobs:
         docker build --cache-from docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio:latest -t minio . &&\
         docker tag minio docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio:$GITHUB_SHA &&\
         docker push docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio:$GITHUB_SHA &&\
-        docker build -t last_action_logger last_action_logger &&\
+        docker pull docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/last_action_logger:latest &&\
+        docker build --cache-from docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/last_action_logger:latest -t last_action_logger last_action_logger &&\
         docker tag last_action_logger docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/last_action_logger:$GITHUB_SHA &&\
         docker push docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/last_action_logger:$GITHUB_SHA &&\
         if [ "${GITHUB_REF}" == "refs/heads/master" ]; then
@@ -47,12 +48,37 @@ jobs:
           cd warp && tar -xzvf warp.tar.gz && sudo mv warp /usr/local/bin/ && cd .. && rm -rf warp &&\
           warp --version
           [ "$?" != "0" ] && exit 1
-          sleep 10
+          sleep 25
+          OK=0
+          for X in 1 2 3 4 5 6 7 8 9 10; do
+            if kubectl get pods | grep minio- | grep 4/4 | grep Running; then
+              OK=1
+              break
+            else
+              echo .
+              sleep 10
+            fi
+          done
+          if [ "${OK}" == "0" ]; then
+            kubectl describe pod minio-
+            kubectl logs deployment/minio -c http
+            kubectl logs deployment/minio -c https
+            kubectl logs deployment/minio -c last-action-logger
+            kubectl logs deployment/minio -c redis
+            exit 1
+          fi
           kubectl port-forward service/minio 8080 8443 &
           sleep 5
           warp mixed --host localhost:8080 --access-key dummykey --secret-key dummypass --objects 50 --duration 0m10s --bucket test1 &&\
           warp mixed --tls --insecure --host localhost:8443 --access-key dummykey --secret-key dummypass --objects 50 --duration 0m10s  --bucket test2
-          [ "$?" != "0" ] && exit 1
+          if [ "$?" != "0" ]; then
+            kubectl describe pod minio-
+            kubectl logs deployment/minio -c http
+            kubectl logs deployment/minio -c https
+            kubectl logs deployment/minio -c last-action-logger
+            kubectl logs deployment/minio -c redis
+            exit 1
+          fi
           echo "${CWM_WORKER_HELM_DEPLOY_KEY}" > cwm_worker_helm_deploy_key &&\
           chmod 400 cwm_worker_helm_deploy_key &&\
           export GIT_SSH_COMMAND="ssh -i $(pwd)/cwm_worker_helm_deploy_key -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" &&\

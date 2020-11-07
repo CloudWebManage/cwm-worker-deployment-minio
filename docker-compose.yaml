@@ -55,6 +55,7 @@ services:
       - "cache:/cache"
 
   logger:
+    image: docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/last_action_logger
     build: last_action_logger
     environment:
       REDIS_HOST: redis

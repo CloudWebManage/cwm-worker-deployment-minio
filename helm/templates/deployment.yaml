@@ -127,7 +127,7 @@ spec:
           name: "cache"
       {{ end }}
       {{ if $.Values.minio.lastActionLogger.enable }}
-      - name: last_action_logger
+      - name: last-action-logger
         image: {{ $.Values.minio.lastActionLogger.image }}
         imagePullPolicy: {{ $.Values.minio.lastActionLogger.imagePullPolicy }}
         resources:

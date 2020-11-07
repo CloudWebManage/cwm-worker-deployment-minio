@@ -65,9 +65,9 @@ Deploy using one of the following options:
 
 * Build your own Docker images:
   * Switch Docker daemon to use the minikube Docker daemon: `eval $(minikube -p minikube docker-env)`
-  * Build the image: `docker build -t cwm-worker-deployment-minio .`
-  * Tag
-    * `docker tag cwm-worker-deployment-minio:latest docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio:latest`
+  * Build the images:
+    * `docker build -t docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio .`
+    * `docker build -t docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/last_action_logger last_action_logger`
   * Deploy
     * `helm upgrade --install cwm-worker-deployment-minio ./helm`
 
@@ -81,6 +81,14 @@ kubectl port-forward service/minio 8080 8443
 * https://localhost:8443
 
 default username / password: `dummykey` / `dummypass`
+
+Upload some files
+
+Check the last action logger data in Redis
+
+```
+kubectl exec deployment/minio -c redis -- redis-cli get deploymentid:last_action:minio1
+```
 
 ### Load test
 
