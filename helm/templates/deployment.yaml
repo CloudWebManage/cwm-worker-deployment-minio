@@ -128,7 +128,7 @@ spec:
       {{ end }}
       {{ if $.Values.minio.lastActionLogger.enable }}
       - name: last-action-logger
-        image: {{ $.Values.minio.lastActionLogger.image }}
+        image: {{ $.Values.minio.lastActionLogger.image }}:{{ $.Values.minio.tag | default $.Chart.AppVersion }}
         imagePullPolicy: {{ $.Values.minio.lastActionLogger.imagePullPolicy }}
         resources:
 {{ $.Values.minio.lastActionLogger.resources | indent 10 }}
