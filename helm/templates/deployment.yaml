@@ -30,8 +30,6 @@ spec:
         image: {{ $.Values.minio.image }}:{{ $.Values.minio.tag | default $.Chart.AppVersion }}
         imagePullPolicy: {{ $.Values.minio.imagePullPolicy }}
         env:
-        - name: "MINIO_REGION_NAME"
-          value: {{ $.Values.minio.region_name | quote }}
         - name: "MINIO_DOMAIN"
           value: {{ $.Values.minio.domain_name | quote }}
         - name: MINIO_ACCESS_KEY
@@ -126,27 +124,31 @@ spec:
         - mountPath: "/cache"
           name: "cache"
       {{ end }}
-      {{ if $.Values.minio.lastActionLogger.enable }}
+      {{ if $.Values.minio.metricsLogger.enable }}
       - name: last-action-logger
-        image: {{ $.Values.minio.lastActionLogger.image }}:{{ $.Values.minio.tag | default $.Chart.AppVersion }}
-        imagePullPolicy: {{ $.Values.minio.lastActionLogger.imagePullPolicy }}
+        image: {{ $.Values.minio.metricsLogger.image }}:{{ $.Values.minio.tag | default $.Chart.AppVersion }}
+        imagePullPolicy: {{ $.Values.minio.metricsLogger.imagePullPolicy }}
         resources:
-{{ $.Values.minio.lastActionLogger.resources | indent 10 }}
+{{ $.Values.minio.metricsLogger.resources | indent 10 }}
         env:
         - name: REDIS_HOST
-          value: {{ $.Values.minio.lastActionLogger.REDIS_HOST | quote }}
+          value: {{ $.Values.minio.metricsLogger.REDIS_HOST | quote }}
         - name: REDIS_PORT
-          value: {{ $.Values.minio.lastActionLogger.REDIS_PORT | quote }}
+          value: {{ $.Values.minio.metricsLogger.REDIS_PORT | quote }}
         - name: REDIS_POOL_MAX_CONNECTIONS
-          value: {{ $.Values.minio.lastActionLogger.REDIS_POOL_MAX_CONNECTIONS | quote }}
+          value: {{ $.Values.minio.metricsLogger.REDIS_POOL_MAX_CONNECTIONS | quote }}
         - name: REDIS_POOL_TIMEOUT
-          value: {{ $.Values.minio.lastActionLogger.REDIS_POOL_TIMEOUT | quote }}
+          value: {{ $.Values.minio.metricsLogger.REDIS_POOL_TIMEOUT | quote }}
         - name: REDIS_KEY_PREFIX_DEPLOYMENT_LAST_ACTION
-          value: {{ $.Values.minio.lastActionLogger.REDIS_KEY_PREFIX_DEPLOYMENT_LAST_ACTION | quote }}
+          value: {{ $.Values.minio.metricsLogger.REDIS_KEY_PREFIX_DEPLOYMENT_LAST_ACTION | quote }}
         - name: UPDATE_GRACE_PERIOD_SECONDS
-          value: {{ $.Values.minio.lastActionLogger.UPDATE_GRACE_PERIOD_SECONDS | quote }}
+          value: {{ $.Values.minio.metricsLogger.UPDATE_GRACE_PERIOD_SECONDS | quote }}
+        - name: DEPLOYMENT_API_METRICS_FLUSH_INTERVAL_SECONDS
+          value: {{ $.Values.minio.metricsLogger.DEPLOYMENT_API_METRICS_FLUSH_INTERVAL_SECONDS | quote }}
+        - name: REDIS_KEY_PREFIX_DEPLOYMENT_API_METRIC
+          value: {{ $.Values.minio.metricsLogger.REDIS_KEY_PREFIX_DEPLOYMENT_API_METRIC | quote }}
       {{ end }}
-      {{ if $.Values.minio.lastActionLogger.withRedis }}
+      {{ if $.Values.minio.metricsLogger.withRedis }}
       - name: redis
         image: redis
       {{ end }}

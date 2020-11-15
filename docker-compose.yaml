@@ -3,12 +3,11 @@ version: '3.4'
 services:
 
   minio-http:
-    image: docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio
+    image: minio
     build: .
     ports:
       - "8080:8080"
     environment:
-      MINIO_REGION_NAME: "EU"
       MINIO_DOMAIN: "example007.com"
       MINIO_ACCESS_KEY: "12345678"
       MINIO_SECRET_KEY: "12345678"
@@ -21,19 +20,20 @@ services:
       MINIO_CACHE_WATERMARK_HIGH: "90"
       MINIO_AUDIT_WEBHOOK_ENABLE_target1: "on"
       MINIO_AUDIT_WEBHOOK_AUTH_TOKEN_target1: ""
-      MINIO_AUDIT_WEBHOOK_ENDPOINT_target1: http://logger:8500
+      MINIO_AUDIT_WEBHOOK_ENDPOINT_target1: http://metrics-logger:8500
       MINIO_GATEWAY_DEPLOYMENT_ID: "docker-compose-http"
     volumes:
       - "storage:/storage"
       - "cache:/cache"
+    depends_on:
+      - metrics-logger
 
   minio-https:
-    image: docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio
+    image: minio
     build: .
     ports:
       - "8443:8443"
     environment:
-      MINIO_REGION_NAME: "EU"
       MINIO_DOMAIN: "example007.com"
       MINIO_ACCESS_KEY: "12345678"
       MINIO_SECRET_KEY: "12345678"
@@ -48,20 +48,29 @@ services:
       CERTIFICATE_KEY: "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDQIx79+4yshHBq\nUKdUZ5lUBj8sQi2goPUUlwbZQZ3cBQ4MaXEW13nEFPJ9zf62+xxlJuo46tPZe4RR\n4bOYiK4PH2T2Tbwp4zFFh/m0Hmt0qbwWiS65zNeqjAN9qcOZu7hCFOsczUhfYUVK\nhGVCrh783VM/02bl5SpIfjg41q8IkznzntChJy/zai3uhpnpKprB5q7nCvFNMEDJ\nNGtD44ozIyBSzx+lE436gFuASkMB5eQ3F71yTwgGqucfy1Alu/V18Ovlr0GhrQMK\nuMc79UcNWH8bNTsWhBb0HrjQQ4lcJKPfFmkkDCA1esXyBfuQEZBaMU2qW25ttEXF\nQBBLdQvJAgMBAAECggEAJXZs2aIxS8v6v+gMdjC/dFQ7gqfWtpbCBha48NnSpAt0\n398Kr+XQ0O5ER0iQlDbWgY5jkiMSRo7o3iQVw1q2mZo4/ew39gIimDVFSJpBFRqH\n9DZ05pRsLRJOfovT3RPgsmQ5fVGluSU055i08S+N/E2J8m8GklKRLcMqM3DQyGYE\nFK792nVarXJqo16tlkeO1ZChNy4oRLrdvpRK5FDsnX9Tuy/DTYFL+0u3ck+4XtgH\nZuEaOUwEmS8W8lQgE4B7Q8Zv0gdtLTw9XQuUmyFCEy3+dODG1IhzKqx1ldVEA2Yc\nKXlGO3rPbbdicDkqU1RIV0kI+d9+OzznhnCtv2zRQQKBgQD8rg9dD2OK+ZkW81Yp\nyLfWa6Vl8dfiCLkb8uumecr9OrBMLqEgfJMIZnOtzE9zxq5vSTHEYbtbMlqTd67I\n0ovVSIWdl9AEl2iNTk8Ha09fGjnlMjsFUe+80U0gHCwLytIaVeAsSZ3j0XJVNNE0\nvLh/TfY1AgITvDTGuWrOBtHXLQKBgQDS3zuJ70ZasXslnPkIdLcPv+nO0lDY3L9Q\nuyfWDR3TaCxQIw/oIFQ3hiqnq1EgV5gzPQ6plRXvNlP4TYC9rO+9eExpHjrtExdZ\nfsIVyLU+v9BZyFqTDyoEeXZawkQ+cWrac3p53RlcPP6gqo0BlagoJfu4Ur6+uZcM\nYrl50tyojQKBgERU4ey9q6K6qw7M0YFNOYHv7HOsOkBzMXQAdn+3shBXHbQMbCB3\n7982rZPTi6z4jtWjiqTb9SnNbTcyB39hiNUt3oxmsKd9NpX4FmEgQP+r/PohYlqm\n9NkwFNZZKAQsXjMnBA+V/O/OBUhLl0PWwWIT+EAPgfZKUE9pdxuuNnMlAoGBAJHA\nPjTer7AsEEQ1NWQE2CsIqSCM+diK66lvUt9+fWkMDeTt9yaogc1G7OCrZw2Fvetc\nfm/0Xg7TbEKpvxxbFfHN3nKhtHT8xxzSom/QJIZUqjwEYaZXyuEA2y9sKyNF3WdU\nfgkRK2A3wH9oosG/oVTuvAfxGWpWePLUogJ0HpRZAoGAXDdcofIrP/IW4xjCbwBk\nqJJr4WDAeSvqscXRZb6DEsWwmvzMMI5RYwAkwOPm5MMJpXTjfUtS3Y3LjYWczlww\nN+vbIMyCeQDsgnJKJyQU6mhqw9RUUD4cmD9BgTJDlgLcVMUu3eLLrAOdjSOUfxCx\nhlQZj4ZBcZWwbF1E1VmH84g=\n-----END PRIVATE KEY-----"
       MINIO_AUDIT_WEBHOOK_ENABLE_target1: "on"
       MINIO_AUDIT_WEBHOOK_AUTH_TOKEN_target1: ""
-      MINIO_AUDIT_WEBHOOK_ENDPOINT_target1: http://logger:8500
+      MINIO_AUDIT_WEBHOOK_ENDPOINT_target1: http://metrics-logger:8500
       MINIO_GATEWAY_DEPLOYMENT_ID: "docker-compose-https"
     volumes:
       - "storage:/storage"
       - "cache:/cache"
+    depends_on:
+      - metrics-logger
 
-  logger:
-    image: docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/last_action_logger
-    build: last_action_logger
+  metrics-logger:
+    image: metrics_logger
+    build: metrics-logger
     environment:
       REDIS_HOST: redis
+      DEBUG: "yes"
+      UPDATE_GRACE_PERIOD_SECONDS: "5"
+      DEPLOYMENT_API_METRICS_FLUSH_INTERVAL_SECONDS: "5"
+    depends_on:
+      - redis
 
   redis:
-    image: redis
+    image: redis:6
+    ports:
+      - "6379:6379"
 
 volumes:
   storage:
