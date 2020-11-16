@@ -12,32 +12,43 @@ jobs:
         PACKAGES_READER_GITHUB_USER: ${{ secrets.PACKAGES_READER_GITHUB_USER }}
         CWM_WORKER_HELM_DEPLOY_KEY: ${{ secrets.CWM_WORKER_HELM_DEPLOY_KEY }}
       run: |
-        sudo bin/install_minikube.sh && minikube version &&\
-        sudo bin/install_kubectl.sh && kubectl version --client &&\
+        if git log -1 --pretty=format:"%s" | grep -- --skip-tests; then
+          SKIP_TESTS=yes
+        else
+          SKIP_TESTS=no
+        fi &&\
         sudo bin/install_helm.sh && helm version &&\
-        sudo bin/install_python.sh &&\
-        sudo bin/install_warp.sh &&\
-        python3 -m venv venv &&\
-        venv/bin/python -m pip install --upgrade pip &&\
-        venv/bin/python -m pip install --upgrade setuptools wheel &&\
-        venv/bin/python -m pip install -r tests/requirements.txt &&\
+        if [ "${SKIP_TESTS}" == "no" ]; then
+          sudo bin/install_minikube.sh && minikube version &&\
+          sudo bin/install_kubectl.sh && kubectl version --client &&\
+          sudo bin/install_python.sh &&\
+          sudo bin/install_warp.sh &&\
+          python3 -m venv venv &&\
+          venv/bin/python -m pip install --upgrade pip &&\
+          venv/bin/python -m pip install --upgrade setuptools wheel &&\
+          venv/bin/python -m pip install -r tests/requirements.txt
+        fi &&\
         bin/docker_login.sh &&\
         bin/docker_build.sh &&\
-        docker-compose up -d &&\
-        venv/bin/pytest tests/test_docker_compose.py &&\
-        docker-compose down -v &&\
+        if [ "${SKIP_TESTS}" == "no" ]; then
+          docker-compose up -d &&\
+          venv/bin/pytest tests/test_docker_compose.py &&\
+          docker-compose down -v
+        fi &&\
         docker tag minio docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio:$GITHUB_SHA &&\
         docker push docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio:$GITHUB_SHA &&\
         docker tag metrics_logger docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/metrics_logger:$GITHUB_SHA &&\
         docker push docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/metrics_logger:$GITHUB_SHA &&\
         sed -i "s/appVersion: latest/appVersion: ${GITHUB_SHA}/g" helm/Chart.yaml &&\
-        bin/minikube_start.sh &&\
-        venv/bin/pytest tests/test_k8s.py &&\
+        if [ "${SKIP_TESTS}" == "no" ]; then
+          bin/minikube_start.sh &&\
+          venv/bin/pytest tests/test_k8s.py
+        fi &&\
         if [ "${GITHUB_REF}" == "refs/heads/master" ]; then
           docker tag minio docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio:latest &&\
           docker push docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio:latest &&\
-          docker tag last_action_logger docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/last_action_logger:latest &&\
-          docker push docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/last_action_logger:latest &&\
+          docker tag metrics_logger docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/metrics_logger:latest &&\
+          docker push docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/metrics_logger:latest &&\
           echo "${CWM_WORKER_HELM_DEPLOY_KEY}" > cwm_worker_helm_deploy_key &&\
           chmod 400 cwm_worker_helm_deploy_key &&\
           export GIT_SSH_COMMAND="ssh -i $(pwd)/cwm_worker_helm_deploy_key -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" &&\
