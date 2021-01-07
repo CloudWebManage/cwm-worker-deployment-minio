@@ -10,7 +10,7 @@ minio:
       maxUnavailable: 0
       maxSurge: 1
   nodeSelector: ""
-  tolerations: ""
+  # tolerations: []
   createPullSecret: ""
   imagePullSecrets: |
     - name: github

@@ -44,13 +44,13 @@ def test():
         kubectl logs deployment/minio -c redis
     """
     wait_for_cmd('kubectl get pods | grep minio- | grep 4/4 | grep Running',
-                 0, 120, 'waited too long for minio deployment to be deployed',
+                 0, 240, 'waited too long for minio deployment to be deployed',
                  extra_error_msg_cmds=minio_logs_commands)
     http_bucketname = str(uuid.uuid4())
     https_bucketname = str(uuid.uuid4())
     miniopf = subprocess.Popen('exec kubectl port-forward service/minio 8080 8443', shell=True)
     try:
-        time.sleep(2)
+        time.sleep(15)
         http_returncode, http_output = subprocess.getstatusoutput('warp mixed --host localhost:8080 --access-key dummykey --secret-key dummypass --objects 50 --duration 0m10s --bucket {}'.format(http_bucketname))
         https_returncode, https_output = subprocess.getstatusoutput('warp mixed --tls --insecure --host localhost:8443 --access-key dummykey --secret-key dummypass --objects 50 --duration 0m10s  --bucket {}'.format(https_bucketname))
         if http_returncode != 0 or https_returncode != 0:
