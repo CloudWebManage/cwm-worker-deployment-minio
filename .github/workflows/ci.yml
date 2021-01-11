@@ -42,7 +42,7 @@ jobs:
         sed -i "s/appVersion: latest/appVersion: ${GITHUB_SHA}/g" helm/Chart.yaml &&\
         if [ "${SKIP_TESTS}" == "no" ]; then
           bin/minikube_start.sh &&\
-          venv/bin/pytest tests/test_k8s.py
+          venv/bin/pytest -vvv tests/test_k8s.py
         fi &&\
         if [ "${GITHUB_REF}" == "refs/heads/master" ]; then
           docker tag minio docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio:latest &&\
