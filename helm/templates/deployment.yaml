@@ -118,9 +118,9 @@ spec:
           failureThreshold: {{ $.Values.minio.readinessProbe.failureThreshold }}
         resources:
 {{ if eq . "http" }}
-{{ $.Values.minio.httpResources | indent 10 }}
+{{ toYaml $.Values.minio.httpResources | indent 10 }}
 {{ else }}
-{{ $.Values.minio.httpsResources | indent 10 }}
+{{ toYaml $.Values.minio.httpsResources | indent 10 }}
 {{ end }}
         volumeMounts:
         - mountPath: "/storage"
@@ -133,7 +133,7 @@ spec:
         image: {{ $.Values.minio.metricsLogger.image }}:{{ $.Values.minio.tag | default $.Chart.AppVersion }}
         imagePullPolicy: {{ $.Values.minio.metricsLogger.imagePullPolicy }}
         resources:
-{{ $.Values.minio.metricsLogger.resources | indent 10 }}
+{{ toYaml $.Values.metricsLogger.resources | indent 10 }}
         env:
         - name: REDIS_HOST
           value: {{ $.Values.minio.metricsLogger.REDIS_HOST | quote }}

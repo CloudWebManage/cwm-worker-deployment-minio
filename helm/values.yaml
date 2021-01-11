@@ -40,18 +40,20 @@ minio:
     timeoutSeconds: 1
     successThreshold: 1
     failureThreshold: 2
-  httpResources: |
+  httpResources:
     requests:
-      cpu: "0.2"
+      cpu: "50m"
       memory: "200Mi"
     limits:
-      memory: "600Mi"
-  httpsResources: |
-    requests:
-      cpu: "0.2"
+      cpu: "50m"
       memory: "200Mi"
+  httpsResources:
+    requests:
+      cpu: "100m"
+      memory: "300Mi"
     limits:
-      memory: "600Mi"
+      cpu: "100m"
+      memory: "300Mi"
   cache:
     enabled: true
     drives: "/cache"
@@ -81,18 +83,19 @@ minio:
         resource:
           name: cpu
           target:
-            averageValue: 200m
+            averageValue: 150m
             type: AverageValue
   metricsLogger:
     enable: true
     image: docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/metrics_logger
     imagePullPolicy: IfNotPresent
-    resources: |
+    resources:
       requests:
-        cpu: "0.05"
-        memory: "100Mi"
+        cpu: "20m"
+        memory: "30Mi"
       limits:
-        memory: "300Mi"
+        cpu: "20m"
+        memory: "30Mi"
     withRedis: true
     REDIS_HOST: "localhost"
     REDIS_PORT: "6379"
