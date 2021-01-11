@@ -86,7 +86,7 @@ spec:
               - sh
               - -c
               - |
-                wget -qO /dev/null {{ if eq . "https" }}--no-check-certificate https://localhost:8443{{ else }}http://localhost:8080{{ end }}{{ $.Values.minio.startupProbe.path }}
+                curl -s {{ if eq . "https" }}-k https://localhost:8443{{ else }}http://localhost:8080{{ end }}{{ $.Values.minio.startupProbe.path }}
           initialDelaySeconds: {{ $.Values.minio.startupProbe.initialDelaySeconds }}
           periodSeconds: {{ $.Values.minio.startupProbe.periodSeconds }}
           timeoutSeconds: {{ $.Values.minio.startupProbe.timeoutSeconds }}
@@ -98,7 +98,7 @@ spec:
               - sh
               - -c
               - |
-                wget -qO /dev/null {{ if eq . "https" }}--no-check-certificate https://localhost:8443{{ else }}http://localhost:8080{{ end }}{{ $.Values.minio.livenessProbe.path }}
+                curl -s {{ if eq . "https" }}-k https://localhost:8443{{ else }}http://localhost:8080{{ end }}{{ $.Values.minio.livenessProbe.path }}
           initialDelaySeconds: {{ $.Values.minio.livenessProbe.initialDelaySeconds }}
           periodSeconds: {{ $.Values.minio.livenessProbe.periodSeconds }}
           timeoutSeconds: {{ $.Values.minio.livenessProbe.timeoutSeconds }}
@@ -110,7 +110,7 @@ spec:
               - sh
               - -c
               - |
-                wget -qO /dev/null {{ if eq . "https" }}--no-check-certificate https://localhost:8443{{ else }}http://localhost:8080{{ end }}{{ $.Values.minio.readinessProbe.path }}
+                curl -s {{ if eq . "https" }}-k https://localhost:8443{{ else }}http://localhost:8080{{ end }}{{ $.Values.minio.readinessProbe.path }}
           initialDelaySeconds: {{ $.Values.minio.readinessProbe.initialDelaySeconds }}
           periodSeconds: {{ $.Values.minio.readinessProbe.periodSeconds }}
           timeoutSeconds: {{ $.Values.minio.readinessProbe.timeoutSeconds }}
