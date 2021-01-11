@@ -133,7 +133,7 @@ spec:
         image: {{ $.Values.minio.metricsLogger.image }}:{{ $.Values.minio.tag | default $.Chart.AppVersion }}
         imagePullPolicy: {{ $.Values.minio.metricsLogger.imagePullPolicy }}
         resources:
-{{ toYaml $.Values.metricsLogger.resources | indent 10 }}
+{{ toYaml $.Values.minio.metricsLogger.resources | indent 10 }}
         env:
         - name: REDIS_HOST
           value: {{ $.Values.minio.metricsLogger.REDIS_HOST | quote }}
