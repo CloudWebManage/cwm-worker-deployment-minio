@@ -1,4 +1,4 @@
-FROM minio/minio:RELEASE.2020-11-25T22-36-25Z@sha256:3e6952ea1c5be5517c381fd725ab0cb8b36a00c877fbb4f654f9afe366040624
+FROM minio/minio:RELEASE.2021-01-08T21-18-21Z@sha256:da9f5f03fceda58aa426de533d6f965377a42a8af163f17efaf78811e0a69931
 COPY init.sh /root/init.sh
 ENTRYPOINT ["sh"]
 CMD ["/root/init.sh"]
