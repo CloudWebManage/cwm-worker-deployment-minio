@@ -18,6 +18,7 @@ minio:
   tag: ""
   imagePullPolicy: IfNotPresent
   auditWebhookEndpoint: "http://localhost:8500"
+  skipWaitForAuditWebhook: false
   MINIO_GATEWAY_DEPLOYMENT_ID: "minio1"
   startupProbe:
     path: /minio/health/live

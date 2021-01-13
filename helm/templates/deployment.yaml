@@ -70,6 +70,10 @@ spec:
         - name: MINIO_AUDIT_WEBHOOK_ENDPOINT_target1
           value: {{ $.Values.minio.auditWebhookEndpoint | quote }}
         {{ end }}
+        {{ if $.Values.minio.skipWaitForAuditWebhook }}
+        - name: SKIP_WAIT_FOR_AUDIT_WEBHOOK
+          value: "yes"
+        {{ end }}
         - name: MINIO_GATEWAY_DEPLOYMENT_ID
           value: {{ $.Values.minio.MINIO_GATEWAY_DEPLOYMENT_ID | quote }}
         ports:
