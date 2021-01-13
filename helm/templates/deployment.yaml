@@ -143,6 +143,10 @@ spec:
           value: {{ $.Values.minio.metricsLogger.DEPLOYMENT_API_METRICS_FLUSH_INTERVAL_SECONDS | quote }}
         - name: REDIS_KEY_PREFIX_DEPLOYMENT_API_METRIC
           value: {{ $.Values.minio.metricsLogger.REDIS_KEY_PREFIX_DEPLOYMENT_API_METRIC | quote }}
+        {{ if $.Values.minio.metricsLogger.debug }}
+        - name: DEBUG
+          value: "yes"
+        {{ end }}
       {{ end }}
       {{ if $.Values.minio.metricsLogger.withRedis }}
       - name: redis

@@ -15,11 +15,11 @@ class MetricsManager():
         )
         ready = False
         while not ready:
-            time.sleep(1)
             r = redis.Redis(connection_pool=self.redis_pool)
             if r.ping():
                 ready = True
             r.close()
+            time.sleep(.01)
         self.deployment_api_metrics = {}
         self.deployment_api_metrics_last_flush = datetime.datetime.now()
         print("metrics_logger initialized successfully")

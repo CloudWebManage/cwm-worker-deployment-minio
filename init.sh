@@ -2,7 +2,7 @@
 echo init &&\
 if [ "${MINIO_AUDIT_WEBHOOK_ENDPOINT_target1}" != "" ] && [ "${SKIP_WAIT_FOR_AUDIT_WEBHOOK}" == "" ]; then
   echo waiting for audit webhook "${MINIO_AUDIT_WEBHOOK_ENDPOINT_target1}" &&\
-  while ! curl -sXPOST "${MINIO_AUDIT_WEBHOOK_ENDPOINT_target1}"; do sleep 1; done
+  while ! curl -sXPOST "${MINIO_AUDIT_WEBHOOK_ENDPOINT_target1}"; do sleep .01; done
 fi &&\
 echo setting ulimit &&\
 ulimit -n 1024000 &&\

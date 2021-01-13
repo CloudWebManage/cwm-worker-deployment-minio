@@ -1,9 +1,9 @@
-from http.server import HTTPServer
+from http.server import ThreadingHTTPServer
 
 from metrics_logger.http_request_handler import MetricsLoggerHTTPRequestHandler
 
 
-class MetricsLoggerHTTPServer(HTTPServer):
+class MetricsLoggerHTTPServer(ThreadingHTTPServer):
 
     def __init__(self, metrics_manager):
         self.metrics_manager = metrics_manager

@@ -88,6 +88,7 @@ minio:
             type: AverageValue
   metricsLogger:
     enable: true
+    debug: false
     image: docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/metrics_logger
     imagePullPolicy: IfNotPresent
     resources:
