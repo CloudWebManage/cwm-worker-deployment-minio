@@ -8,7 +8,7 @@ from metrics_logger import config
 class MetricsManager():
 
     def __init__(self):
-        print("REDIS_HOST={} REDIS_PORT={}".format(config.REDIS_HOST, config.REDIS_PORT))
+        print("initializing metrics_logger REDIS_HOST={} REDIS_PORT={}".format(config.REDIS_HOST, config.REDIS_PORT))
         self.redis_pool = redis.BlockingConnectionPool(
             max_connections=config.REDIS_POOL_MAX_CONNECTIONS, timeout=config.REDIS_POOL_TIMEOUT,
             host=config.REDIS_HOST, port=config.REDIS_PORT
@@ -22,6 +22,7 @@ class MetricsManager():
             r.close()
         self.deployment_api_metrics = {}
         self.deployment_api_metrics_last_flush = datetime.datetime.now()
+        print("metrics_logger initialized successfully")
 
     def set_deployment_last_action(self, deploymentid):
         key = "{}:{}".format(config.REDIS_KEY_PREFIX_DEPLOYMENT_LAST_ACTION, deploymentid)
