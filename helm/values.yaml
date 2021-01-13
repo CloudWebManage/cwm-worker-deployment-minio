@@ -46,14 +46,12 @@ minio:
       cpu: "50m"
       memory: "200Mi"
     limits:
-      cpu: "50m"
       memory: "200Mi"
   httpsResources:
     requests:
       cpu: "100m"
       memory: "300Mi"
     limits:
-      cpu: "100m"
       memory: "300Mi"
   cache:
     enabled: true
@@ -96,7 +94,6 @@ minio:
         cpu: "20m"
         memory: "30Mi"
       limits:
-        cpu: "20m"
         memory: "30Mi"
     withRedis: true
     REDIS_HOST: "localhost"
