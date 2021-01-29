@@ -17,6 +17,11 @@ jobs:
         else
           SKIP_TESTS=no
         fi &&\
+        if git log -1 --pretty=format:"%s" | grep -- --no-deploy; then
+          NO_DEPLOY=yes
+        else
+          NO_DEPLOY=no
+        fi &&\
         sudo bin/install_helm.sh && helm version &&\
         if [ "${SKIP_TESTS}" == "no" ]; then
           sudo bin/install_minikube.sh && minikube version &&\
@@ -44,7 +49,7 @@ jobs:
           bin/minikube_start.sh &&\
           venv/bin/pytest -vvv tests/test_k8s.py
         fi &&\
-        if [ "${GITHUB_REF}" == "refs/heads/master" ]; then
+        if [ "${GITHUB_REF}" == "refs/heads/master" ] && [ "${NO_DEPLOY}" == "no" ]; then
           docker tag minio docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio:latest &&\
           docker push docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio:latest &&\
           docker tag metrics_logger docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/metrics_logger:latest &&\
