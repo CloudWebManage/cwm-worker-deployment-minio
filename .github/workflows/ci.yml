@@ -69,5 +69,5 @@ jobs:
           cd cwm-worker-helm &&\
           git add cwm-worker-deployment-minio &&\
           git commit -m "automatic update of cwm-worker-deployment-minio" &&\
-          git push origin main
+          git push origin master
         fi
