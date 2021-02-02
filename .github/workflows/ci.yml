@@ -52,7 +52,7 @@ jobs:
           bin/minikube_start.sh &&\
           venv/bin/pytest -vvv tests/test_k8s.py
         fi &&\
-        if [ "${GITHUB_REF}" == "refs/heads/master" ] && [ "${NO_DEPLOY}" == "no" ]; then
+        if [ "${GITHUB_REF}" == "refs/heads/main" ] && [ "${NO_DEPLOY}" == "no" ]; then
           docker tag minio docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio:latest &&\
           docker push docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio:latest &&\
           docker tag metrics_logger docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/metrics_logger:latest &&\
@@ -69,5 +69,5 @@ jobs:
           cd cwm-worker-helm &&\
           git add cwm-worker-deployment-minio &&\
           git commit -m "automatic update of cwm-worker-deployment-minio" &&\
-          git push origin master
+          git push origin main
         fi
