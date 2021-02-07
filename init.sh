@@ -12,8 +12,8 @@ if [ "${CERTIFICATE_PEM}" != "" ] && [ "${CERTIFICATE_KEY}" != "" ]; then
   echo "${CERTIFICATE_PEM}" > /etc/minio/certs/public.crt &&\
   echo "${CERTIFICATE_KEY}" > /etc/minio/certs/private.key &&\
   echo starting gateway nas https &&\
-  exec /usr/bin/minio gateway nas --certs-dir /etc/minio/certs --address :8443 /storage/
+  exec /usr/bin/minio gateway nas $MINIO_EXTRA_ARGS --certs-dir /etc/minio/certs --address :8443 /storage/
 else
   echo starting gateway nas http &&\
-  exec /usr/bin/minio gateway nas --address :8080 /storage/
+  exec /usr/bin/minio gateway nas $MINIO_EXTRA_ARGS --address :8080 /storage/
 fi

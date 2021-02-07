@@ -76,6 +76,8 @@ spec:
         {{ end }}
         - name: MINIO_GATEWAY_DEPLOYMENT_ID
           value: {{ $.Values.minio.MINIO_GATEWAY_DEPLOYMENT_ID | quote }}
+        - name: MINIO_EXTRA_ARGS
+          value: {{ $.Values.minio.MINIO_EXTRA_ARGS | quote }}
         ports:
         {{ if eq . "http" }}
         - containerPort: 8080
