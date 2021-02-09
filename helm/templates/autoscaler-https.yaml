@@ -1,0 +1,17 @@
+{{ if .Values.minio.serveSingleProtocolPerPod }}
+{{ if .Values.minio.httpsAutoscaler.enabled }}
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: minio-https
+spec:
+  minReplicas: {{ .Values.minio.httpsAutoscaler.minReplicas }}
+  maxReplicas: {{ .Values.minio.httpsAutoscaler.maxReplicas }}
+  metrics:
+{{ .Values.minio.httpsAutoscaler.metrics | indent 2 }}
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: minio-https
+{{ end }}
+{{ end }}

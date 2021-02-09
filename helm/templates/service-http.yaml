@@ -1,0 +1,12 @@
+{{ if .Values.minio.serveSingleProtocolPerPod }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: minio-http
+spec:
+  ports:
+  - name: "8080"
+    port: 8080
+  selector:
+    app: minio-http
+{{ end }}

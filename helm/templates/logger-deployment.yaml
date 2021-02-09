@@ -1,0 +1,63 @@
+{{ if .Values.minio.serveSingleProtocolPerPod }}
+{{ if .Values.minio.metricsLogger.enable }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minio-logger
+spec:
+  replicas: 1
+  revisionHistoryLimit: {{ $.Values.minio.revisionHistoryLimit }}
+  selector:
+    matchLabels:
+      app: minio-logger
+  template:
+    metadata:
+      labels:
+        app: minio-logger
+    spec:
+      dnsPolicy: ClusterFirst
+      imagePullSecrets:
+      {{ $.Values.minio.imagePullSecrets | indent 6 }}
+      terminationGracePeriodSeconds: {{ $.Values.minio.terminationGracePeriodSeconds }}
+      automountServiceAccountToken: false
+      {{ if $.Values.minio.nodeSelector }}
+      nodeSelector:
+{{ $.Values.minio.nodeSelector | indent 8 }}
+      {{ end }}
+      {{- if $.Values.minio.tolerations }}
+      tolerations:
+{{ toYaml $.Values.minio.tolerations | indent 8 }}
+      {{- end }}
+      containers:
+      - name: logger
+        image: {{ $.Values.minio.metricsLogger.image }}:{{ $.Values.minio.tag | default $.Chart.AppVersion }}
+        imagePullPolicy: {{ $.Values.minio.metricsLogger.imagePullPolicy }}
+        resources:
+{{ toYaml $.Values.minio.metricsLogger.resources | indent 10 }}
+        env:
+        - name: REDIS_HOST
+          value: {{ $.Values.minio.metricsLogger.REDIS_HOST | quote }}
+        - name: REDIS_PORT
+          value: {{ $.Values.minio.metricsLogger.REDIS_PORT | quote }}
+        - name: REDIS_POOL_MAX_CONNECTIONS
+          value: {{ $.Values.minio.metricsLogger.REDIS_POOL_MAX_CONNECTIONS | quote }}
+        - name: REDIS_POOL_TIMEOUT
+          value: {{ $.Values.minio.metricsLogger.REDIS_POOL_TIMEOUT | quote }}
+        - name: REDIS_KEY_PREFIX_DEPLOYMENT_LAST_ACTION
+          value: {{ $.Values.minio.metricsLogger.REDIS_KEY_PREFIX_DEPLOYMENT_LAST_ACTION | quote }}
+        - name: UPDATE_GRACE_PERIOD_SECONDS
+          value: {{ $.Values.minio.metricsLogger.UPDATE_GRACE_PERIOD_SECONDS | quote }}
+        - name: DEPLOYMENT_API_METRICS_FLUSH_INTERVAL_SECONDS
+          value: {{ $.Values.minio.metricsLogger.DEPLOYMENT_API_METRICS_FLUSH_INTERVAL_SECONDS | quote }}
+        - name: REDIS_KEY_PREFIX_DEPLOYMENT_API_METRIC
+          value: {{ $.Values.minio.metricsLogger.REDIS_KEY_PREFIX_DEPLOYMENT_API_METRIC | quote }}
+        {{ if $.Values.minio.metricsLogger.debug }}
+        - name: DEBUG
+          value: "yes"
+        {{ end }}
+      {{ if $.Values.minio.metricsLogger.withRedis }}
+      - name: redis
+        image: redis
+      {{ end }}
+{{ end }}
+{{ end }}

@@ -1,3 +1,4 @@
+{{ if not .Values.minio.serveSingleProtocolPerPod }}
 {{ if .Values.minio.autoscaler.enabled }}
 apiVersion: autoscaling/v2beta2
 kind: HorizontalPodAutoscaler
@@ -12,4 +13,5 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: minio
+{{ end }}
 {{ end }}

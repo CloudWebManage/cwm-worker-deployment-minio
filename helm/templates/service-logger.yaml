@@ -1,0 +1,14 @@
+{{ if .Values.minio.serveSingleProtocolPerPod }}
+{{ if .Values.minio.metricsLogger.enable }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: minio-logger
+spec:
+  ports:
+  - name: "8500"
+    port: 8500
+  selector:
+    app: minio-logger
+{{ end }}
+{{ end }}

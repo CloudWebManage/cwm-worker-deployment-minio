@@ -1,20 +1,20 @@
-{{ if not .Values.minio.serveSingleProtocolPerPod }}
+{{ if .Values.minio.serveSingleProtocolPerPod }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: minio
+  name: minio-https
 spec:
-  replicas: {{ $.Values.minio.replicas }}
+  replicas: {{ $.Values.minio.httpsReplicas }}
   revisionHistoryLimit: {{ $.Values.minio.revisionHistoryLimit }}
   selector:
     matchLabels:
-      app: minio
+      app: minio-https
   strategy:
 {{ $.Values.minio.strategy | indent 4 }}
   template:
     metadata:
       labels:
-        app: minio
+        app: minio-https
     spec:
       dnsPolicy: ClusterFirst
       imagePullSecrets:
@@ -30,8 +30,7 @@ spec:
 {{ toYaml $.Values.minio.tolerations | indent 8 }}
       {{- end }}
       containers:
-      {{ range .Values.minio.enabledProtocols }}
-      - name: {{ . }}
+      - name: https
         image: {{ $.Values.minio.image }}:{{ $.Values.minio.tag | default $.Chart.AppVersion }}
         imagePullPolicy: {{ $.Values.minio.imagePullPolicy }}
         env:
@@ -41,12 +40,10 @@ spec:
           valueFrom: {"secretKeyRef":{"name":"minio", "key":"MINIO_ACCESS_KEY"}}
         - name: MINIO_SECRET_KEY
           valueFrom: {"secretKeyRef":{"name":"minio", "key":"MINIO_SECRET_KEY"}}
-        {{ if eq . "https" }}
         - name: CERTIFICATE_PEM
           valueFrom: {"secretKeyRef":{"name":"minio", "key":"CERTIFICATE_PEM"}}
         - name: CERTIFICATE_KEY
           valueFrom: {"secretKeyRef":{"name":"minio", "key":"CERTIFICATE_KEY"}}
-        {{ end }}
         {{ if $.Values.minio.cache.enabled }}
         - name: MINIO_CACHE
           value: "on"
@@ -69,7 +66,7 @@ spec:
         - name: MINIO_AUDIT_WEBHOOK_AUTH_TOKEN_target1
           value: ""
         - name: MINIO_AUDIT_WEBHOOK_ENDPOINT_target1
-          value: {{ $.Values.minio.auditWebhookEndpoint | quote }}
+          value: {{ if .Values.minio.metricsLogger.enable }}http://minio-logger:8500{{ else }}{{ $.Values.minio.auditWebhookEndpoint | quote }}{{ end }}
         {{ end }}
         {{ if $.Values.minio.skipWaitForAuditWebhook }}
         - name: SKIP_WAIT_FOR_AUDIT_WEBHOOK
@@ -80,16 +77,11 @@ spec:
         - name: MINIO_EXTRA_ARGS
           value: {{ $.Values.minio.MINIO_EXTRA_ARGS | quote }}
         ports:
-        {{ if eq . "http" }}
         - containerPort: 8080
           name: "p8080"
-        {{ else }}
-        - containerPort: 8443
-          name: "p8443"
-        {{ end }}
         startupProbe:
           exec:
-            command: ["curl", "-s", {{ if eq . "https" }}"-k", https://localhost:8443{{ else }}http://localhost:8080{{ end }}{{ $.Values.minio.startupProbe.path }}]
+            command: ["curl", "-s", "-k", https://localhost:8443{{ $.Values.minio.startupProbe.path }}]
           initialDelaySeconds: {{ $.Values.minio.startupProbe.initialDelaySeconds }}
           periodSeconds: {{ $.Values.minio.startupProbe.periodSeconds }}
           timeoutSeconds: {{ $.Values.minio.startupProbe.timeoutSeconds }}
@@ -97,7 +89,7 @@ spec:
           failureThreshold: {{ $.Values.minio.startupProbe.failureThreshold }}
         livenessProbe:
           exec:
-            command: ["curl", "-s", {{ if eq . "https" }}"-k", https://localhost:8443{{ else }}http://localhost:8080{{ end }}{{ $.Values.minio.livenessProbe.path }}]
+            command: ["curl", "-s", "-k", https://localhost:8443{{ $.Values.minio.livenessProbe.path }}]
           initialDelaySeconds: {{ $.Values.minio.livenessProbe.initialDelaySeconds }}
           periodSeconds: {{ $.Values.minio.livenessProbe.periodSeconds }}
           timeoutSeconds: {{ $.Values.minio.livenessProbe.timeoutSeconds }}
@@ -105,56 +97,19 @@ spec:
           failureThreshold: {{ $.Values.minio.livenessProbe.failureThreshold }}
         readinessProbe:
           exec:
-            command: ["curl", "-s", {{ if eq . "https" }}"-k", https://localhost:8443{{ else }}http://localhost:8080{{ end }}{{ $.Values.minio.readinessProbe.path }}]
+            command: ["curl", "-s", "-k", https://localhost:8443{{ $.Values.minio.readinessProbe.path }}]
           initialDelaySeconds: {{ $.Values.minio.readinessProbe.initialDelaySeconds }}
           periodSeconds: {{ $.Values.minio.readinessProbe.periodSeconds }}
           timeoutSeconds: {{ $.Values.minio.readinessProbe.timeoutSeconds }}
           successThreshold: {{ $.Values.minio.readinessProbe.successThreshold }}
           failureThreshold: {{ $.Values.minio.readinessProbe.failureThreshold }}
         resources:
-{{ if eq . "http" }}
-{{ toYaml $.Values.minio.httpResources | indent 10 }}
-{{ else }}
 {{ toYaml $.Values.minio.httpsResources | indent 10 }}
-{{ end }}
         volumeMounts:
         - mountPath: "/storage"
           name: "storage"
         - mountPath: "/cache"
           name: "cache"
-      {{ end }}
-      {{ if $.Values.minio.metricsLogger.enable }}
-      - name: last-action-logger
-        image: {{ $.Values.minio.metricsLogger.image }}:{{ $.Values.minio.tag | default $.Chart.AppVersion }}
-        imagePullPolicy: {{ $.Values.minio.metricsLogger.imagePullPolicy }}
-        resources:
-{{ toYaml $.Values.minio.metricsLogger.resources | indent 10 }}
-        env:
-        - name: REDIS_HOST
-          value: {{ $.Values.minio.metricsLogger.REDIS_HOST | quote }}
-        - name: REDIS_PORT
-          value: {{ $.Values.minio.metricsLogger.REDIS_PORT | quote }}
-        - name: REDIS_POOL_MAX_CONNECTIONS
-          value: {{ $.Values.minio.metricsLogger.REDIS_POOL_MAX_CONNECTIONS | quote }}
-        - name: REDIS_POOL_TIMEOUT
-          value: {{ $.Values.minio.metricsLogger.REDIS_POOL_TIMEOUT | quote }}
-        - name: REDIS_KEY_PREFIX_DEPLOYMENT_LAST_ACTION
-          value: {{ $.Values.minio.metricsLogger.REDIS_KEY_PREFIX_DEPLOYMENT_LAST_ACTION | quote }}
-        - name: UPDATE_GRACE_PERIOD_SECONDS
-          value: {{ $.Values.minio.metricsLogger.UPDATE_GRACE_PERIOD_SECONDS | quote }}
-        - name: DEPLOYMENT_API_METRICS_FLUSH_INTERVAL_SECONDS
-          value: {{ $.Values.minio.metricsLogger.DEPLOYMENT_API_METRICS_FLUSH_INTERVAL_SECONDS | quote }}
-        - name: REDIS_KEY_PREFIX_DEPLOYMENT_API_METRIC
-          value: {{ $.Values.minio.metricsLogger.REDIS_KEY_PREFIX_DEPLOYMENT_API_METRIC | quote }}
-        {{ if $.Values.minio.metricsLogger.debug }}
-        - name: DEBUG
-          value: "yes"
-        {{ end }}
-      {{ end }}
-      {{ if $.Values.minio.metricsLogger.withRedis }}
-      - name: redis
-        image: redis
-      {{ end }}
       volumes:
       - name: storage
 {{ $.Values.minio.volumes.storage | indent 8 }}
