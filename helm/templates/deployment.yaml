@@ -79,6 +79,10 @@ spec:
           value: {{ $.Values.minio.MINIO_GATEWAY_DEPLOYMENT_ID | quote }}
         - name: MINIO_EXTRA_ARGS
           value: {{ $.Values.minio.MINIO_EXTRA_ARGS | quote }}
+        {{ if $.Values.minio.initDebugEnable }}
+        - name: CWM_INIT_DEBUG
+          value: "yes"
+        {{ end }}
         ports:
         {{ if eq . "http" }}
         - containerPort: 8080
