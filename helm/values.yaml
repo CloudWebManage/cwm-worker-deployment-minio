@@ -121,9 +121,9 @@ minio:
     resources:
       requests:
         cpu: "20m"
-        memory: "30Mi"
+        memory: "64Mi"
       limits:
-        memory: "30Mi"
+        memory: "64Mi"
     withRedis: true
     FLUENTD_CONF: cwm-fluent-default.conf
     REDIS_HOST: localhost
