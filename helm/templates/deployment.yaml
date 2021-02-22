@@ -93,7 +93,7 @@ spec:
         {{ end }}
         startupProbe:
           exec:
-            command: ["curl", "-s", {{ if eq . "https" }}"-k", https://localhost:8443{{ else }}http://localhost:8080{{ end }}{{ $.Values.minio.startupProbe.path }}]
+            command: ["curl", "--max-time", "0.05", "-s", {{ if eq . "https" }}"-k", https://localhost:8443{{ else }}http://localhost:8080{{ end }}{{ $.Values.minio.startupProbe.path }}]
           initialDelaySeconds: {{ $.Values.minio.startupProbe.initialDelaySeconds }}
           periodSeconds: {{ $.Values.minio.startupProbe.periodSeconds }}
           timeoutSeconds: {{ $.Values.minio.startupProbe.timeoutSeconds }}
@@ -101,7 +101,7 @@ spec:
           failureThreshold: {{ $.Values.minio.startupProbe.failureThreshold }}
         livenessProbe:
           exec:
-            command: ["curl", "-s", {{ if eq . "https" }}"-k", https://localhost:8443{{ else }}http://localhost:8080{{ end }}{{ $.Values.minio.livenessProbe.path }}]
+            command: ["curl", "--max-time", "0.05", "-s", {{ if eq . "https" }}"-k", https://localhost:8443{{ else }}http://localhost:8080{{ end }}{{ $.Values.minio.livenessProbe.path }}]
           initialDelaySeconds: {{ $.Values.minio.livenessProbe.initialDelaySeconds }}
           periodSeconds: {{ $.Values.minio.livenessProbe.periodSeconds }}
           timeoutSeconds: {{ $.Values.minio.livenessProbe.timeoutSeconds }}
@@ -109,7 +109,7 @@ spec:
           failureThreshold: {{ $.Values.minio.livenessProbe.failureThreshold }}
         readinessProbe:
           exec:
-            command: ["curl", "-s", {{ if eq . "https" }}"-k", https://localhost:8443{{ else }}http://localhost:8080{{ end }}{{ $.Values.minio.readinessProbe.path }}]
+            command: ["curl", "--max-time", "0.05", "-s", {{ if eq . "https" }}"-k", https://localhost:8443{{ else }}http://localhost:8080{{ end }}{{ $.Values.minio.readinessProbe.path }}]
           initialDelaySeconds: {{ $.Values.minio.readinessProbe.initialDelaySeconds }}
           periodSeconds: {{ $.Values.minio.readinessProbe.periodSeconds }}
           timeoutSeconds: {{ $.Values.minio.readinessProbe.timeoutSeconds }}
