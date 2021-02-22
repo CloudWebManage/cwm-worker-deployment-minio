@@ -61,11 +61,11 @@ services:
     ports:
       - "8500:8500"
     environment:
-      REDIS_HOST: redis
+      FLUENTD_CONF: cwm-fluent-default.conf
       LOG_LEVEL: debug
+      REDIS_HOST: redis
       UPDATE_GRACE_PERIOD_SECONDS: 5s
       DEPLOYMENT_API_METRICS_FLUSH_INTERVAL_SECONDS: 5s
-    command: -c "/fluentd/etc/fluent.conf"
     depends_on:
       - redis
 

@@ -116,7 +116,6 @@ minio:
             type: AverageValue
   metricsLogger:
     enable: true
-    # debug: false
     image: docker.pkg.github.com/cloudwebmanage/cwm-worker-logger/cwm-worker-logger:latest
     imagePullPolicy: IfNotPresent
     resources:
@@ -126,15 +125,13 @@ minio:
       limits:
         memory: "30Mi"
     withRedis: true
-    LOG_LEVEL: "info"
-    REDIS_HOST: "localhost"
-    REDIS_PORT: "6379"
-    # REDIS_POOL_MAX_CONNECTIONS: "50"
-    # REDIS_POOL_TIMEOUT: "5"
-    REDIS_KEY_PREFIX_DEPLOYMENT_LAST_ACTION: "deploymentid:last_action"
-    UPDATE_GRACE_PERIOD_SECONDS: "300"
-    DEPLOYMENT_API_METRICS_FLUSH_INTERVAL_SECONDS: "300"
-    REDIS_KEY_PREFIX_DEPLOYMENT_API_METRIC: "deploymentid:minio-metrics"
+    FLUENTD_CONF: cwm-fluent-default.conf
+    REDIS_HOST: localhost
+    REDIS_PORT: 6379
+    UPDATE_GRACE_PERIOD_SECONDS: 300s
+    DEPLOYMENT_API_METRICS_FLUSH_INTERVAL_SECONDS: 300s
+    REDIS_KEY_PREFIX_DEPLOYMENT_LAST_ACTION: deploymentid:last_action
+    REDIS_KEY_PREFIX_DEPLOYMENT_API_METRIC: deploymentid:minio-metrics
 
 # each object have required attributes: apiVersion, kind, name, spec
 extraObjects: []
