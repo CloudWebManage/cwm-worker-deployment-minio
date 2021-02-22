@@ -28,6 +28,9 @@ docker-compose up --build
 - Start a local cluster: `minikube start --driver=docker --kubernetes-version=v1.16.14`
 - Switch to the minikube docker env: `eval $(minikube -p minikube docker-env)`
 - Build the Docker images: `docker-compose build`
+- Build the cwm-worker-logger image: `docker build -t cwm-worker-logger ../cwm-worker-logger`
+  - change the directory according to where you cloned [cwm-worker-logger](https://github.com/cloudwebmanage/cwm-worker-logger)
+  - make sure you checked out the relevant version of cwm-worker-logger you want to test with (e.g. `git pull origin main` to get latest version)
 - Create a file at `.values.yaml` with the following content:
 
 ```yaml
@@ -35,7 +38,7 @@ minio:
   image: minio
   tag: latest
   metricsLogger:
-    image: metrics_logger
+    image: cwm-worker-logger
     tag: latest
     DEPLOYMENT_API_METRICS_FLUSH_INTERVAL_SECONDS: "5"
 ```
@@ -50,6 +53,9 @@ minio:
 - Default username / password is `dummykey` / `dummypass`
 - Create a bucket, upload / download some objects
 - Start redis CLI and check the recorded metrics (`keys *` / `get KEY`)
+  - `kubectl exec deployment/minio -c redis -it -- redis-cli`
+  - `keys *`
+  - `get deploymentid:minio-metrics:minio1:num_requests_in`
 
 ## Running Tests
 
