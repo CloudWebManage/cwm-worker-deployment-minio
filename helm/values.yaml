@@ -21,7 +21,7 @@ minio:
   image: docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio
   tag: ""
   imagePullPolicy: IfNotPresent
-  auditWebhookEndpoint: "http://localhost:8500/"
+  auditWebhookEndpoint: "http://localhost:8500/logs"
   skipWaitForAuditWebhook: false
   MINIO_GATEWAY_DEPLOYMENT_ID: "minio1"
   MINIO_EXTRA_ARGS: ""
