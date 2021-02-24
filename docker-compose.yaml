@@ -62,10 +62,27 @@ services:
       - "8500:8500"
     environment:
       LOG_PROVIDER: default
+      # LOG_PROVIDER: elasticsearch
+      # LOG_PROVIDER: s3
       LOG_LEVEL: debug
+      # CWM_HTTP_HOST: localhost
+      # CWM_HTTP_PORT: 8500
       REDIS_HOST: redis
+      # REDIS_PORT: 6379
       UPDATE_GRACE_PERIOD_SECONDS: 5s
       DEPLOYMENT_API_METRICS_FLUSH_INTERVAL_SECONDS: 5s
+      # REDIS_KEY_PREFIX_DEPLOYMENT_LAST_ACTION: deploymentid:last_action
+      # REDIS_KEY_PREFIX_DEPLOYMENT_API_METRIC: deploymentid:minio-metrics
+
+      # ElasticSearch
+      # ES_HOST:
+      # ES_PORT:
+
+      # S3
+      # AWS_KEY_ID:
+      # AWS_SECRET_KEY:
+      # S3_BUCKET_NAME:
+      # S3_REGION:
     depends_on:
       - redis
 

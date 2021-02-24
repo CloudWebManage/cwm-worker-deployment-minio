@@ -126,12 +126,27 @@ minio:
         memory: "64Mi"
     withRedis: true
     LOG_PROVIDER: default
+    # LOG_PROVIDER: elasticsearch
+    # LOG_PROVIDER: s3
+    LOG_LEVEL: debug
+    # CWM_HTTP_HOST: localhost
+    # CWM_HTTP_PORT: 8500
     REDIS_HOST: localhost
     REDIS_PORT: 6379
     UPDATE_GRACE_PERIOD_SECONDS: 300s
     DEPLOYMENT_API_METRICS_FLUSH_INTERVAL_SECONDS: 300s
     REDIS_KEY_PREFIX_DEPLOYMENT_LAST_ACTION: deploymentid:last_action
     REDIS_KEY_PREFIX_DEPLOYMENT_API_METRIC: deploymentid:minio-metrics
+
+    # ElasticSearch
+    # ES_HOST:
+    # ES_PORT:
+
+    # S3
+    # AWS_KEY_ID:
+    # AWS_SECRET_KEY:
+    # S3_BUCKET_NAME:
+    # S3_REGION:
 
 # each object have required attributes: apiVersion, kind, name, spec
 extraObjects: []
