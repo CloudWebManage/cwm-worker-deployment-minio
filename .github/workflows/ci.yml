@@ -45,8 +45,6 @@ jobs:
         fi &&\
         docker tag minio docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio:$GITHUB_SHA &&\
         docker push docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio:$GITHUB_SHA &&\
-        # docker tag metrics_logger docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/metrics_logger:$GITHUB_SHA &&\
-        # docker push docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/metrics_logger:$GITHUB_SHA &&\
         sed -i "s/appVersion: latest/appVersion: ${GITHUB_SHA}/g" helm/Chart.yaml &&\
         if [ "${SKIP_TESTS}" == "no" ]; then
           bin/minikube_start.sh &&\
@@ -55,8 +53,6 @@ jobs:
         if [ "${GITHUB_REF}" == "refs/heads/main" ] && [ "${NO_DEPLOY}" == "no" ]; then
           docker tag minio docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio:latest &&\
           docker push docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio:latest &&\
-          # docker tag metrics_logger docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/metrics_logger:latest &&\
-          # docker push docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/metrics_logger:latest &&\
           echo "${CWM_WORKER_HELM_DEPLOY_KEY}" > cwm_worker_helm_deploy_key &&\
           chmod 400 cwm_worker_helm_deploy_key &&\
           export GIT_SSH_COMMAND="ssh -i $(pwd)/cwm_worker_helm_deploy_key -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" &&\
