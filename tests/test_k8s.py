@@ -40,7 +40,7 @@ def test():
         kubectl describe pod minio-
         kubectl logs deployment/minio -c http
         kubectl logs deployment/minio -c https
-        kubectl logs deployment/minio -c last-action-logger
+        kubectl logs deployment/minio -c logger
         kubectl logs deployment/minio -c redis
     """
     wait_for_cmd('kubectl get pods | grep minio- | grep 4/4 | grep Running',
