@@ -61,7 +61,7 @@ services:
     ports:
       - "8500:8500"
     environment:
-      FLUENTD_CONF: cwm-fluent-default.conf
+      LOG_PROVIDER: default
       LOG_LEVEL: debug
       REDIS_HOST: redis
       UPDATE_GRACE_PERIOD_SECONDS: 5s

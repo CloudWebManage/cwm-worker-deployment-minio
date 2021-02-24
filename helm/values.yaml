@@ -125,7 +125,7 @@ minio:
       limits:
         memory: "64Mi"
     withRedis: true
-    FLUENTD_CONF: cwm-fluent-default.conf
+    LOG_PROVIDER: default
     REDIS_HOST: localhost
     REDIS_PORT: 6379
     UPDATE_GRACE_PERIOD_SECONDS: 300s

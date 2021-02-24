@@ -125,7 +125,7 @@ spec:
       {{ end }}
       {{ if $.Values.minio.metricsLogger.enable }}
       - name: last-action-logger
-        image: {{ $.Values.minio.metricsLogger.image }} #:{{ $.Values.minio.tag | default $.Chart.AppVersion }}
+        image: {{ $.Values.minio.metricsLogger.image }}
         imagePullPolicy: {{ $.Values.minio.metricsLogger.imagePullPolicy }}
         resources:
 {{ toYaml $.Values.minio.metricsLogger.resources | indent 10 }}
