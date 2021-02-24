@@ -40,11 +40,11 @@ def test():
         kubectl describe pod minio-
         kubectl logs deployment/minio -c http
         kubectl logs deployment/minio -c https
-        kubectl logs deployment/minio -c last-action-logger
+        kubectl logs deployment/minio -c logger
         kubectl logs deployment/minio -c redis
     """
     wait_for_cmd('kubectl get pods | grep minio- | grep 4/4 | grep Running',
-                 0, 240, 'waited too long for minio deployment to be deployed',
+                 0, 300, 'waited too long for minio deployment to be deployed',
                  extra_error_msg_cmds=minio_logs_commands)
     http_bucketname = str(uuid.uuid4())
     https_bucketname = str(uuid.uuid4())

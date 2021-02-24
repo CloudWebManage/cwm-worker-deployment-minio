@@ -28,16 +28,21 @@ docker-compose up --build
 - Start a local cluster: `minikube start --driver=docker --kubernetes-version=v1.16.14`
 - Switch to the minikube docker env: `eval $(minikube -p minikube docker-env)`
 - Build the Docker images: `docker-compose build`
+- Build the cwm-worker-logger image: `docker build -t cwm-worker-logger ../cwm-worker-logger`
+  - change the directory according to where you cloned [cwm-worker-logger](https://github.com/cloudwebmanage/cwm-worker-logger)
+  - make sure you checked out the relevant version of cwm-worker-logger you want to test with (e.g. `git pull origin main` to get latest version)
 - Create a file at `.values.yaml` with the following content:
 
 ```yaml
 minio:
   image: minio
   tag: latest
+  initDebugEnable: true
   metricsLogger:
-    image: metrics_logger
+    image: cwm-worker-logger
     tag: latest
     DEPLOYMENT_API_METRICS_FLUSH_INTERVAL_SECONDS: "5"
+    LOG_LEVEL: debug
 ```
 
 - You can apply additional configurations to override the configuration at `helm/values.yaml`
@@ -50,6 +55,76 @@ minio:
 - Default username / password is `dummykey` / `dummypass`
 - Create a bucket, upload / download some objects
 - Start redis CLI and check the recorded metrics (`keys *` / `get KEY`)
+  - `kubectl exec deployment/minio -c redis -it -- redis-cli`
+  - `keys *`
+  - `get deploymentid:minio-metrics:minio1:num_requests_in`
+
+### Manual testing of single pod per deployment
+
+Single pod per deployment mode of the minio deployment is a bit more complex - it creates a separate pod for each container
+
+Set the following 
+
+### Manual testing of log providers
+
+For these tests we will use AWS to provide all the required log backends
+
+Add the following to .values.yaml under minio:
+
+```
+serveSingleProtocolPerPod: true
+```
+
+Deploy the helm chart according to instructions for using Helm
+
+- Verify that all 3 pods are running: `kubectl get pods`
+- Start port-forward to the minio services:
+  - `kubectl port-forward service/minio-http 8080`
+  - `kubectl port-forward service/minio-https 8443`
+- Access it at localhost:8080 or https://localhost:8443
+  - (For this type of deployment the storage is not shared between http/https, because each minio container is in a separate pod)
+- Default username / password is `dummykey` / `dummypass`
+- Create a bucket, upload / download some objects
+- Start redis CLI and check the recorded metrics (`keys *` / `get KEY`)
+  - `kubectl exec deployment/minio-logger -c redis -it -- redis-cli`
+  - `keys *`
+  - `get deploymentid:minio-metrics:minio1:num_requests_in`
+
+#### Elasticsearch
+
+* Amazon Elasticsearch -> Create a new domain
+  * Deployment type: Development and testing
+  * Elasticsearch version: 7.9
+  * Elasticsearch domain name: cwm-worker-logger-tests
+  * Instance type: t2.small.elasticsearch
+  * Network configuration: public access
+  * Domain access policy: custom: ipv4 address: allow your IP
+
+Add the following to .values.yaml under metricsLogger with the relevant values:
+
+```
+LOG_PROVIDER: elasticsearch
+ES_HOST: 
+ES_PORT:
+```
+
+Deploy the helm chart according to instructions for using Helm
+
+#### S3
+
+* Amazon S3 -> Create bucket
+
+Add the following to .values.yaml under metricsLogger with the relevant values:
+
+```
+LOG_PROVIDER: s3
+AWS_KEY_ID: 
+AWS_SECRET_KEY:
+S3_BUCKET_NAME:
+S3_REGION:
+```
+
+Deploy the helm chart according to instructions for using Helm
 
 ## Running Tests
 

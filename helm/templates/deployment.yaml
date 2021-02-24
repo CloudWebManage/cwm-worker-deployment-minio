@@ -128,31 +128,44 @@ spec:
           name: "cache"
       {{ end }}
       {{ if $.Values.minio.metricsLogger.enable }}
-      - name: last-action-logger
-        image: {{ $.Values.minio.metricsLogger.image }}:{{ $.Values.minio.tag | default $.Chart.AppVersion }}
+      - name: logger
+        image: {{ $.Values.minio.metricsLogger.image }}
         imagePullPolicy: {{ $.Values.minio.metricsLogger.imagePullPolicy }}
         resources:
 {{ toYaml $.Values.minio.metricsLogger.resources | indent 10 }}
         env:
+        - name: LOG_PROVIDER
+          value: {{ $.Values.minio.metricsLogger.LOG_PROVIDER | default "default" | quote }}
+        - name: LOG_LEVEL
+          value: {{ $.Values.minio.metricsLogger.LOG_LEVEL | quote }}
         - name: REDIS_HOST
           value: {{ $.Values.minio.metricsLogger.REDIS_HOST | quote }}
         - name: REDIS_PORT
           value: {{ $.Values.minio.metricsLogger.REDIS_PORT | quote }}
-        - name: REDIS_POOL_MAX_CONNECTIONS
-          value: {{ $.Values.minio.metricsLogger.REDIS_POOL_MAX_CONNECTIONS | quote }}
-        - name: REDIS_POOL_TIMEOUT
-          value: {{ $.Values.minio.metricsLogger.REDIS_POOL_TIMEOUT | quote }}
-        - name: REDIS_KEY_PREFIX_DEPLOYMENT_LAST_ACTION
-          value: {{ $.Values.minio.metricsLogger.REDIS_KEY_PREFIX_DEPLOYMENT_LAST_ACTION | quote }}
         - name: UPDATE_GRACE_PERIOD_SECONDS
           value: {{ $.Values.minio.metricsLogger.UPDATE_GRACE_PERIOD_SECONDS | quote }}
         - name: DEPLOYMENT_API_METRICS_FLUSH_INTERVAL_SECONDS
           value: {{ $.Values.minio.metricsLogger.DEPLOYMENT_API_METRICS_FLUSH_INTERVAL_SECONDS | quote }}
+        - name: REDIS_KEY_PREFIX_DEPLOYMENT_LAST_ACTION
+          value: {{ $.Values.minio.metricsLogger.REDIS_KEY_PREFIX_DEPLOYMENT_LAST_ACTION | quote }}
         - name: REDIS_KEY_PREFIX_DEPLOYMENT_API_METRIC
           value: {{ $.Values.minio.metricsLogger.REDIS_KEY_PREFIX_DEPLOYMENT_API_METRIC | quote }}
-        {{ if $.Values.minio.metricsLogger.debug }}
-        - name: DEBUG
-          value: "yes"
+        {{ if $.Values.minio.metricsLogger.LOG_PROVIDER }}
+        {{ if eq $.Values.minio.metricsLogger.LOG_PROVIDER "elasticsearch" }}
+        - name: ES_HOST
+          value: {{ $.Values.minio.metricsLogger.ES_HOST | quote }}
+        - name: ES_PORT
+          value: {{ $.Values.minio.metricsLogger.ES_PORT | quote }}
+        {{ else if eq $.Values.minio.metricsLogger.LOG_PROVIDER "s3" }}
+        - name: AWS_KEY_ID
+          value: {{ $.Values.minio.metricsLogger.AWS_KEY_ID | quote }}
+        - name: AWS_SECRET_KEY
+          value: {{ $.Values.minio.metricsLogger.AWS_SECRET_KEY | quote }}
+        - name: S3_BUCKET_NAME
+          value: {{ $.Values.minio.metricsLogger.S3_BUCKET_NAME | quote }}
+        - name: S3_REGION
+          value: {{ $.Values.minio.metricsLogger.S3_REGION | quote }}
+        {{ end }}
         {{ end }}
       {{ end }}
       {{ if $.Values.minio.metricsLogger.withRedis }}
