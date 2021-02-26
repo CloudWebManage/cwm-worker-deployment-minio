@@ -136,6 +136,10 @@ minio:
     REDIS_KEY_PREFIX_DEPLOYMENT_LAST_ACTION: deploymentid:last_action
     REDIS_KEY_PREFIX_DEPLOYMENT_API_METRIC: deploymentid:minio-metrics
 
+    # LOGS_FLUSH_AT_SHUTDOWN: true
+    # LOGS_FLUSH_INTERVAL: 60s
+    # LOGS_FLUSH_RETRY_WAIT: 20s
+
     # LOG_PROVIDER: elasticsearch
     # ES_HOST:
     # ES_PORT:

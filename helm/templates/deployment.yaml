@@ -172,6 +172,17 @@ spec:
           value: {{ $.Values.minio.metricsLogger.S3_PATH | quote }}
         {{ end }}
         {{ end }}
+        # logs flushing settings for log targets
+        {{ if $.Values.minio.metricsLogger.LOG_PROVIDER }}
+        {{ if or (eq $.Values.minio.metricsLogger.LOG_PROVIDER "elasticsearch") (eq $.Values.minio.metricsLogger.LOG_PROVIDER "s3") }}
+        - name: LOGS_FLUSH_AT_SHUTDOWN
+          value: {{ $.Values.minio.metricsLogger.LOGS_FLUSH_AT_SHUTDOWN | quote }}
+        - name: LOGS_FLUSH_INTERVAL
+          value: {{ $.Values.minio.metricsLogger.LOGS_FLUSH_INTERVAL | quote }}
+        - name: LOGS_FLUSH_RETRY_WAIT
+          value: {{ $.Values.minio.metricsLogger.LOGS_FLUSH_RETRY_WAIT | quote }}
+        {{ end }}
+        {{ end }}
       {{ end }}
       {{ if $.Values.minio.metricsLogger.withRedis }}
       - name: redis

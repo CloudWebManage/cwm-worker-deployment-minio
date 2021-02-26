@@ -51,7 +51,7 @@ data:
       flush_interval        "#{ ENV['LOGS_FLUSH_INTERVAL'] || '60s' }"
 
       retry_type            periodic
-      retry_wait            "#{ ENV['LOGS_RETRY_WAIT'] || '20s' }"
+      retry_wait            "#{ ENV['LOGS_FLUSH_RETRY_WAIT'] || '20s' }"
     </buffer>
 
   cwm-fluent-elasticsearch.conf: |
