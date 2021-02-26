@@ -66,6 +66,8 @@ spec:
           value: {{ $.Values.minio.metricsLogger.S3_BUCKET_NAME | quote }}
         - name: S3_REGION
           value: {{ $.Values.minio.metricsLogger.S3_REGION | quote }}
+        - name: S3_PATH
+          value: {{ $.Values.minio.metricsLogger.S3_PATH | quote }}
         {{ end }}
         {{ end }}
       {{ if $.Values.minio.metricsLogger.withRedis }}

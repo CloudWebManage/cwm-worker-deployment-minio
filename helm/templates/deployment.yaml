@@ -126,6 +126,9 @@ spec:
           name: "storage"
         - mountPath: "/cache"
           name: "cache"
+        - name: "fluentd-conf"
+          mountPath: "/fluentd/etc"
+          readOnly: true
       {{ end }}
       {{ if $.Values.minio.metricsLogger.enable }}
       - name: logger
@@ -165,6 +168,8 @@ spec:
           value: {{ $.Values.minio.metricsLogger.S3_BUCKET_NAME | quote }}
         - name: S3_REGION
           value: {{ $.Values.minio.metricsLogger.S3_REGION | quote }}
+        - name: S3_PATH
+          value: {{ $.Values.minio.metricsLogger.S3_PATH | quote }}
         {{ end }}
         {{ end }}
       {{ end }}
@@ -177,4 +182,7 @@ spec:
 {{ $.Values.minio.volumes.storage | indent 8 }}
       - name: cache
 {{ $.Values.minio.volumes.cache | indent 8 }}
+      - name: fluentd-conf
+        configMap:
+          name: fluentd
 {{ end }}

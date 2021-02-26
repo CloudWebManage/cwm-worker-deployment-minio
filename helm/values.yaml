@@ -145,6 +145,7 @@ minio:
     # AWS_SECRET_KEY:
     # S3_BUCKET_NAME:
     # S3_REGION:
+    # S3_PATH:
 
 # each object have required attributes: apiVersion, kind, name, spec
 extraObjects: []
