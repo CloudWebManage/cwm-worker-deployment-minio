@@ -129,6 +129,10 @@ spec:
         imagePullPolicy: {{ $.Values.minio.metricsLogger.imagePullPolicy }}
         resources:
 {{ toYaml $.Values.minio.metricsLogger.resources | indent 10 }}
+        volumeMounts:
+        - name: fluentd-conf
+          mountPath: /fluentd/etc/
+          readOnly: true
         env:
         - name: LOG_PROVIDER
           value: {{ $.Values.minio.metricsLogger.LOG_PROVIDER | quote }}
@@ -160,6 +164,8 @@ spec:
           value: {{ $.Values.minio.metricsLogger.S3_BUCKET_NAME | quote }}
         - name: S3_REGION
           value: {{ $.Values.minio.metricsLogger.S3_REGION | quote }}
+        - name: S3_PATH
+          value: {{ $.Values.minio.metricsLogger.S3_PATH | quote }}
         {{ end }}
       {{ end }}
       {{ if $.Values.minio.metricsLogger.withRedis }}
@@ -172,3 +178,6 @@ spec:
       - name: cache
 {{ $.Values.minio.volumes.cache | indent 8 }}
 {{ end }}
+      - name: fluentd-conf
+        configMap:
+          name: fluentd
