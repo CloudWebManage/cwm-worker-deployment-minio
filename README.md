@@ -63,12 +63,6 @@ minio:
 
 Single pod per deployment mode of the minio deployment is a bit more complex - it creates a separate pod for each container
 
-Set the following 
-
-### Manual testing of log providers
-
-For these tests we will use AWS to provide all the required log backends
-
 Add the following to .values.yaml under minio:
 
 ```
@@ -89,6 +83,10 @@ Deploy the helm chart according to instructions for using Helm
   - `kubectl exec deployment/minio-logger -c redis -it -- redis-cli`
   - `keys *`
   - `get deploymentid:minio-metrics:minio1:num_requests_in`
+
+### Manual testing of log providers
+
+For these tests we will use AWS to provide all the required log backends
 
 #### Elasticsearch
 
@@ -125,6 +123,22 @@ S3_REGION:
 ```
 
 Deploy the helm chart according to instructions for using Helm
+
+#### Logger disabled
+
+This disables the logger pod and runs without logging
+
+Add the following to .values.yaml:
+
+```
+# under minio:
+  auditWebhookEndpoint: ""
+
+# under metricsLogger:
+    enable: false
+```
+
+Deploy the helm chart according to instructions for using Helm 
 
 ## Running Tests
 
