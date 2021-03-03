@@ -3,6 +3,8 @@ apiVersion: v1
 kind: Service
 metadata:
   name: minio-https
+  labels:
+    app: minio-https
 spec:
   ports:
   - name: "8443"

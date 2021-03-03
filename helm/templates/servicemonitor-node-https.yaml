@@ -1,0 +1,22 @@
+{{ if .Values.minio.enableServiceMonitors }}
+{{ if .Values.minio.serveSingleProtocolPerPod }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: minio-https-node-monitor
+  namespace: monitoring
+spec:
+  namespaceSelector:
+    matchNames:
+    - {{ .Release.Namespace }}
+  selector:
+    matchLabels:
+      app: minio-https
+  endpoints:
+  - port: "8443"
+    path: /minio/v2/metrics/node
+    scheme: "https"
+    tlsConfig:
+      insecureSkipVerify: true
+{{ end }}
+{{ end }}

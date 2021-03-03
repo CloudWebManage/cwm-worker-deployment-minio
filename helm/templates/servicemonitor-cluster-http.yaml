@@ -1,0 +1,21 @@
+{{ if .Values.minio.enableServiceMonitors }}
+{{ if .Values.minio.serveSingleProtocolPerPod }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: minio-http-cluster-monitor
+  namespace: monitoring
+spec:
+  # cluster metrics are the same from all nodes
+  targetLimit: 1
+  namespaceSelector:
+    matchNames:
+    - {{ .Release.Namespace }}
+  selector:
+    matchLabels:
+      app: minio-http
+  endpoints:
+  - port: "8080"
+    path: /minio/v2/metrics/cluster
+{{ end }}
+{{ end }}
