@@ -46,6 +46,7 @@ jobs:
         docker tag minio docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio:$GITHUB_SHA &&\
         docker push docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio:$GITHUB_SHA &&\
         sed -i "s/appVersion: latest/appVersion: ${GITHUB_SHA}/g" helm/Chart.yaml &&\
+        bin/update_logger_image.sh && \
         if [ "${SKIP_TESTS}" == "no" ]; then
           bin/minikube_start.sh &&\
           venv/bin/pytest -vvv tests/test_k8s.py
