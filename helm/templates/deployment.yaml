@@ -137,6 +137,10 @@ spec:
         imagePullPolicy: {{ $.Values.minio.metricsLogger.imagePullPolicy }}
         resources:
 {{ toYaml $.Values.minio.metricsLogger.resources | indent 10 }}
+        volumeMounts:
+        - name: "fluentd-conf-volume"
+          mountPath: "/fluentd/etc/"
+          readOnly: true
         env:
         - name: LOG_PROVIDER
           value: {{ $.Values.minio.metricsLogger.LOG_PROVIDER | default "default" | quote }}
@@ -160,6 +164,8 @@ spec:
           value: {{ $.Values.minio.metricsLogger.ES_HOST | quote }}
         - name: ES_PORT
           value: {{ $.Values.minio.metricsLogger.ES_PORT | quote }}
+        - name: ES_SCHEME
+          value: {{ $.Values.minio.metricsLogger.ES_PORT | quote }}
         {{ else if eq $.Values.minio.metricsLogger.LOG_PROVIDER "s3" }}
         - name: AWS_KEY_ID
           value: {{ $.Values.minio.metricsLogger.AWS_KEY_ID | quote }}
@@ -169,6 +175,18 @@ spec:
           value: {{ $.Values.minio.metricsLogger.S3_BUCKET_NAME | quote }}
         - name: S3_REGION
           value: {{ $.Values.minio.metricsLogger.S3_REGION | quote }}
+        - name: S3_PATH
+          value: {{ $.Values.minio.metricsLogger.S3_PATH | quote }}
+        {{ end }}
+        {{ end }}
+        {{ if $.Values.minio.metricsLogger.LOG_PROVIDER }}
+        {{ if or (eq $.Values.minio.metricsLogger.LOG_PROVIDER "elasticsearch") (eq $.Values.minio.metricsLogger.LOG_PROVIDER "s3") }}
+        - name: LOGS_FLUSH_AT_SHUTDOWN
+          value: {{ $.Values.minio.metricsLogger.LOGS_FLUSH_AT_SHUTDOWN | quote }}
+        - name: LOGS_FLUSH_INTERVAL
+          value: {{ $.Values.minio.metricsLogger.LOGS_FLUSH_INTERVAL | quote }}
+        - name: LOGS_FLUSH_RETRY_WAIT
+          value: {{ $.Values.minio.metricsLogger.LOGS_FLUSH_RETRY_WAIT | quote }}
         {{ end }}
         {{ end }}
       {{ end }}
@@ -177,6 +195,9 @@ spec:
         image: redis
       {{ end }}
       volumes:
+      - name: fluentd-conf-volume
+        configMap:
+          name: fluentd-conf
       - name: storage
 {{ $.Values.minio.volumes.storage | indent 8 }}
       - name: cache

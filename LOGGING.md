@@ -102,11 +102,11 @@ minio:
     LOGS_FLUSH_RETRY_WAIT: 10s
 ```
 
-The `helm` command can be run with `--dry-run` flag to verify the values that
-will affect the deployment:
+The `helm` command can be run with `--dry-run` and `--debug` flags to validate
+it and verify the values that will affect the deployment:
 
 ```shell
-helm upgrade -f .values.yaml --install cwm-worker-deployment-minio ./helm --dry-run
+helm upgrade -f .values.yaml --install cwm-worker-deployment-minio ./helm --dry-run --debug
 ```
 
 And, can be deployed without `--dry-run`:
@@ -115,12 +115,36 @@ And, can be deployed without `--dry-run`:
 helm upgrade -f .values.yaml --install cwm-worker-deployment-minio ./helm
 ```
 
+## Helm ConfigMap
+
+An alternative, more flexible, and rather preferable way to configure the logger
+is via its Helm's ConfigMap. The
+[logger-configmap.yaml](./helm/templates/logger-configmap.yaml) can easily be
+configured/reconfigured even for the settings not already exposed via the
+environment variables.
+
+**NOTE**: Only a small subset of the required configurations has been exposed
+via the environment variables.
+
+The logger's ConfigMap provides direct access to the fluentd configuration. The
+log targets can easily be configured for a more complex setup. For more details, please visit their respective pages:
+
+- ElasticSearch: https://docs.fluentd.org/output/elasticsearch
+- S3: https://docs.fluentd.org/output/s3
+
+The ConfigMap contains configuration divided into multiple files to be mounted
+on `/fluentd/etc/` directory inside the logger's container.
+
+The only external configuration that affects the selection of the right log
+target will be `LOG_PROVIDER` in `values.yaml` which can be overridden by any
+other values file or from the command-line.
+
 ## Important Points
 
 1. The `LOG_LEVEL` affects all the configurations.
 2. The redis-server configurations are configured once and are always enabled if
    `metricsLogger` is enabled.
 3. The flushing configurations only work for non-default log targets i.e.
-   stdout, elasticsearch, and s3.
+   `stdout`, `elasticsearch`, and `s3`.
 4. For buffering, files are used for persistence. The logs are buffered and
    flushed as configured.
