@@ -102,7 +102,7 @@ Deploy the helm chart according to instructions for using Helm
 - Start Redis CLI and check the recorded metrics:
 
   ```shell
-  kubectl exec deployment/minio-logger -c redis -it -- redis-cli
+  kubectl exec deployment/minio logger -c redis -it -- redis-cli
   keys *
   get deploymentid:minio-metrics:minio1:num_requests_in
   ```

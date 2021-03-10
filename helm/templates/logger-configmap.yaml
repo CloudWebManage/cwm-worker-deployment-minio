@@ -6,7 +6,7 @@ data:
   cwm-fluent-default.conf: |
     # fluentd configuration file for CWM HTTP Logging Component for MinIO
     <system>
-      log_level             info
+      log_level             debug
     </system>
     # CWM HTTP input configuration
     <source>
@@ -33,7 +33,7 @@ data:
     <buffer>
       @type                 file
 
-      path                  /var/log/fluentd/cwm-worker-logger
+      path                  /fluentd/buf/
       path_suffix           .buf
       compress              gzip
 
@@ -61,14 +61,20 @@ data:
       port                  443
       scheme                https
 
-      # ssl_verify            true
+      ssl_verify            true
       # hosts                 '0.0.0.0:9200'
 
       # user                  dummyuser
       # password              dummypassword
 
       index_name            test
-      index_type            _type
+      # index_type            _doc
+
+      # NOTE: The index must already exist! DO NOT add a trailing slash!
+      # path                  /index/path
+
+      # Timeout issue: https://github.com/uken/fluent-plugin-elasticsearch/issues/590
+      request_timeout       2147483648
 
       @include              ./cwm-fluent-buffer.conf
     </match>
