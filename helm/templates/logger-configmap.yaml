@@ -88,18 +88,20 @@ data:
 
       # AWS S3 configuration
       # --------------------
-      # aws_key_id            "#{ ENV['AWS_KEY_ID'] || '' }"
-      # aws_sec_key           "#{ ENV['AWS_SECRET_KEY'] || '' }"
-      # s3_bucket             "#{ ENV['S3_BUCKET_NAME'] || '' }"
-      # s3_region             "#{ ENV['S3_REGION'] || '' }"
+      # aws_key_id            "#{ ENV['AWS_KEY_ID'] || 'dummykey' }"
+      # aws_sec_key           "#{ ENV['AWS_SECRET_KEY'] || 'dummypass' }"
+      # s3_bucket             "#{ ENV['S3_BUCKET_NAME'] || 'test123' }"
+      # s3_region             "#{ ENV['S3_REGION'] || 'us-east-1' }"
       # path                  "#{ ENV['S3_PATH'] || 'logs/' }"
 
       # S3 compatible service configuration
       # -----------------------------------
-      # aws_key_id            "#{ ENV['AWS_KEY_ID'] || '' }"
-      # aws_sec_key           "#{ ENV['AWS_SECRET_KEY'] || '' }"
-      # s3_bucket             "#{ ENV['S3_BUCKET_NAME'] || '' }"
-      # s3_endpoint           "#{ ENV['S3_ENDPOINT'] || '' }"
+      # aws_key_id            dummykey
+      # aws_sec_key           dummypass
+      # s3_bucket             'test123'
+      # s3_region             us-east-1
+      # path                  logs/
+      # s3_endpoint           http://localhost:8080
 
       # ssl_verify_peer       true
 
