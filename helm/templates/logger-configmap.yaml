@@ -57,9 +57,9 @@ data:
       @type                 elasticsearch
       @id                   elasticsearch_log_target
 
-      host                  search-cwm-worker-logger-tests-y7puhb7s5phndbwgu3w2saevtm.us-east-2.es.amazonaws.com
-      port                  443
-      scheme                https
+      host                  0.0.0.0
+      port                  9200
+      scheme                http
 
       ssl_verify            true
       # hosts                 '0.0.0.0:9200'
@@ -86,11 +86,29 @@ data:
       @type                 s3
       @id                   s3_log_target
 
-      aws_key_id            "#{ ENV['AWS_KEY_ID'] || '' }"
-      aws_sec_key           "#{ ENV['AWS_SECRET_KEY'] || '' }"
-      s3_bucket             "#{ ENV['S3_BUCKET_NAME'] || '' }"
-      s3_region             "#{ ENV['S3_REGION'] || '' }"
-      path                  "#{ ENV['S3_PATH'] || 'logs/' }"
+      # AWS S3 configuration
+      # --------------------
+      # aws_key_id            "#{ ENV['AWS_KEY_ID'] || '' }"
+      # aws_sec_key           "#{ ENV['AWS_SECRET_KEY'] || '' }"
+      # s3_bucket             "#{ ENV['S3_BUCKET_NAME'] || '' }"
+      # s3_region             "#{ ENV['S3_REGION'] || '' }"
+      # path                  "#{ ENV['S3_PATH'] || 'logs/' }"
+
+      # S3 compatible service configuration
+      # -----------------------------------
+      # aws_key_id            "#{ ENV['AWS_KEY_ID'] || '' }"
+      # aws_sec_key           "#{ ENV['AWS_SECRET_KEY'] || '' }"
+      # s3_bucket             "#{ ENV['S3_BUCKET_NAME'] || '' }"
+      # s3_endpoint           "#{ ENV['S3_ENDPOINT'] || '' }"
+
+      # ssl_verify_peer       true
+
+      # Compression Type: gzip (default), lzo, json, txt
+      # store_as              gzip
+
+      # s3_object_key_format  %{path}%{time_slice}_%{index}.%{file_extension}
+
+      # auto_create_bucket    true
 
       @include              ./cwm-fluent-buffer.conf
     </match>

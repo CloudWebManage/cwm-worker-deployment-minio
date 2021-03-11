@@ -37,10 +37,10 @@ export COMPOSE_TLS_VERSION=TLSv1_2
 
 - Install [Minikube](https://minikube.sigs.k8s.io/docs/) (latest stable version).
 - Install [Helm](https://helm.sh/) (latest stable version).
-- Start a local cluster: `minikube start --driver=docker --kubernetes-version=v1.16.14`.
+- Start a local cluster: `minikube start --driver=docker --kubernetes-version=v1.16.14`
 - Switch to the minikube docker env: `eval $(minikube -p minikube docker-env)`.
-- Build the Docker images: `docker-compose build`.
-- Build the cwm-worker-logger image: `docker build -t cwm-worker-logger ../cwm-worker-logger`.
+- Build the Docker images: `docker-compose build`
+- Build the cwm-worker-logger image: `docker build -t cwm-worker-logger ../cwm-worker-logger`
   - Change the directory according to where you cloned
     [cwm-worker-logger](https://github.com/cloudwebmanage/cwm-worker-logger).
   - Make sure you checked out the relevant version of `cwm-worker-logger` you want
@@ -97,7 +97,7 @@ Deploy the helm chart according to instructions for using Helm
 - Access it at http://localhost:8080 or https://localhost:8443
   - (For this type of deployment, the storage is not shared between http/https,
     because each minio container is in a separate pod).
-- Default username/password is `dummykey` / `dummypass`.
+- Default username/password is `dummykey` / `dummypass`
 - Create a bucket and upload/download some objects.
 - Start Redis CLI and check the recorded metrics:
 

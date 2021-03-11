@@ -195,9 +195,11 @@ spec:
         image: redis
       {{ end }}
       volumes:
+      {{ if $.Values.minio.metricsLogger.enable }}
       - name: fluentd-conf-volume
         configMap:
           name: fluentd-conf
+      {{ end }}
       - name: storage
 {{ $.Values.minio.volumes.storage | indent 8 }}
       - name: cache
