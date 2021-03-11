@@ -127,7 +127,8 @@ environment variables.
 via the environment variables.
 
 The logger's ConfigMap provides direct access to the fluentd configuration. The
-log targets can easily be configured for a more complex setup. For more details, please visit their respective pages:
+log targets can easily be configured for a more complex setup. For more details,
+please visit their respective pages:
 
 - ElasticSearch: https://docs.fluentd.org/output/elasticsearch
 - S3: https://docs.fluentd.org/output/s3

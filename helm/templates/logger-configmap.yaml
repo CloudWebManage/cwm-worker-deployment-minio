@@ -98,10 +98,11 @@ data:
       # -----------------------------------
       # aws_key_id            dummykey
       # aws_sec_key           dummypass
-      # s3_bucket             'test123'
+      # s3_bucket             test123
       # s3_region             us-east-1
       # path                  logs/
-      # s3_endpoint           http://localhost:8080
+      # s3_endpoint           http://localhost:8080/
+      # force_path_style      true
 
       # ssl_verify_peer       true
 
