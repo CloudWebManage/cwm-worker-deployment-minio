@@ -42,6 +42,8 @@ data:
       flush_interval        10s
       retry_type            periodic
       retry_wait            10s
+
+      chunk_limit_size      100m
     </buffer>
 
   cwm-fluent-stdout.conf: |
@@ -95,6 +97,7 @@ data:
       # path                  "#{ ENV['S3_PATH'] || 'logs/' }"
 
       # S3 compatible service configuration
+      # https://docs.fluentd.org/how-to-guides/apache-to-minio#output-settings
       # -----------------------------------
       # aws_key_id            dummykey
       # aws_sec_key           dummypass
@@ -103,6 +106,7 @@ data:
       # path                  logs/
       # s3_endpoint           http://localhost:8080/
       # force_path_style      true
+      # time_slice_format     %Y%m%d%H%M
 
       # ssl_verify_peer       true
 
