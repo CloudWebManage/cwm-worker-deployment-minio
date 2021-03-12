@@ -141,23 +141,36 @@ minio:
     REDIS_KEY_PREFIX_DEPLOYMENT_LAST_ACTION: deploymentid:last_action
     REDIS_KEY_PREFIX_DEPLOYMENT_API_METRIC: deploymentid:minio-metrics
 
-    # LOGS_FLUSH_AT_SHUTDOWN: true
-    # LOGS_FLUSH_INTERVAL: 60s
-    # LOGS_FLUSH_RETRY_WAIT: 20s
+    # Logs buffering/flushing configuration
+    LOGS_FLUSH_COMPRESSION: gzip
+    LOGS_FLUSH_AT_SHUTDOWN: true
+    LOGS_FLUSH_INTERVAL: 60s
+    LOGS_FLUSH_RETRY_WAIT: 20s
 
     # LOG_PROVIDER: elasticsearch
-    # ES_HOST: 0.0.0.0
-    # ES_PORT: 9200
-    # ES_SCHEME: http
-    # ES_INDEX_NAME: test
-    # ES_TYPE_NAME: _doc
+    ES_HOST: 0.0.0.0
+    ES_PORT: 9200
+    ES_SCHEME: http
+    ES_HOSTS_ENABLED: false
+    ES_HOSTS: '0.0.0.0:9200'
+    ES_SSL_VERIFY: true
+    ES_AUTH_ENABLED: false
+    ES_USERNAME: dummykey
+    ES_PASSWORD: dummypass
+    ES_INDEX_NAME: test
+    ES_TYPE_NAME: _doc
+    ES_PATH: /logs            # NOTE: The index must already exist! DO NOT add a trailing slash!
 
     # LOG_PROVIDER: s3
-    # AWS_KEY_ID:
-    # AWS_SECRET_KEY:
-    # S3_BUCKET_NAME:
-    # S3_REGION:
-    # S3_PATH:
+    AWS_KEY_ID: dummykey
+    AWS_SECRET_KEY: dummypass
+    S3_BUCKET: test123
+    S3_REGION: us-east-1
+    S3_PATH: logs/
+    S3_NON_AWS_TARGET: false
+    S3_ENDPOINT: http://localhost:8080
+    S3_SSL_VERIFY: true
+    S3_STORE_AS: gzip         # gzip, lzo, json, txt
 
 # each object have required attributes: apiVersion, kind, name, spec
 extraObjects: []

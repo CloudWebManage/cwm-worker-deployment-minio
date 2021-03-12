@@ -67,7 +67,7 @@ For simplicity, the configuration can be divided like this:
       - configuration: `AWS_KEY_ID`, `AWS_SECRET_KEY`, `S3_BUCKET_NAME`,
         `S3_REGION`, etc.
   - buffer configuration for retaining/flushing logs to log targets (only
-    available for non-default log targets)
+    available for `elasticsearch` and `s3`)
     - `LOGS_FLUSH_AT_SHUTDOWN` (true/false): enable/disable flushing of buffered
       logs on shutdown
     - `LOGS_FLUSH_INTERVAL` (time: 10s, 2m, ...): flush interval for buffered logs
@@ -145,7 +145,7 @@ other values file or from the command-line.
 1. The `LOG_LEVEL` affects all the configurations.
 2. The redis-server configurations are configured once and are always enabled if
    `metricsLogger` is enabled.
-3. The flushing configurations only work for non-default log targets i.e.
-   `stdout`, `elasticsearch`, and `s3`.
+3. The flushing configurations only work for log targets `elasticsearch`, and
+   `s3`. For `stdout`, there will be immediate flushing.
 4. For buffering, files are used for persistence. The logs are buffered and
    flushed as configured.

@@ -1,3 +1,4 @@
+{{ if .Values.minio.metricsLogger.enable }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -19,12 +20,12 @@ data:
 
       # CWM Redis instance configuration for metrics
       <redis>
-        host                localhost
-        port                6379
-        grace_period        10s
-        flush_interval      2s
-        last_update_prefix  deploymentid:last_action
-        metrics_prefix      deploymentid:minio-metrics
+        host                {{ $.Values.minio.metricsLogger.REDIS_HOST }}
+        port                {{ $.Values.minio.metricsLogger.REDIS_PORT }}
+        grace_period        {{ $.Values.minio.metricsLogger.UPDATE_GRACE_PERIOD_SECONDS }}
+        flush_interval      {{ $.Values.minio.metricsLogger.DEPLOYMENT_API_METRICS_FLUSH_INTERVAL_SECONDS }}
+        last_update_prefix  {{ $.Values.minio.metricsLogger.REDIS_KEY_PREFIX_DEPLOYMENT_LAST_ACTION }}
+        metrics_prefix      {{ $.Values.minio.metricsLogger.REDIS_KEY_PREFIX_DEPLOYMENT_API_METRIC }}
       </redis>
     </source>
 
@@ -32,26 +33,29 @@ data:
     # file buffer configurations for output plugins (log targets)
     <buffer>
       @type                 file
-
       path                  /fluentd/buf/
       path_suffix           .buf
-      compress              gzip
 
-      flush_at_shutdown     true
+      compress              {{ $.Values.minio.metricsLogger.LOGS_FLUSH_COMPRESSION }}
+
+      flush_at_shutdown     {{ $.Values.minio.metricsLogger.LOGS_FLUSH_AT_SHUTDOWN }}
       flush_mode            interval
-      flush_interval        10s
+      flush_interval        {{ $.Values.minio.metricsLogger.LOGS_FLUSH_INTERVAL }}
       retry_type            periodic
-      retry_wait            10s
+      retry_wait            {{ $.Values.minio.metricsLogger.LOGS_FLUSH_RETRY_WAIT }}
 
       chunk_limit_size      100m
     </buffer>
 
+  {{ if eq $.Values.minio.metricsLogger.LOG_PROVIDER "stdout" }}
   cwm-fluent-stdout.conf: |
     @include                ./cwm-fluent-default.conf
     <match logs>
       @type                 stdout
     </match>
+  {{ end }}
 
+  {{ if eq $.Values.minio.metricsLogger.LOG_PROVIDER "elasticsearch" }}
   cwm-fluent-elasticsearch.conf: |
     @include                ./cwm-fluent-default.conf
     # ElasticSearch: https://docs.fluentd.org/output/elasticsearch
@@ -59,28 +63,38 @@ data:
       @type                 elasticsearch
       @id                   elasticsearch_log_target
 
-      host                  0.0.0.0
-      port                  9200
-      scheme                http
+      {{ if not $.Values.minio.metricsLogger.ES_HOSTS_ENABLED }}
+      host                  {{ $.Values.minio.metricsLogger.ES_HOST }}
+      port                  {{ $.Values.minio.metricsLogger.ES_PORT }}
+      {{ else if $.Values.minio.metricsLogger.ES_HOSTS }}
+      hosts                 {{ $.Values.minio.metricsLogger.ES_HOSTS }}
+      {{ end }}
 
-      ssl_verify            true
-      # hosts                 '0.0.0.0:9200'
+      scheme                {{ $.Values.minio.metricsLogger.ES_SCHEME }}
+      ssl_verify            {{ $.Values.minio.metricsLogger.ES_SSL_VERIFY }}
 
-      # user                  dummyuser
-      # password              dummypassword
+      {{ if $.Values.minio.metricsLogger.ES_AUTH_ENABLED }}
+      user                  {{ $.Values.minio.metricsLogger.ES_USERNAME }}
+      password              {{ $.Values.minio.metricsLogger.ES_PASSWORD }}
+      {{ end }}
 
-      index_name            test
-      # index_type            _doc
+      index_name            {{ $.Values.minio.metricsLogger.ES_INDEX_NAME }}
+      type_name             {{ $.Values.minio.metricsLogger.ES_TYPE_NAME }}
 
-      # NOTE: The index must already exist! DO NOT add a trailing slash!
-      # path                  /index/path
+      {{ if $.Values.minio.metricsLogger.ES_INDEX_NAME }}
+      {{ if $.Values.minio.metricsLogger.ES_PATH }}
+      path                  {{ $.Values.minio.metricsLogger.ES_PATH }}
+      {{ end }}
+      {{ end }}
 
       # Timeout issue: https://github.com/uken/fluent-plugin-elasticsearch/issues/590
       request_timeout       2147483648
 
       @include              ./cwm-fluent-buffer.conf
     </match>
+  {{ end }}
 
+  {{ if eq $.Values.minio.metricsLogger.LOG_PROVIDER "s3" }}
   cwm-fluent-s3.conf: |
     @include                ./cwm-fluent-default.conf
     # S3: https://docs.fluentd.org/output/s3
@@ -88,34 +102,26 @@ data:
       @type                 s3
       @id                   s3_log_target
 
-      # AWS S3 configuration
-      # --------------------
-      # aws_key_id            "#{ ENV['AWS_KEY_ID'] || 'dummykey' }"
-      # aws_sec_key           "#{ ENV['AWS_SECRET_KEY'] || 'dummypass' }"
-      # s3_bucket             "#{ ENV['S3_BUCKET_NAME'] || 'test123' }"
-      # s3_region             "#{ ENV['S3_REGION'] || 'us-east-1' }"
-      # path                  "#{ ENV['S3_PATH'] || 'logs/' }"
+      aws_key_id            {{ $.Values.minio.metricsLogger.AWS_KEY_ID }}
+      aws_sec_key           {{ $.Values.minio.metricsLogger.AWS_SECRET_KEY }}
+      s3_bucket             {{ $.Values.minio.metricsLogger.S3_BUCKET }}
+      s3_region             {{ $.Values.minio.metricsLogger.S3_REGION }}
+      path                  {{ $.Values.minio.metricsLogger.S3_PATH }}
 
-      # S3 compatible service configuration
-      # https://docs.fluentd.org/how-to-guides/apache-to-minio#output-settings
-      # -----------------------------------
-      # aws_key_id            dummykey
-      # aws_sec_key           dummypass
-      # s3_bucket             test123
-      # s3_region             us-east-1
-      # path                  logs/
-      # s3_endpoint           http://localhost:8080/
-      # force_path_style      true
-      # time_slice_format     %Y%m%d%H%M
+      {{ if $.Values.minio.metricsLogger.S3_NON_AWS_TARGET }}
+      s3_endpoint           {{ $.Values.minio.metricsLogger.S3_ENDPOINT }}
+      force_path_style      true
+      {{ end }}
 
-      # ssl_verify_peer       true
+      ssl_verify_peer       {{ $.Values.minio.metricsLogger.S3_SSL_VERIFY }}
+
+      time_slice_format     %Y%m%d%H%M
+      s3_object_key_format  %{path}%{time_slice}_%{index}.%{file_extension}
 
       # Compression Type: gzip (default), lzo, json, txt
-      # store_as              gzip
-
-      # s3_object_key_format  %{path}%{time_slice}_%{index}.%{file_extension}
-
-      # auto_create_bucket    true
+      store_as              {{ $.Values.minio.metricsLogger.S3_STORE_AS }}
 
       @include              ./cwm-fluent-buffer.conf
     </match>
+  {{ end }}
+{{ end }}

@@ -171,8 +171,8 @@ spec:
           value: {{ $.Values.minio.metricsLogger.AWS_KEY_ID | quote }}
         - name: AWS_SECRET_KEY
           value: {{ $.Values.minio.metricsLogger.AWS_SECRET_KEY | quote }}
-        - name: S3_BUCKET_NAME
-          value: {{ $.Values.minio.metricsLogger.S3_BUCKET_NAME | quote }}
+        - name: S3_BUCKET
+          value: {{ $.Values.minio.metricsLogger.S3_BUCKET | quote }}
         - name: S3_REGION
           value: {{ $.Values.minio.metricsLogger.S3_REGION | quote }}
         - name: S3_PATH
