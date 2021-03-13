@@ -139,7 +139,7 @@ minio:
       limits:
         memory: "150Mi"
     withRedis: true
-    # LOG_PROVIDER: default
+    LOG_PROVIDER: default
     # LOG_PROVIDER: stdout
     LOG_LEVEL: info           # fatal, error, warn, info, debug, trace
 
