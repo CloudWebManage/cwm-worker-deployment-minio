@@ -52,6 +52,7 @@ export COMPOSE_TLS_VERSION=TLSv1_2
     image: minio
     tag: latest
     initDebugEnable: true
+    enableServiceMonitors: false
     metricsLogger:
       image: cwm-worker-logger
       tag: latest
