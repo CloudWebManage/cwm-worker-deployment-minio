@@ -121,12 +121,13 @@ For these tests, we will use AWS to provide all the required log backends.
   - Network configuration: public access
   - Domain access policy: custom: ipv4 address: allow your IP
 
-Update `.values.yaml` under `metricsLogger` with the relevant values:
+Add the following the following to the default `.values.yaml` file (as described in using helm section above)
 
 ```yaml
-LOG_PROVIDER: elasticsearch
-ES_HOST: 
-ES_PORT:
+# under metricsLogger:
+  LOG_PROVIDER: elasticsearch
+  ES_HOST: 
+  ES_PORT:
 ```
 
 Deploy the helm chart according to instructions for using Helm.
@@ -135,14 +136,15 @@ Deploy the helm chart according to instructions for using Helm.
 
 - Amazon S3 -> Create bucket
 
-Update `.values.yaml` under `metricsLogger` with the relevant values:
+Add the following the following to the default `.values.yaml` file (as described in using helm section above)
 
 ```yaml
-LOG_PROVIDER: s3
-AWS_KEY_ID: 
-AWS_SECRET_KEY:
-S3_BUCKET_NAME:
-S3_REGION:
+# under metricsLogger:
+  LOG_PROVIDER: s3
+  AWS_KEY_ID: 
+  AWS_SECRET_KEY:
+  S3_BUCKET_NAME:
+  S3_REGION:
 ```
 
 Deploy the helm chart according to instructions for using Helm.
@@ -151,7 +153,7 @@ Deploy the helm chart according to instructions for using Helm.
 
 It disables the logger pod and runs without logging.
 
-Add the following to `.values.yaml`:
+Add the following the following to the default `.values.yaml` file (as described in using helm section above)
 
 ```yaml
 # under minio:
@@ -162,6 +164,52 @@ Add the following to `.values.yaml`:
 ```
 
 Deploy the helm chart according to instructions for using Helm.
+
+#### Logging to Minio
+
+Deploy a Minio instance which will be used to store the logs
+
+```
+helm upgrade --install cwm-worker-deployment-minio ./helm -n logs --create-namespace \
+    --set minio.auditWebhookEndpoint="" \
+    --set minio.metricsLogger.enable=false \
+    --set minio.image=minio
+```
+
+Verify the logs Minio pod is ready
+
+Add the following the following to the default `.values.yaml` file (as described in using helm section above):
+
+```
+# under metricsLogger:
+  LOGS_FLUSH_INTERVAL: 5s
+  LOGS_FLUSH_RETRY_WAIT: 10s
+  LOG_PROVIDER: s3
+  S3_NON_AWS_TARGET: true
+  S3_ENDPOINT: http://minio.logs:8080
+```
+
+Deploy to storage namespace:
+
+```
+helm upgrade -f .values.yaml -n storage --create-namespace --install cwm-worker-deployment-minio ./helm
+```
+
+Start a port-forward to storage minio service
+
+```
+kubectl -n storage port-forward service/minio 8080
+```
+
+Make some actions (upload/download objects)
+
+Start a port-forward to logs minio service
+
+```
+kubectl -n logs port-forward service/minio 8080
+```
+
+Logs should appear in bucket test123
 
 ## Running Tests
 
