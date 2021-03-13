@@ -15,7 +15,7 @@
 Docker Compose is used for quick prototyping of the deployment without using
 Kubernetes.
 
-Start the stack
+Start the stack:
 
 ```shell
 docker-compose up --build
@@ -24,7 +24,7 @@ docker-compose up --build
 If you encounter this SSL version error:
 
 ```text
-ERROR: SSL error: HTTPSConnectionPool(host='192.168.49.2', port=2376): Max retries exceeded with url: /v1.30/build?q=False&pull=False&t=minio&nocache=False&forcerm=False&rm=True (Caused by SSLError(SSLError(1, u'[SSL: TLSV1_ALERT_PROTOCOL_VERSION] tlsv1 alert protocol version (_ssl.c:727)'),))
+ERROR: SSL error: HTTPSConnectionPool(host='<ip-address>', port=2376): Max retries exceeded with url: /v1.30/build?q=False&pull=False&t=minio&nocache=False&forcerm=False&rm=True (Caused by SSLError(SSLError(1, u'[SSL: TLSV1_ALERT_PROTOCOL_VERSION] tlsv1 alert protocol version (_ssl.c:727)'),))
 ```
 
 You can resolve it like this:
@@ -122,7 +122,8 @@ For these tests, we will use AWS to provide all the required log backends.
   - Network configuration: public access
   - Domain access policy: custom: ipv4 address: allow your IP
 
-Add the following to the default `.values.yaml` file (as described in using helm section above)
+Add the following to the default `.values.yaml` file (as described in using helm
+section above):
 
 ```yaml
 # under metricsLogger:
@@ -137,7 +138,8 @@ Deploy the helm chart according to instructions for using Helm.
 
 - Amazon S3 -> Create bucket
 
-Add the following to the default `.values.yaml` file (as described in using helm section above)
+Add the following to the default `.values.yaml` file (as described in using helm
+section above):
 
 ```yaml
 # under metricsLogger:
@@ -154,7 +156,8 @@ Deploy the helm chart according to instructions for using Helm.
 
 It disables the logger pod and runs without logging.
 
-Add the following to the default `.values.yaml` file (as described in using helm section above)
+Add the following to the default `.values.yaml` file (as described in using helm
+section above):
 
 ```yaml
 # under minio:
@@ -168,20 +171,21 @@ Deploy the helm chart according to instructions for using Helm.
 
 #### Logging to Minio
 
-Deploy a Minio instance which will be used to store the logs
+Deploy a Minio instance which will be used to store the logs:
 
-```
+```shell
 helm upgrade --install cwm-worker-deployment-minio ./helm -n logs --create-namespace \
     --set minio.auditWebhookEndpoint="" \
     --set minio.metricsLogger.enable=false \
     --set minio.image=minio
 ```
 
-Verify the logs Minio pod is ready
+Verify from the logs that the Minio pod is ready.
 
-Add the following to the default `.values.yaml` file (as described in using helm section above):
+Add the following to the default `.values.yaml` file (as described in using helm
+section above):
 
-```
+```yaml
 # under metricsLogger:
   LOGS_FLUSH_INTERVAL: 5s
   LOGS_FLUSH_RETRY_WAIT: 10s
@@ -192,21 +196,21 @@ Add the following to the default `.values.yaml` file (as described in using helm
 
 Deploy to storage namespace:
 
-```
+```shell
 helm upgrade -f .values.yaml -n storage --create-namespace --install cwm-worker-deployment-minio ./helm
 ```
 
-Start a port-forward to storage minio service
+Start a port-forward to storage minio service:
 
-```
+```shell
 kubectl -n storage port-forward service/minio 8080
 ```
 
 Make some actions (upload/download objects)
 
-Start a port-forward to logs minio service
+Start a port-forward to logs minio service:
 
-```
+```shell
 kubectl -n logs port-forward service/minio 8080
 ```
 
