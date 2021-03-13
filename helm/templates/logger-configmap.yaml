@@ -7,8 +7,9 @@ data:
   cwm-fluent-default.conf: |
     # fluentd configuration file for CWM HTTP Logging Component for MinIO
     <system>
-      log_level             debug
+      log_level             {{ $.Values.minio.metricsLogger.LOG_LEVEL }}
     </system>
+
     # CWM HTTP input configuration
     <source>
       @type                 http_cwm
@@ -29,6 +30,7 @@ data:
       </redis>
     </source>
 
+  {{ if or (eq $.Values.minio.metricsLogger.LOG_PROVIDER "elasticsearch") (eq $.Values.minio.metricsLogger.LOG_PROVIDER "s3") }}
   cwm-fluent-buffer.conf: |
     # file buffer configurations for output plugins (log targets)
     <buffer>
@@ -46,6 +48,7 @@ data:
 
       chunk_limit_size      100m
     </buffer>
+  {{ end }}
 
   {{ if eq $.Values.minio.metricsLogger.LOG_PROVIDER "stdout" }}
   cwm-fluent-stdout.conf: |
