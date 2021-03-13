@@ -63,7 +63,7 @@ data:
       @type                 elasticsearch
       @id                   elasticsearch_log_target
 
-      {{ if not $.Values.minio.metricsLogger.ES_HOSTS_ENABLED }}
+      {{ if not $.Values.minio.metricsLogger.ES_MULTIPLE_HOSTS_ENABLED }}
       host                  {{ $.Values.minio.metricsLogger.ES_HOST }}
       port                  {{ $.Values.minio.metricsLogger.ES_PORT }}
       {{ else if $.Values.minio.metricsLogger.ES_HOSTS }}

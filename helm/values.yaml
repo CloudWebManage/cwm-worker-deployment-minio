@@ -133,7 +133,7 @@ minio:
     withRedis: true
     # LOG_PROVIDER: default
     # LOG_PROVIDER: stdout
-    LOG_LEVEL: info   # fatal, error, warn, info, debug, trace
+    LOG_LEVEL: info           # fatal, error, warn, info, debug, trace
     REDIS_HOST: localhost
     REDIS_PORT: 6379
     UPDATE_GRACE_PERIOD_SECONDS: 300s
@@ -151,7 +151,7 @@ minio:
     ES_HOST: 0.0.0.0
     ES_PORT: 9200
     ES_SCHEME: http
-    ES_HOSTS_ENABLED: false
+    ES_MULTIPLE_HOSTS_ENABLED: false
     ES_HOSTS: '0.0.0.0:9200'
     ES_SSL_VERIFY: true
     ES_AUTH_ENABLED: false
