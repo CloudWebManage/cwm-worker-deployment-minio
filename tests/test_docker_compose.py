@@ -4,7 +4,7 @@ import redis
 import boto3
 import pytest
 import datetime
-import subprocess
+import traceback
 from botocore.client import Config
 
 
@@ -12,7 +12,7 @@ def connect():
     start_time = datetime.datetime.now()
     http_num_requests_misc = 0
     https_num_requests_misc = 0
-    while (datetime.datetime.now() - start_time).total_seconds() <= 60:
+    while (datetime.datetime.now() - start_time).total_seconds() <= 120:
         try:
             r = redis.client.Redis()
             for key in r.keys('*'):
@@ -20,7 +20,7 @@ def connect():
             resource_kwargs = dict(aws_access_key_id='12345678',
                                    aws_secret_access_key='12345678',
                                    region_name='us-east-1',
-                                   config=Config(signature_version='s3v4'))
+                                   config=Config(signature_version='s3v4', connect_timeout=5, read_timeout=5))
             s3_http = boto3.resource('s3', endpoint_url='http://localhost:8080', **resource_kwargs)
             s3_https = boto3.resource('s3', endpoint_url='https://localhost:8443', verify=False, **resource_kwargs)
             list(s3_http.buckets.all())
@@ -29,7 +29,8 @@ def connect():
             https_num_requests_misc += 1
             return r, s3_http, s3_https, http_num_requests_misc, https_num_requests_misc
         except:
-            time.sleep(1)
+            traceback.print_exc()
+            time.sleep(5)
     raise Exception("Failed to connect to redis or minio")
 
 

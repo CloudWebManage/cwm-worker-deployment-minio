@@ -4,6 +4,7 @@ services:
 
   minio-http:
     image: minio
+    restart: on-failure
     build: .
     ports:
       - "8080:8080"
@@ -30,6 +31,7 @@ services:
 
   minio-https:
     image: minio
+    restart: on-failure
     build: .
     ports:
       - "8443:8443"
