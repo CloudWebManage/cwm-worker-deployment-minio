@@ -26,6 +26,8 @@ minio:
   MINIO_GATEWAY_DEPLOYMENT_ID: "minio1"
   MINIO_EXTRA_ARGS: ""
   initDebugEnable: false
+  initCurlHttpMaxTime: "1.5"
+  initCurlHttpsMaxTime: "1.5"
   # this exposes prometheus metrics unauthenticated at /minio/v2/metrics/cluster and /minio/v2/metrics/node
   enablePrometheusAuthTypePublic: true
   # this works only if serveSingleProtocolPerPod is true as well
@@ -38,6 +40,8 @@ minio:
     timeoutSeconds: 1
     successThreshold: 1
     failureThreshold: 5
+    curlHttpMaxTimeSeconds: "1.5"
+    curlHttpsMaxTimeSeconds: "1.5"
   livenessProbe:
     path: /minio/health/live
     initialDelaySeconds: 0
@@ -45,6 +49,8 @@ minio:
     timeoutSeconds: 1
     successThreshold: 1
     failureThreshold: 2
+    curlHttpMaxTimeSeconds: "1.5"
+    curlHttpsMaxTimeSeconds: "1.5"
   readinessProbe:
     path: /minio/health/ready
     initialDelaySeconds: 0
@@ -52,6 +58,8 @@ minio:
     timeoutSeconds: 1
     successThreshold: 1
     failureThreshold: 2
+    curlHttpMaxTimeSeconds: "1.5"
+    curlHttpsMaxTimeSeconds: "1.5"
   httpResources:
     requests:
       cpu: "50m"
@@ -131,9 +139,11 @@ minio:
       limits:
         memory: "150Mi"
     withRedis: true
-    LOG_LEVEL: info   # fatal, error, warn, info, debug, trace
-    # CWM_HTTP_HOST: localhost
-    # CWM_HTTP_PORT: 8500
+    # LOG_PROVIDER: default
+    # LOG_PROVIDER: stdout
+    LOG_LEVEL: info           # fatal, error, warn, info, debug, trace
+
+    # Redis configuration
     REDIS_HOST: localhost
     REDIS_PORT: 6379
     UPDATE_GRACE_PERIOD_SECONDS: 300s
@@ -141,15 +151,36 @@ minio:
     REDIS_KEY_PREFIX_DEPLOYMENT_LAST_ACTION: deploymentid:last_action
     REDIS_KEY_PREFIX_DEPLOYMENT_API_METRIC: deploymentid:minio-metrics
 
+    # Logs buffering/flushing configuration
+    LOGS_FLUSH_COMPRESSION: gzip
+    LOGS_FLUSH_AT_SHUTDOWN: true
+    LOGS_FLUSH_INTERVAL: 60s
+    LOGS_FLUSH_RETRY_WAIT: 20s
+
     # LOG_PROVIDER: elasticsearch
-    # ES_HOST:
-    # ES_PORT:
+    ES_HOST: 0.0.0.0
+    ES_PORT: 9200
+    ES_SCHEME: http
+    ES_MULTIPLE_HOSTS_ENABLED: false
+    ES_HOSTS: '0.0.0.0:9200'
+    ES_SSL_VERIFY: true
+    ES_AUTH_ENABLED: false
+    ES_USERNAME: dummykey
+    ES_PASSWORD: dummypass
+    ES_INDEX_NAME: test
+    ES_TYPE_NAME: _doc
+    ES_PATH: /logs            # NOTE: The index must already exist! DO NOT add a trailing slash!
 
     # LOG_PROVIDER: s3
-    # AWS_KEY_ID:
-    # AWS_SECRET_KEY:
-    # S3_BUCKET_NAME:
-    # S3_REGION:
+    AWS_KEY_ID: dummykey
+    AWS_SECRET_KEY: dummypass
+    S3_BUCKET: test123
+    S3_REGION: us-east-1
+    S3_PATH: logs/
+    S3_NON_AWS_TARGET: false
+    S3_ENDPOINT: http://localhost:8080
+    S3_SSL_VERIFY: true
+    S3_STORE_AS: gzip         # gzip, lzo, json, txt
 
 # each object have required attributes: apiVersion, kind, name, spec
 extraObjects: []

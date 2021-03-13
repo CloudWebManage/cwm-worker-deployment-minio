@@ -83,6 +83,8 @@ spec:
         - name: CWM_INIT_DEBUG
           value: "yes"
         {{ end }}
+        - name: CWM_INIT_CURL_MAX_TIME
+          value: "{{ if eq . "https" }}{{ $.Values.minio.initCurlHttpsMaxTime }}{{ else }}{{ $.Values.minio.initCurlHttpMaxTime }}{{ end }}"
         {{ if $.Values.minio.enablePrometheusAuthTypePublic }}
         - name: MINIO_PROMETHEUS_AUTH_TYPE
           value: "public"
@@ -97,7 +99,7 @@ spec:
         {{ end }}
         startupProbe:
           exec:
-            command: ["curl", "--max-time", "0.05", "-s", {{ if eq . "https" }}"-k", https://localhost:8443{{ else }}http://localhost:8080{{ end }}{{ $.Values.minio.startupProbe.path }}]
+            command: ["curl", "--max-time", "{{ if eq . "https" }}{{ $.Values.minio.startupProbe.curlHttpsMaxTimeSeconds }}{{ else }}{{ $.Values.minio.startupProbe.curlHttpMaxTimeSeconds }}{{ end }}", "-s", {{ if eq . "https" }}"-k", https://localhost:8443{{ else }}http://localhost:8080{{ end }}{{ $.Values.minio.startupProbe.path }}]
           initialDelaySeconds: {{ $.Values.minio.startupProbe.initialDelaySeconds }}
           periodSeconds: {{ $.Values.minio.startupProbe.periodSeconds }}
           timeoutSeconds: {{ $.Values.minio.startupProbe.timeoutSeconds }}
@@ -105,7 +107,7 @@ spec:
           failureThreshold: {{ $.Values.minio.startupProbe.failureThreshold }}
         livenessProbe:
           exec:
-            command: ["curl", "--max-time", "0.05", "-s", {{ if eq . "https" }}"-k", https://localhost:8443{{ else }}http://localhost:8080{{ end }}{{ $.Values.minio.livenessProbe.path }}]
+            command: ["curl", "--max-time", "{{ if eq . "https" }}{{ $.Values.minio.livenessProbe.curlHttpsMaxTimeSeconds }}{{ else }}{{ $.Values.minio.livenessProbe.curlHttpMaxTimeSeconds }}{{ end }}", "-s", {{ if eq . "https" }}"-k", https://localhost:8443{{ else }}http://localhost:8080{{ end }}{{ $.Values.minio.livenessProbe.path }}]
           initialDelaySeconds: {{ $.Values.minio.livenessProbe.initialDelaySeconds }}
           periodSeconds: {{ $.Values.minio.livenessProbe.periodSeconds }}
           timeoutSeconds: {{ $.Values.minio.livenessProbe.timeoutSeconds }}
@@ -113,7 +115,7 @@ spec:
           failureThreshold: {{ $.Values.minio.livenessProbe.failureThreshold }}
         readinessProbe:
           exec:
-            command: ["curl", "--max-time", "0.05", "-s", {{ if eq . "https" }}"-k", https://localhost:8443{{ else }}http://localhost:8080{{ end }}{{ $.Values.minio.readinessProbe.path }}]
+            command: ["curl", "--max-time", "{{ if eq . "https" }}{{ $.Values.minio.readinessProbe.curlHttpsMaxTimeSeconds }}{{ else }}{{ $.Values.minio.readinessProbe.curlHttpMaxTimeSeconds }}{{ end }}", "-s", {{ if eq . "https" }}"-k", https://localhost:8443{{ else }}http://localhost:8080{{ end }}{{ $.Values.minio.readinessProbe.path }}]
           initialDelaySeconds: {{ $.Values.minio.readinessProbe.initialDelaySeconds }}
           periodSeconds: {{ $.Values.minio.readinessProbe.periodSeconds }}
           timeoutSeconds: {{ $.Values.minio.readinessProbe.timeoutSeconds }}
@@ -137,46 +139,24 @@ spec:
         imagePullPolicy: {{ $.Values.minio.metricsLogger.imagePullPolicy }}
         resources:
 {{ toYaml $.Values.minio.metricsLogger.resources | indent 10 }}
+        volumeMounts:
+        - name: "fluentd-conf-volume"
+          mountPath: "/fluentd/etc/"
+          readOnly: true
         env:
         - name: LOG_PROVIDER
           value: {{ $.Values.minio.metricsLogger.LOG_PROVIDER | default "default" | quote }}
-        - name: LOG_LEVEL
-          value: {{ $.Values.minio.metricsLogger.LOG_LEVEL | quote }}
-        - name: REDIS_HOST
-          value: {{ $.Values.minio.metricsLogger.REDIS_HOST | quote }}
-        - name: REDIS_PORT
-          value: {{ $.Values.minio.metricsLogger.REDIS_PORT | quote }}
-        - name: UPDATE_GRACE_PERIOD_SECONDS
-          value: {{ $.Values.minio.metricsLogger.UPDATE_GRACE_PERIOD_SECONDS | quote }}
-        - name: DEPLOYMENT_API_METRICS_FLUSH_INTERVAL_SECONDS
-          value: {{ $.Values.minio.metricsLogger.DEPLOYMENT_API_METRICS_FLUSH_INTERVAL_SECONDS | quote }}
-        - name: REDIS_KEY_PREFIX_DEPLOYMENT_LAST_ACTION
-          value: {{ $.Values.minio.metricsLogger.REDIS_KEY_PREFIX_DEPLOYMENT_LAST_ACTION | quote }}
-        - name: REDIS_KEY_PREFIX_DEPLOYMENT_API_METRIC
-          value: {{ $.Values.minio.metricsLogger.REDIS_KEY_PREFIX_DEPLOYMENT_API_METRIC | quote }}
-        {{ if $.Values.minio.metricsLogger.LOG_PROVIDER }}
-        {{ if eq $.Values.minio.metricsLogger.LOG_PROVIDER "elasticsearch" }}
-        - name: ES_HOST
-          value: {{ $.Values.minio.metricsLogger.ES_HOST | quote }}
-        - name: ES_PORT
-          value: {{ $.Values.minio.metricsLogger.ES_PORT | quote }}
-        {{ else if eq $.Values.minio.metricsLogger.LOG_PROVIDER "s3" }}
-        - name: AWS_KEY_ID
-          value: {{ $.Values.minio.metricsLogger.AWS_KEY_ID | quote }}
-        - name: AWS_SECRET_KEY
-          value: {{ $.Values.minio.metricsLogger.AWS_SECRET_KEY | quote }}
-        - name: S3_BUCKET_NAME
-          value: {{ $.Values.minio.metricsLogger.S3_BUCKET_NAME | quote }}
-        - name: S3_REGION
-          value: {{ $.Values.minio.metricsLogger.S3_REGION | quote }}
-        {{ end }}
-        {{ end }}
       {{ end }}
       {{ if $.Values.minio.metricsLogger.withRedis }}
       - name: redis
         image: redis
       {{ end }}
       volumes:
+      {{ if $.Values.minio.metricsLogger.enable }}
+      - name: fluentd-conf-volume
+        configMap:
+          name: fluentd-conf
+      {{ end }}
       - name: storage
 {{ $.Values.minio.volumes.storage | indent 8 }}
       - name: cache
