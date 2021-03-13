@@ -121,7 +121,7 @@ For these tests, we will use AWS to provide all the required log backends.
   - Network configuration: public access
   - Domain access policy: custom: ipv4 address: allow your IP
 
-Add the following the following to the default `.values.yaml` file (as described in using helm section above)
+Add the following to the default `.values.yaml` file (as described in using helm section above)
 
 ```yaml
 # under metricsLogger:
@@ -136,7 +136,7 @@ Deploy the helm chart according to instructions for using Helm.
 
 - Amazon S3 -> Create bucket
 
-Add the following the following to the default `.values.yaml` file (as described in using helm section above)
+Add the following to the default `.values.yaml` file (as described in using helm section above)
 
 ```yaml
 # under metricsLogger:
@@ -153,7 +153,7 @@ Deploy the helm chart according to instructions for using Helm.
 
 It disables the logger pod and runs without logging.
 
-Add the following the following to the default `.values.yaml` file (as described in using helm section above)
+Add the following to the default `.values.yaml` file (as described in using helm section above)
 
 ```yaml
 # under minio:
@@ -178,7 +178,7 @@ helm upgrade --install cwm-worker-deployment-minio ./helm -n logs --create-names
 
 Verify the logs Minio pod is ready
 
-Add the following the following to the default `.values.yaml` file (as described in using helm section above):
+Add the following to the default `.values.yaml` file (as described in using helm section above):
 
 ```
 # under metricsLogger:
