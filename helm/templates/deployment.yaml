@@ -83,6 +83,8 @@ spec:
         - name: CWM_INIT_DEBUG
           value: "yes"
         {{ end }}
+        - name: CWM_INIT_CURL_MAX_TIME
+          value: "{{ if eq . "https" }}{{ $.Values.minio.initCurlHttpsMaxTime }}{{ else }}{{ $.Values.minio.initCurlHttpMaxTime }}{{ end }}"
         {{ if $.Values.minio.enablePrometheusAuthTypePublic }}
         - name: MINIO_PROMETHEUS_AUTH_TYPE
           value: "public"
@@ -97,7 +99,7 @@ spec:
         {{ end }}
         startupProbe:
           exec:
-            command: ["curl", "--max-time", "0.05", "-s", {{ if eq . "https" }}"-k", https://localhost:8443{{ else }}http://localhost:8080{{ end }}{{ $.Values.minio.startupProbe.path }}]
+            command: ["curl", "--max-time", "{{ if eq . "https" }}{{ $.Values.minio.startupProbe.curlHttpsMaxTimeSeconds }}{{ else }}{{ $.Values.minio.startupProbe.curlHttpMaxTimeSeconds }}{{ end }}", "-s", {{ if eq . "https" }}"-k", https://localhost:8443{{ else }}http://localhost:8080{{ end }}{{ $.Values.minio.startupProbe.path }}]
           initialDelaySeconds: {{ $.Values.minio.startupProbe.initialDelaySeconds }}
           periodSeconds: {{ $.Values.minio.startupProbe.periodSeconds }}
           timeoutSeconds: {{ $.Values.minio.startupProbe.timeoutSeconds }}
@@ -105,7 +107,7 @@ spec:
           failureThreshold: {{ $.Values.minio.startupProbe.failureThreshold }}
         livenessProbe:
           exec:
-            command: ["curl", "--max-time", "0.05", "-s", {{ if eq . "https" }}"-k", https://localhost:8443{{ else }}http://localhost:8080{{ end }}{{ $.Values.minio.livenessProbe.path }}]
+            command: ["curl", "--max-time", "{{ if eq . "https" }}{{ $.Values.minio.livenessProbe.curlHttpsMaxTimeSeconds }}{{ else }}{{ $.Values.minio.livenessProbe.curlHttpMaxTimeSeconds }}{{ end }}", "-s", {{ if eq . "https" }}"-k", https://localhost:8443{{ else }}http://localhost:8080{{ end }}{{ $.Values.minio.livenessProbe.path }}]
           initialDelaySeconds: {{ $.Values.minio.livenessProbe.initialDelaySeconds }}
           periodSeconds: {{ $.Values.minio.livenessProbe.periodSeconds }}
           timeoutSeconds: {{ $.Values.minio.livenessProbe.timeoutSeconds }}
@@ -113,7 +115,7 @@ spec:
           failureThreshold: {{ $.Values.minio.livenessProbe.failureThreshold }}
         readinessProbe:
           exec:
-            command: ["curl", "--max-time", "0.05", "-s", {{ if eq . "https" }}"-k", https://localhost:8443{{ else }}http://localhost:8080{{ end }}{{ $.Values.minio.readinessProbe.path }}]
+            command: ["curl", "--max-time", "{{ if eq . "https" }}{{ $.Values.minio.readinessProbe.curlHttpsMaxTimeSeconds }}{{ else }}{{ $.Values.minio.readinessProbe.curlHttpMaxTimeSeconds }}{{ end }}", "-s", {{ if eq . "https" }}"-k", https://localhost:8443{{ else }}http://localhost:8080{{ end }}{{ $.Values.minio.readinessProbe.path }}]
           initialDelaySeconds: {{ $.Values.minio.readinessProbe.initialDelaySeconds }}
           periodSeconds: {{ $.Values.minio.readinessProbe.periodSeconds }}
           timeoutSeconds: {{ $.Values.minio.readinessProbe.timeoutSeconds }}

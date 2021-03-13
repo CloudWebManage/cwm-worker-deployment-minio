@@ -26,6 +26,8 @@ minio:
   MINIO_GATEWAY_DEPLOYMENT_ID: "minio1"
   MINIO_EXTRA_ARGS: ""
   initDebugEnable: false
+  initCurlHttpMaxTime: "1.5"
+  initCurlHttpsMaxTime: "1.5"
   # this exposes prometheus metrics unauthenticated at /minio/v2/metrics/cluster and /minio/v2/metrics/node
   enablePrometheusAuthTypePublic: true
   # this works only if serveSingleProtocolPerPod is true as well
@@ -38,6 +40,8 @@ minio:
     timeoutSeconds: 1
     successThreshold: 1
     failureThreshold: 5
+    curlHttpMaxTimeSeconds: "1.5"
+    curlHttpsMaxTimeSeconds: "1.5"
   livenessProbe:
     path: /minio/health/live
     initialDelaySeconds: 0
@@ -45,6 +49,8 @@ minio:
     timeoutSeconds: 1
     successThreshold: 1
     failureThreshold: 2
+    curlHttpMaxTimeSeconds: "1.5"
+    curlHttpsMaxTimeSeconds: "1.5"
   readinessProbe:
     path: /minio/health/ready
     initialDelaySeconds: 0
@@ -52,6 +58,8 @@ minio:
     timeoutSeconds: 1
     successThreshold: 1
     failureThreshold: 2
+    curlHttpMaxTimeSeconds: "1.5"
+    curlHttpsMaxTimeSeconds: "1.5"
   httpResources:
     requests:
       cpu: "50m"
