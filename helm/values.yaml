@@ -23,7 +23,8 @@ minio:
   imagePullPolicy: IfNotPresent
   auditWebhookEndpoint: "http://localhost:8500/logs"
   skipWaitForAuditWebhook: false
-  MINIO_GATEWAY_DEPLOYMENT_ID: "minio1"
+  MINIO_GATEWAY_DEPLOYMENT_ID_http: "minio1"
+  MINIO_GATEWAY_DEPLOYMENT_ID_https: "minio1"
   MINIO_EXTRA_ARGS: ""
   initDebugEnable: false
   initCurlHttpMaxTime: "1.5"

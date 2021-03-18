@@ -69,7 +69,7 @@ spec:
           value: "yes"
         {{ end }}
         - name: MINIO_GATEWAY_DEPLOYMENT_ID
-          value: {{ $.Values.minio.MINIO_GATEWAY_DEPLOYMENT_ID | quote }}
+          value: {{ $.Values.minio.MINIO_GATEWAY_DEPLOYMENT_ID_http | quote }}
         - name: MINIO_EXTRA_ARGS
           value: {{ $.Values.minio.MINIO_EXTRA_ARGS | quote }}
         {{ if $.Values.minio.initDebugEnable }}
