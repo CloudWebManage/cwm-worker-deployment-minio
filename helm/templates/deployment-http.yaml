@@ -82,6 +82,8 @@ spec:
         - name: MINIO_PROMETHEUS_AUTH_TYPE
           value: "public"
         {{ end }}
+        - name: MINIO_BROWSER
+          value: "{{ if $.Values.minio.browser }}on{{ else }}off{{ end }}"
         ports:
         - containerPort: 8080
           name: "p8080"
