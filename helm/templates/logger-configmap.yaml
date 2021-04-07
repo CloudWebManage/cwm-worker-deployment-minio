@@ -23,6 +23,7 @@ data:
       <redis>
         host                {{ $.Values.minio.metricsLogger.REDIS_HOST }}
         port                {{ $.Values.minio.metricsLogger.REDIS_PORT }}
+        db                  {{ $.Values.minio.metricsLogger.REDIS_DB }}
         grace_period        {{ $.Values.minio.metricsLogger.UPDATE_GRACE_PERIOD_SECONDS }}
         flush_interval      {{ $.Values.minio.metricsLogger.DEPLOYMENT_API_METRICS_FLUSH_INTERVAL_SECONDS }}
         last_update_prefix  {{ $.Values.minio.metricsLogger.REDIS_KEY_PREFIX_DEPLOYMENT_LAST_ACTION }}

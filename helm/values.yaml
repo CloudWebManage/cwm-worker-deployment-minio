@@ -148,6 +148,7 @@ minio:
     # Redis configuration
     REDIS_HOST: localhost
     REDIS_PORT: 6379
+    REDIS_DB: 0
     UPDATE_GRACE_PERIOD_SECONDS: 300s
     DEPLOYMENT_API_METRICS_FLUSH_INTERVAL_SECONDS: 300s
     REDIS_KEY_PREFIX_DEPLOYMENT_LAST_ACTION: deploymentid:last_action
