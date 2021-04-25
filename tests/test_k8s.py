@@ -48,7 +48,7 @@ def test():
                  extra_error_msg_cmds=minio_logs_commands)
     http_bucketname = str(uuid.uuid4())
     https_bucketname = str(uuid.uuid4())
-    miniopf = subprocess.Popen('exec kubectl port-forward service/nginx 8080 8443', shell=True)
+    miniopf = subprocess.Popen('exec kubectl port-forward service/nginx 8080:80 8443:443', shell=True)
     try:
         time.sleep(15)
         http_returncode, http_output = subprocess.getstatusoutput('warp mixed --host localhost:8080 --access-key dummykey --secret-key dummypass --objects 50 --duration 0m10s --bucket {}'.format(http_bucketname))
