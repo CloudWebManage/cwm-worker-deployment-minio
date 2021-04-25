@@ -33,6 +33,10 @@ You can resolve it like this:
 export COMPOSE_TLS_VERSION=TLSv1_2
 ```
 
+Login to Minio at http://localhost:8080 or https://localhost:8443
+
+user: 12345678 / password: 12345678
+
 ### Using Helm
 
 - Install [Minikube](https://minikube.sigs.k8s.io/docs/) (latest stable version).
@@ -58,52 +62,26 @@ export COMPOSE_TLS_VERSION=TLSv1_2
       tag: latest
       DEPLOYMENT_API_METRICS_FLUSH_INTERVAL_SECONDS: "5"
       LOG_LEVEL: debug
+    nginx:
+      image: nginx
+      tag: latest
   ```
 
 - You can apply additional configurations to override the configuration at
   `helm/values.yaml`.
 - Deploy: `helm upgrade -f .values.yaml --install cwm-worker-deployment-minio ./helm`
 - Verify that the minio pod is running: `kubectl get pods`
-- Start port-forward to the minio service:
-  - `kubectl port-forward service/minio 8080`
-  - `kubectl port-forward service/minio 8443`
+- Start port-forward to the nginx service:
+  - `kubectl port-forward service/nginx 8080:80`
+  - `kubectl port-forward service/minio 8443:443`
 - Access it at http://localhost:8080 or https://localhost:8443
+- Also, try https://example003.com:8443 vs. https://example002.com:8443 - each one should serve the relevant certificate for this domain
 - Default username/password: `dummykey` / `dummypass`
 - Create a bucket and upload/download some objects.
 - Start Redis CLI and check the recorded metrics:
 
   ```shell
   kubectl exec deployment/minio-logger -c redis -it -- redis-cli
-  keys *
-  get deploymentid:minio-metrics:minio1:num_requests_in
-  ```
-
-### Manual testing of single pod per deployment
-
-Single pod per deployment mode of the minio deployment is a bit more complex -
-it creates a separate pod for each container
-
-Add the following to .values.yaml under minio:
-
-```yaml
-serveSingleProtocolPerPod: true
-```
-
-Deploy the helm chart according to instructions for using Helm
-
-- Verify that all 3 pods are running: `kubectl get pods`
-- Start port-forward to the minio services:
-  - `kubectl port-forward service/minio-http 8080`
-  - `kubectl port-forward service/minio-https 8443`
-- Access it at http://localhost:8080 or https://localhost:8443
-  - (For this type of deployment, the storage is not shared between http/https,
-    because each minio container is in a separate pod).
-- Default username/password is `dummykey` / `dummypass`
-- Create a bucket and upload/download some objects.
-- Start Redis CLI and check the recorded metrics:
-
-  ```shell
-  kubectl exec deployment/minio logger -c redis -it -- redis-cli
   keys *
   get deploymentid:minio-metrics:minio1:num_requests_in
   ```

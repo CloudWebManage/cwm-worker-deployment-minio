@@ -62,17 +62,10 @@ def test():
         'deploymentid:minio-metrics:docker-compose-http:num_requests_misc',
         'deploymentid:minio-metrics:docker-compose-http:bytes_out',
         'deploymentid:minio-metrics:docker-compose-http:bytes_in',
-        'deploymentid:minio-metrics:docker-compose-https:bytes_out',
-        'deploymentid:minio-metrics:docker-compose-https:bytes_in',
-        'deploymentid:minio-metrics:docker-compose-https:num_requests_misc',
-        'deploymentid:last_action:docker-compose-https',
         'deploymentid:last_action:docker-compose-http'
     }
     assert int(r.get(b'deploymentid:minio-metrics:docker-compose-http:num_requests_in')) == http_num_requests_in
     assert int(r.get(b'deploymentid:minio-metrics:docker-compose-http:num_requests_out')) == http_num_requests_out
-    assert int(r.get(b'deploymentid:minio-metrics:docker-compose-http:num_requests_misc')) == http_num_requests_misc
-    assert int(r.get(b'deploymentid:minio-metrics:docker-compose-https:num_requests_misc')) == https_num_requests_misc
-    assert int(r.get(b'deploymentid:minio-metrics:docker-compose-http:bytes_out')) > 20
-    assert int(r.get(b'deploymentid:minio-metrics:docker-compose-http:bytes_in')) > 20
-    assert int(r.get(b'deploymentid:minio-metrics:docker-compose-https:bytes_out')) > 20
-    assert int(r.get(b'deploymentid:minio-metrics:docker-compose-https:bytes_in')) > 20
+    assert int(r.get(b'deploymentid:minio-metrics:docker-compose-http:num_requests_misc')) == http_num_requests_misc + https_num_requests_misc
+    assert int(r.get(b'deploymentid:minio-metrics:docker-compose-http:bytes_out')) > 40
+    assert int(r.get(b'deploymentid:minio-metrics:docker-compose-http:bytes_in')) > 40

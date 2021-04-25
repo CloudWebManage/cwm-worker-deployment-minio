@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-hostnames
+data:
+{{ range $.Values.minio.nginx.hostnames }}
+  {{ .id }}.name: {{ .name }}
+  {{ if and .pem .key }}
+  {{ .id }}.pem: {{ .pem | quote }}
+  {{ .id }}.key: {{ .key | quote }}
+  {{ end }}
+{{ end }}

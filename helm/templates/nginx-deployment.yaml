@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+spec:
+  replicas: {{ $.Values.minio.nginx.replicas }}
+  revisionHistoryLimit: {{ $.Values.minio.revisionHistoryLimit }}
+  selector:
+    matchLabels:
+      app: nginx
+  strategy:
+{{ toYaml $.Values.minio.nginx.strategy | indent 4 }}
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      dnsPolicy: ClusterFirst
+      imagePullSecrets:
+      {{ $.Values.minio.imagePullSecrets | indent 6 }}
+      terminationGracePeriodSeconds: {{ $.Values.minio.terminationGracePeriodSeconds }}
+      automountServiceAccountToken: false
+      {{ if $.Values.minio.nodeSelector }}
+      nodeSelector:
+{{ $.Values.minio.nodeSelector | indent 8 }}
+      {{ end }}
+      {{- if $.Values.minio.tolerations }}
+      tolerations:
+{{ toYaml $.Values.minio.tolerations | indent 8 }}
+      {{- end }}
+      containers:
+      - name: nginx
+        image: {{ $.Values.minio.nginx.image }}:{{ $.Values.minio.nginx.tag | default $.Chart.AppVersion }}
+        imagePullPolicy: {{ $.Values.minio.imagePullPolicy }}
+        env:
+          - name: HOSTNAMES_DIR
+            value: "/hostnames"
+        ports:
+        - containerPort: 80
+        - containerPort: 443
+        resources:
+{{ toYaml $.Values.minio.nginx.resources | indent 10 }}
+        volumeMounts:
+        - name: hostnames
+          mountPath: /hostnames
+      volumes:
+      - name: hostnames
+        configMap:
+          name: nginx-hostnames

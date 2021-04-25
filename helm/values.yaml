@@ -1,14 +1,8 @@
 minio:
-  enabledProtocols: ["http", "https"]
-  serveSingleProtocolPerPod: false
-  # replicas if serveSingleProtocolPerPod is false
   replicas: 1
-  # replicas if serveSingleProtocolPerPod is true
-  httpReplicas: 1
-  httpsReplicas: 1
   revisionHistoryLimit: 2
   terminationGracePeriodSeconds: 5
-  strategy: |
+  strategy:
     type: RollingUpdate
     rollingUpdate:
       maxUnavailable: 0
@@ -23,15 +17,12 @@ minio:
   imagePullPolicy: IfNotPresent
   auditWebhookEndpoint: "http://localhost:8500/logs"
   skipWaitForAuditWebhook: false
-  MINIO_GATEWAY_DEPLOYMENT_ID_http: "minio1"
-  MINIO_GATEWAY_DEPLOYMENT_ID_https: "minio1"
+  MINIO_GATEWAY_DEPLOYMENT_ID: "minio1"
   MINIO_EXTRA_ARGS: ""
   initDebugEnable: false
-  initCurlHttpMaxTime: "1.5"
-  initCurlHttpsMaxTime: "1.5"
+  initCurlMaxTime: "1.5"
   # this exposes prometheus metrics unauthenticated at /minio/v2/metrics/cluster and /minio/v2/metrics/node
   enablePrometheusAuthTypePublic: true
-  # this works only if serveSingleProtocolPerPod is true as well
   # it requires prometheus operator version 0.45 (kube-prometheus-stack 13.13)
   enableServiceMonitors: true
   startupProbe:
@@ -41,8 +32,7 @@ minio:
     timeoutSeconds: 1
     successThreshold: 1
     failureThreshold: 5
-    curlHttpMaxTimeSeconds: "1.5"
-    curlHttpsMaxTimeSeconds: "1.5"
+    curlMaxTimeSeconds: "1.5"
   livenessProbe:
     path: /minio/health/live
     initialDelaySeconds: 0
@@ -50,8 +40,7 @@ minio:
     timeoutSeconds: 1
     successThreshold: 1
     failureThreshold: 2
-    curlHttpMaxTimeSeconds: "1.5"
-    curlHttpsMaxTimeSeconds: "1.5"
+    curlMaxTimeSeconds: "1.5"
   readinessProbe:
     path: /minio/health/ready
     initialDelaySeconds: 0
@@ -59,20 +48,13 @@ minio:
     timeoutSeconds: 1
     successThreshold: 1
     failureThreshold: 2
-    curlHttpMaxTimeSeconds: "1.5"
-    curlHttpsMaxTimeSeconds: "1.5"
-  httpResources:
+    curlMaxTimeSeconds: "1.5"
+  resources:
     requests:
       cpu: "50m"
       memory: "200Mi"
     limits:
       memory: "200Mi"
-  httpsResources:
-    requests:
-      cpu: "100m"
-      memory: "300Mi"
-    limits:
-      memory: "300Mi"
   cache:
     enabled: true
     drives: "/cache"
@@ -85,41 +67,12 @@ minio:
   domain_name: "example007.com"
   access_key: "dummykey"
   secret_key: "dummypass"
-  certificate_pem: "-----BEGIN CERTIFICATE-----\nMIIDCTCCAfGgAwIBAgIUebacs5jlDI2Wy4EXGcvXu6x7e9AwDQYJKoZIhvcNAQEL\nBQAwFDESMBAGA1UEAwwJbG9jYWxob3N0MB4XDTIwMDEyMTEwMTU0OFoXDTIyMTEx\nMDEwMTU0OFowFDESMBAGA1UEAwwJbG9jYWxob3N0MIIBIjANBgkqhkiG9w0BAQEF\nAAOCAQ8AMIIBCgKCAQEA0CMe/fuMrIRwalCnVGeZVAY/LEItoKD1FJcG2UGd3AUO\nDGlxFtd5xBTyfc3+tvscZSbqOOrT2XuEUeGzmIiuDx9k9k28KeMxRYf5tB5rdKm8\nFokuuczXqowDfanDmbu4QhTrHM1IX2FFSoRlQq4e/N1TP9Nm5eUqSH44ONavCJM5\n857QoScv82ot7oaZ6Sqaweau5wrxTTBAyTRrQ+OKMyMgUs8fpRON+oBbgEpDAeXk\nNxe9ck8IBqrnH8tQJbv1dfDr5a9Boa0DCrjHO/VHDVh/GzU7FoQW9B640EOJXCSj\n3xZpJAwgNXrF8gX7kBGQWjFNqltubbRFxUAQS3ULyQIDAQABo1MwUTAdBgNVHQ4E\nFgQUFf9QJ016QGvtEKN83Em8scdS/1owHwYDVR0jBBgwFoAUFf9QJ016QGvtEKN8\n3Em8scdS/1owDwYDVR0TAQH/BAUwAwEB/zANBgkqhkiG9w0BAQsFAAOCAQEATd1z\nKkMxN58FbNkS4aHPVaKxb4fhIer5yhBRpdBHXl6AWyDaTLr0uAVH9CSyYAzETGGV\nAX4CdwCkHRq1DuXcn8vWzt2BBY6E4x9x/7TyeXtzj38R5nW9OOf5UTtK4e/3M/KA\ngAUEyBeTPwPnCxEPTvd1WFktQyHgCth6msPdAjFRf75u2vT5zAnQbREjsRnp6kpZ\nYXxAJDCwhAKrAoPeBRc5XAqPGB9oYp/8filHTj8CpErid6JWpSvFw+6JrEDg/pVe\nf/G7niVrMtyeermVLca3WeZPQ5NReMXmJ3pOg2MXDKcy4E4pvkM6oQmYbtKsPAvx\n64hRJtzD6RCaFmQ1FQ==\n-----END CERTIFICATE-----"
-  certificate_key: "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDQIx79+4yshHBq\nUKdUZ5lUBj8sQi2goPUUlwbZQZ3cBQ4MaXEW13nEFPJ9zf62+xxlJuo46tPZe4RR\n4bOYiK4PH2T2Tbwp4zFFh/m0Hmt0qbwWiS65zNeqjAN9qcOZu7hCFOsczUhfYUVK\nhGVCrh783VM/02bl5SpIfjg41q8IkznzntChJy/zai3uhpnpKprB5q7nCvFNMEDJ\nNGtD44ozIyBSzx+lE436gFuASkMB5eQ3F71yTwgGqucfy1Alu/V18Ovlr0GhrQMK\nuMc79UcNWH8bNTsWhBb0HrjQQ4lcJKPfFmkkDCA1esXyBfuQEZBaMU2qW25ttEXF\nQBBLdQvJAgMBAAECggEAJXZs2aIxS8v6v+gMdjC/dFQ7gqfWtpbCBha48NnSpAt0\n398Kr+XQ0O5ER0iQlDbWgY5jkiMSRo7o3iQVw1q2mZo4/ew39gIimDVFSJpBFRqH\n9DZ05pRsLRJOfovT3RPgsmQ5fVGluSU055i08S+N/E2J8m8GklKRLcMqM3DQyGYE\nFK792nVarXJqo16tlkeO1ZChNy4oRLrdvpRK5FDsnX9Tuy/DTYFL+0u3ck+4XtgH\nZuEaOUwEmS8W8lQgE4B7Q8Zv0gdtLTw9XQuUmyFCEy3+dODG1IhzKqx1ldVEA2Yc\nKXlGO3rPbbdicDkqU1RIV0kI+d9+OzznhnCtv2zRQQKBgQD8rg9dD2OK+ZkW81Yp\nyLfWa6Vl8dfiCLkb8uumecr9OrBMLqEgfJMIZnOtzE9zxq5vSTHEYbtbMlqTd67I\n0ovVSIWdl9AEl2iNTk8Ha09fGjnlMjsFUe+80U0gHCwLytIaVeAsSZ3j0XJVNNE0\nvLh/TfY1AgITvDTGuWrOBtHXLQKBgQDS3zuJ70ZasXslnPkIdLcPv+nO0lDY3L9Q\nuyfWDR3TaCxQIw/oIFQ3hiqnq1EgV5gzPQ6plRXvNlP4TYC9rO+9eExpHjrtExdZ\nfsIVyLU+v9BZyFqTDyoEeXZawkQ+cWrac3p53RlcPP6gqo0BlagoJfu4Ur6+uZcM\nYrl50tyojQKBgERU4ey9q6K6qw7M0YFNOYHv7HOsOkBzMXQAdn+3shBXHbQMbCB3\n7982rZPTi6z4jtWjiqTb9SnNbTcyB39hiNUt3oxmsKd9NpX4FmEgQP+r/PohYlqm\n9NkwFNZZKAQsXjMnBA+V/O/OBUhLl0PWwWIT+EAPgfZKUE9pdxuuNnMlAoGBAJHA\nPjTer7AsEEQ1NWQE2CsIqSCM+diK66lvUt9+fWkMDeTt9yaogc1G7OCrZw2Fvetc\nfm/0Xg7TbEKpvxxbFfHN3nKhtHT8xxzSom/QJIZUqjwEYaZXyuEA2y9sKyNF3WdU\nfgkRK2A3wH9oosG/oVTuvAfxGWpWePLUogJ0HpRZAoGAXDdcofIrP/IW4xjCbwBk\nqJJr4WDAeSvqscXRZb6DEsWwmvzMMI5RYwAkwOPm5MMJpXTjfUtS3Y3LjYWczlww\nN+vbIMyCeQDsgnJKJyQU6mhqw9RUUD4cmD9BgTJDlgLcVMUu3eLLrAOdjSOUfxCx\nhlQZj4ZBcZWwbF1E1VmH84g=\n-----END PRIVATE KEY-----"
   volumes:
     storage: |
       emptyDir: {}
     cache: |
       emptyDir: {}
-  service:
-    enabled: true
-  #  autoscaler if serveSingleProtocolPerPod=false
   autoscaler:
-    enabled: true
-    minReplicas: 1
-    maxReplicas: 10
-    metrics: |
-      - type: Resource
-        resource:
-          name: cpu
-          target:
-            averageValue: 150m
-            type: AverageValue
-  # autoscaler if serveSingleProtocolPerPod=true
-  httpAutoscaler:
-    enabled: true
-    minReplicas: 1
-    maxReplicas: 10
-    metrics: |
-      - type: Resource
-        resource:
-          name: cpu
-          target:
-            averageValue: 150m
-            type: AverageValue
-  # autoscaler if serveSingleProtocolPerPod=true
-  httpsAutoscaler:
     enabled: true
     minReplicas: 1
     maxReplicas: 10
@@ -184,6 +137,133 @@ minio:
     S3_ENDPOINT: http://localhost:8080
     S3_SSL_VERIFY: true
     S3_STORE_AS: gzip         # gzip, lzo, json, txt
+
+  nginx:
+    replicas: 1
+    strategy:
+      type: RollingUpdate
+      rollingUpdate:
+        maxUnavailable: 0
+        maxSurge: 1
+    image: docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio-nginx
+    tag: ""
+    resources:
+      requests:
+        cpu: "25m"
+        memory: "50Mi"
+      limits:
+        memory: "150Mi"
+    hostnames:
+      - id: "1"
+        name: example001.com
+      - id: "2"
+        name: example002.com
+        pem: |
+          -----BEGIN CERTIFICATE-----
+          MIIDnTCCAoWgAwIBAgIUA+zBqFfYSKNFAuaH5G1JrD1AfrUwDQYJKoZIhvcNAQEL
+          BQAwXjELMAkGA1UEBhMCQVUxEzARBgNVBAgMClNvbWUtU3RhdGUxITAfBgNVBAoM
+          GEludGVybmV0IFdpZGdpdHMgUHR5IEx0ZDEXMBUGA1UEAwwOZXhhbXBsZTAwMi5j
+          b20wHhcNMjEwNDI1MDYyNTAyWhcNMjIwNDI1MDYyNTAyWjBeMQswCQYDVQQGEwJB
+          VTETMBEGA1UECAwKU29tZS1TdGF0ZTEhMB8GA1UECgwYSW50ZXJuZXQgV2lkZ2l0
+          cyBQdHkgTHRkMRcwFQYDVQQDDA5leGFtcGxlMDAyLmNvbTCCASIwDQYJKoZIhvcN
+          AQEBBQADggEPADCCAQoCggEBAMFl6FqTuTtKBEFoWAy9heQsiqepgZxPQ1vb7tPw
+          dzUHEh5EvqKhxqCq9QAbvm5hlqFPcyfNE8VC62IhlZaL2FpxZ7Rz21Z1n5v6xfTK
+          BKsHFkMAM67ylbfsRAClbnhjx10rcLZg7FTIIOP1nxO6qoFCJ9HgDzXj/47d+3Xs
+          ETECbrPji9WNq30Ty/vHdcOmTTTCFP/mko+7IIdQb3AuHTuPgO4w8Yn5tzwZcOtw
+          gEpaWLFO+vZDUp3FnL79J8FFtBSntID8jZik38G1F3LUfZgmikBO4GrfZXQBU42E
+          h1mM39/EPocMDPPhkWuWAZaEBfLqqWzqMmez25vpIvtV0aUCAwEAAaNTMFEwHQYD
+          VR0OBBYEFFlVjP905/cO7Pm6VRUftIaQEqgZMB8GA1UdIwQYMBaAFFlVjP905/cO
+          7Pm6VRUftIaQEqgZMA8GA1UdEwEB/wQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEB
+          AKqV/SseJd7ecKuhZF26L7qA76+WBt/YkFJ147a17RXDPa7I5Itoi1OF0+KPNJs8
+          Zkr13pqPjdw6WB5yYRTXGGy1FQiDA4R/BhmS2XjZodQqRevzNJxode+lf4PI3XK6
+          IOBH0f2slbFIn8A4ipflnw5+VVwVhOhBRU180q33fPh3ni12v6MyqBz3npTPWoqZ
+          RhyXuhFFijdqErZvoF9cXhPniQQvgK+Vx6j/HGSqLSnFEGzOj1YJVAJ7MD+q1jxu
+          CS9FHfejx4u/oN7ze10XzYW5b7DsGycp+fnn0TPqqSowuSUJl/5CpsfNCNixX4Qj
+          eqWVGgboqabA6q5hGafOgPk=
+          -----END CERTIFICATE-----
+        key: |
+          -----BEGIN PRIVATE KEY-----
+          MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDBZehak7k7SgRB
+          aFgMvYXkLIqnqYGcT0Nb2+7T8Hc1BxIeRL6iocagqvUAG75uYZahT3MnzRPFQuti
+          IZWWi9hacWe0c9tWdZ+b+sX0ygSrBxZDADOu8pW37EQApW54Y8ddK3C2YOxUyCDj
+          9Z8TuqqBQifR4A814/+O3ft17BExAm6z44vVjat9E8v7x3XDpk00whT/5pKPuyCH
+          UG9wLh07j4DuMPGJ+bc8GXDrcIBKWlixTvr2Q1KdxZy+/SfBRbQUp7SA/I2YpN/B
+          tRdy1H2YJopATuBq32V0AVONhIdZjN/fxD6HDAzz4ZFrlgGWhAXy6qls6jJns9ub
+          6SL7VdGlAgMBAAECggEAUfXcOLauI4BEuWt9FTkkiwSNZmyhrxqwUzeryUn5WxG6
+          DfXYTJf+04xf9EHNvH3DFm3TQaTZohmwI5BUEs8FS58P8hu/cq66i6IFTq5muAxy
+          1MY7IQNRi/anAxcY8BBpJwUH6WK+BVgjCDjJx9St+cWNlpY8G/yaC3Pr45e92WSO
+          nFUmgLzBnuGtHMMeHgE97bAmbkeilMilkrrQ9G2sKk3udUK90oiAIB6eP3JtG8rl
+          UcxS1B77UdWOTAi90B6Pc9s6KulQ73n0vI8hjGIVBfj34npEiT/tqQCD95nzxGRB
+          +LSUkbXJxR2ds5fhodjZ+QoVJ1zUZx1MD6QHeFPK6QKBgQD6NQ2K8fFzygy6PNia
+          UVqCOEcyjqfOb9kwqYmP3V+WKgw3u243Ht/IRYNJfPFiDi20lLRjKzExMMN3MV3J
+          9rV0l5OTBCfig068pBA5QqzXqL1zInTzRnBXsBu2MCl+hSTST/Ct6k9X5MfBLMSX
+          hXllhsxQP6E8AEgy7aDR27KEzwKBgQDF4CdnDd5zD9Ch3N5ZqD3IhqCjJxnaL9Et
+          PZPQCkZm2Fi2sDJIqmu9XmJnrN9qM57oBJ+2QupRM1ZRQ+SzML4Ug4+ydI7zTWyp
+          hFzASrQ3floMjwmpkNx9tZvLQ/jW9hFQtbkB6HZ6AUMeHro2YPNdLJx0/+r3lZVU
+          GDmKZXTHSwKBgFOXO+IKuLcNbrkdsOPFgC53LNooLMncNjx6t5mXxOJ/Q7uu48CI
+          kQzwpE797grrX7uv3qAvAu1DNFpy5Lmfsbm1FjmMruKPKdP+H+lxbBtUpY58mYPZ
+          KZkyHd/9MS+yvb2BtY/08vMTXOUd1sQkdI1Fvqaky3InSfexygOymW6jAoGAG7bQ
+          bfugS2dMpk8ECXSp6psIhrFkSo3l8zsrp7i4sZDdpAC7mjfcTTKZ/8FTrVE7kW2M
+          XP+0R9kz3r/umTZbeQ4QI0N1/he6/2cdgoU0Bo242Qdzp/81EppMDsUfZiQiurYp
+          Cl5fsajZmK9fD1y22Tb1VuG9LB4UQyn9bSfWmk8CgYA7kqUaSp4E4P2tTJqfgM9Y
+          y4YPsvsgbgE9REx22urZGvckkCT+Rkd4m38BBvnkWChfCEDyMtFiai/SBJ+A15IF
+          YPLZWrfjq7Z2dGlcZyhJ1SoLYnfX5iPOf+TwE5+wCmlSda1HfiWgHFCTdAZrpYqu
+          BDhxYQnRXIDemidN0HgOfw==
+          -----END PRIVATE KEY-----
+      - id: "3"
+        name: "example003.com"
+        pem: |
+          -----BEGIN CERTIFICATE-----
+          MIIDnTCCAoWgAwIBAgIUP4BcN7e6BMB7Tw3Fo2ARjoFjNGUwDQYJKoZIhvcNAQEL
+          BQAwXjELMAkGA1UEBhMCQVUxEzARBgNVBAgMClNvbWUtU3RhdGUxITAfBgNVBAoM
+          GEludGVybmV0IFdpZGdpdHMgUHR5IEx0ZDEXMBUGA1UEAwwOZXhhbXBsZTAwMy5j
+          b20wHhcNMjEwNDI1MDYyNTIxWhcNMjIwNDI1MDYyNTIxWjBeMQswCQYDVQQGEwJB
+          VTETMBEGA1UECAwKU29tZS1TdGF0ZTEhMB8GA1UECgwYSW50ZXJuZXQgV2lkZ2l0
+          cyBQdHkgTHRkMRcwFQYDVQQDDA5leGFtcGxlMDAzLmNvbTCCASIwDQYJKoZIhvcN
+          AQEBBQADggEPADCCAQoCggEBAMDFaKv7PG6bUFLJkLww7XwD8xi4g0j48A4+fMyx
+          EklxfmWALQEJDwFT3fRgp98no3TynLby/rMxSKeE0srmj8TpU2Oy4Ybx9vYz39lP
+          UH1EdR9PLnKavR19nmSVfUbPOo0cQl1XbxnTFQrgc/pQJ/zdl+lRQTOIEqZ1Is1D
+          1VrWK0rnFWk890+t7ToSe/B9wVgGzpVR4CsV0DPtmT9A1LLDClyef+5fXGVzwFJD
+          Lms1SGbsXn59udQiduttBWr48htlnSPJqXww5+KwowLOXVBBd5xq1NIVjkT7Vn2f
+          EkRrs69RmzoHR3tAGCAhO0eXfsKFHyHDm2Iqi0MfLZi/RNkCAwEAAaNTMFEwHQYD
+          VR0OBBYEFAnCDtjRjx+jSUxx/x+gP0N0C+u+MB8GA1UdIwQYMBaAFAnCDtjRjx+j
+          SUxx/x+gP0N0C+u+MA8GA1UdEwEB/wQFMAMBAf8wDQYJKoZIhvcNAQELBQADggEB
+          ABhU4tbEfFSNb0yRhXUQ+A0HFoVcRTPJNVxQPTgNfc1JYD/cu2KvPXAHubnO/g9s
+          ADCHKnGYTMH3+hI6JkfZgqgYdHqD7czAGGGI73/S3nxEwYnHFTfGb9rQi3b0EAu+
+          pW4uKp8Kd+JeqJlSyBa5qKXzYGy/SLeBi0LIcNDhLEzmVpvED1hJZJFnhMeT6nK4
+          3s4714KosylDEzdBokI2jR6fBbCsANvk8D1A5vZHzJzfxRWAKZGcrkXpiMucSBSa
+          uGdRE9Deich3FTKEwWtCHSjgtsPB2LlCUHVaCbTqw5hyi/yzw3z7k87834DLPfUa
+          VMRiIckOeX+wX01oCUpc8vY=
+          -----END CERTIFICATE-----
+        key: |
+          -----BEGIN PRIVATE KEY-----
+          MIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDAxWir+zxum1BS
+          yZC8MO18A/MYuINI+PAOPnzMsRJJcX5lgC0BCQ8BU930YKffJ6N08py28v6zMUin
+          hNLK5o/E6VNjsuGG8fb2M9/ZT1B9RHUfTy5ymr0dfZ5klX1GzzqNHEJdV28Z0xUK
+          4HP6UCf83ZfpUUEziBKmdSLNQ9Va1itK5xVpPPdPre06EnvwfcFYBs6VUeArFdAz
+          7Zk/QNSywwpcnn/uX1xlc8BSQy5rNUhm7F5+fbnUInbrbQVq+PIbZZ0jyal8MOfi
+          sKMCzl1QQXecatTSFY5E+1Z9nxJEa7OvUZs6B0d7QBggITtHl37ChR8hw5tiKotD
+          Hy2Yv0TZAgMBAAECggEBAItaKaCprbYHcLloHMjuVb8g28szFzTZQDAL3AvctWuC
+          L+0QC3iEI+TBy+GtPa2D6hXQjJl0b8r6BZuT2Q30PloKkc2wsnfq0qyIM3nUbEsi
+          AcjwZJNUaQG4nZf4uOdHRvxbQV5Ypmf0v3FtcGmzKDUTu41ev9OQumq6or3gG4vd
+          pZM0DUe761bN3N2cVFvAl5+1BG+ZE8lDS0BXyrx7HCnrw8HL39sax85GjZnZosbb
+          aHICmfC15T8RFeJTbctCpTyfIWi05lIwsVasfhzRAG1FFa5csb8o2pUl5hCIs6Fu
+          TQv8zk9/XBdJZDQfzlN8W+OQ/sbCW9T87YJ0iV+8MAECgYEA4hck64gRFkcfzeC/
+          dIbfbXELz46PUUW0zLcPVT4fIiw5zLcJNa4bqjnmtQByN6vgCzrlCrxZsg2t1zeC
+          7gAKI2RqAqXpPLIkva+beCyIoNmLzprXxznDBYpuvK1+ldQnVP3gPT69F4tAvsxK
+          qFE99mMiV9prf7w7cw3lW1mKBKECgYEA2kXcyjGzKwawmV1WkCTx08Vd4YUARTjF
+          oCDynBTP8tKTXm1jTw4Pzk5m8Fe+ImfZFw7rVj9rEOmyJ5he5QUrlZIKvoCF0q8f
+          FHV+XCdfxlRFE60BoaHco+MYV3crRU99RFrCaIyjFtQ3DUIt4fdqe1FliEu/UvDu
+          edJOxDe+HTkCgYEAlwI4Yay/JO8aegs8NVuETffsmJQye2kgin9WmWvlpZB+hpJW
+          b2k8ByWnR4vlvfNpsHaE1vfYvQlP7GiiZc7W9q6x89TXBPhDfAKXx9uO4kiLjdJ0
+          fxfAf6nnrtP+sZpDLwxmwuFtsRUMiKOw1d11kmTCYoV7uZSC7KUCZVJX0iECgYEA
+          pnMqSQKXiBMk7v9PuMKDq6PR0N209BS0GEWn3UC9x4Wvng268pldkk0VkOjIdMJO
+          uZfF/VKFWjNsiWdXzjwgHYJuMRIfeyfSgq6KusnH7p1qw/Nl0BV4BX5znJei5ssU
+          UuEHaeT9pbYVeUXjaXNcv0e2Lrbc4uoaYcnwCRAdKXkCgYA9RBoTT04m491KtC32
+          eIYuW5uN7VTGsMMl0YpxksSnkUVXxCLZN29+Yenk6zfoyEfQttMtMvO9vInwD+UB
+          4UPwsg+SqwY8YNN5sBHotFMjdp3W2bmiXIqEgq880NPzdihwFiT3N+kZm/g8XWiE
+          J8N7SZILaDxONvOjzwnGGc2acw==
+          -----END PRIVATE KEY-----
 
 # each object have required attributes: apiVersion, kind, name, spec
 extraObjects: []

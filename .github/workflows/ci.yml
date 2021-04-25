@@ -44,7 +44,9 @@ jobs:
           docker-compose down -v
         fi &&\
         docker tag minio docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio:$GITHUB_SHA &&\
+        docker tag nginx docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio-nginx:$GITHUB_SHA &&\
         docker push docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio:$GITHUB_SHA &&\
+        docker push docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio-nginx:$GITHUB_SHA &&\
         sed -i "s/appVersion: latest/appVersion: ${GITHUB_SHA}/g" helm/Chart.yaml &&\
         bin/update_logger_image.sh && \
         if [ "${SKIP_TESTS}" == "no" ]; then
@@ -53,7 +55,9 @@ jobs:
         fi &&\
         if [ "${GITHUB_REF}" == "refs/heads/main" ] && [ "${NO_DEPLOY}" == "no" ]; then
           docker tag minio docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio:latest &&\
+          docker tag nginx docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio-nginx:latest &&\
           docker push docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio:latest &&\
+          docker push docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio-nginx:latest &&\
           echo "${CWM_WORKER_HELM_DEPLOY_KEY}" > cwm_worker_helm_deploy_key &&\
           chmod 400 cwm_worker_helm_deploy_key &&\
           export GIT_SSH_COMMAND="ssh -i $(pwd)/cwm_worker_helm_deploy_key -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" &&\
