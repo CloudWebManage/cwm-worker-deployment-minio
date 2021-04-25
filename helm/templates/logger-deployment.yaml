@@ -1,4 +1,3 @@
-{{ if .Values.minio.serveSingleProtocolPerPod }}
 {{ if .Values.minio.metricsLogger.enable }}
 apiVersion: apps/v1
 kind: Deployment
@@ -49,5 +48,4 @@ spec:
       - name: fluentd-conf-volume
         configMap:
           name: fluentd-conf
-{{ end }}
 {{ end }}

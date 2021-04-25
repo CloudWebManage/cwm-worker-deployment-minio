@@ -30,19 +30,20 @@ def wait_for_cmd(cmd, expected_returncode, ttl_seconds, error_msg, expected_outp
 
 def test():
     print('deleting existing deployment')
-    subprocess.getstatusoutput('helm delete cwm-worker-deployment-minio')
-    wait_for_cmd('kubectl get deployment minio',
+    subprocess.getstatusoutput('DEBUG= helm delete cwm-worker-deployment-minio')
+    wait_for_cmd('DEBUG= kubectl get deployment minio',
                  1, 30, 'waited too long for minio deployment to be deleted')
     set_github_secret()
-    returncode, output = subprocess.getstatusoutput('helm upgrade --install cwm-worker-deployment-minio ./helm')
+    returncode, output = subprocess.getstatusoutput('DEBUG= helm upgrade --install cwm-worker-deployment-minio ./helm')
     assert returncode == 0, output
     minio_logs_commands = """
-        kubectl describe pod minio-
-        kubectl logs deployment/minio -c http
-        kubectl logs deployment/minio -c logger
-        kubectl logs deployment/minio -c redis
+        DEBUG= kubectl describe pods
+        DEBUG= kubectl logs deployment/minio -c http
+        DEBUG= kubectl logs deployment/minio-logger -c logger
+        DEBUG= kubectl logs deployment/minio-logger -c redis
+        DEBUG= kubectl logs deployment/nginx -c nginx
     """
-    wait_for_cmd('kubectl get pods | grep minio- | grep 3/3 | grep Running',
+    wait_for_cmd('bash -c \'[ "$(DEBUG= kubectl get pods | grep 1/1 | grep Running | wc -l)" == "2" ]\'',
                  0, 300, 'waited too long for minio deployment to be deployed',
                  extra_error_msg_cmds=minio_logs_commands)
     http_bucketname = str(uuid.uuid4())

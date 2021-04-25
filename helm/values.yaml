@@ -73,7 +73,7 @@ minio:
     cache: |
       emptyDir: {}
   autoscaler:
-    enabled: true
+    enabled: false
     minReplicas: 1
     maxReplicas: 10
     metrics: |
