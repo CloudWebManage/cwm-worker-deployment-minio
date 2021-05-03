@@ -31,7 +31,7 @@ def wait_for_cmd(cmd, expected_returncode, ttl_seconds, error_msg, expected_outp
 def test():
     print('deleting existing deployment')
     subprocess.getstatusoutput('DEBUG= helm delete cwm-worker-deployment-minio')
-    wait_for_cmd('DEBUG= kubectl get deployment minio',
+    wait_for_cmd('DEBUG= kubectl get deployment/minio deployment/nginx deployment/minio-logger',
                  1, 30, 'waited too long for minio deployment to be deleted')
     set_github_secret()
     returncode, output = subprocess.getstatusoutput('DEBUG= helm upgrade --install cwm-worker-deployment-minio ./helm')
@@ -48,7 +48,7 @@ def test():
                  extra_error_msg_cmds=minio_logs_commands)
     http_bucketname = str(uuid.uuid4())
     https_bucketname = str(uuid.uuid4())
-    miniopf = subprocess.Popen('exec kubectl port-forward service/nginx 8080:80 8443:443', shell=True)
+    miniopf = subprocess.Popen('exec kubectl port-forward service/nginx 8080:8080 8443:8443', shell=True)
     try:
         time.sleep(15)
         http_returncode, http_output = subprocess.getstatusoutput('warp mixed --host localhost:8080 --access-key dummykey --secret-key dummypass --objects 50 --duration 0m10s --bucket {}'.format(http_bucketname))

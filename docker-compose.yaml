@@ -7,8 +7,8 @@ services:
     restart: on-failure
     build: nginx
     ports:
-      - "8080:80"
-      - "8443:443"
+      - "8080:8080"
+      - "8443:8443"
     environment:
       HOSTNAMES_DIR: "/hostnames"
     volumes:

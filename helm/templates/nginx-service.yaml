@@ -4,9 +4,9 @@ metadata:
   name: nginx
 spec:
   ports:
-  - name: "80"
-    port: 80
-  - name: "443"
-    port: 443
+  - name: "8080"
+    port: 8080
+  - name: "8443"
+    port: 8443
   selector:
     app: nginx

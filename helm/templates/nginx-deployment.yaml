@@ -36,8 +36,8 @@ spec:
           - name: HOSTNAMES_DIR
             value: "/hostnames"
         ports:
-        - containerPort: 80
-        - containerPort: 443
+        - containerPort: 8080
+        - containerPort: 8443
         resources:
 {{ toYaml $.Values.minio.nginx.resources | indent 10 }}
         volumeMounts:
