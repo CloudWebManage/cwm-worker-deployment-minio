@@ -1,0 +1,33 @@
+{{ if .Values.minio.scaledobject.enabled }}
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: minio-scaledojbect
+  namespace: {{ .Release.Namespace }}
+spec:
+  scaleTargetRef:
+    name: minio
+  pollingInterval: 10
+  # cooldownPeriod:  20
+  minReplicaCount: 1
+  maxReplicaCount: 10
+  # advanced:
+  #   restoreToOriginalReplicaCount: true
+  #   horizontalPodAutoscalerConfig:
+  #     behavior:
+  #       scaleDown:
+  #         stabilizationWindowSeconds: 30
+  #         policies:
+  #         - type: Percent
+  #           value: 80
+  #           periodSeconds: 15
+  triggers:
+    - type: external
+      metadata:
+        scalerAddress: minio-external-scaler.{{ .Release.Namespace }}:50051
+        deploymentid: "minio"
+        isActiveTtlSeconds: "60"
+        scalePeriodSeconds: "60"
+        scaleMetricName: "bytes_out"
+        targetValue: "10"
+{{ end }}

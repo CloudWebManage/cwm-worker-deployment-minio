@@ -83,6 +83,26 @@ minio:
           target:
             averageValue: 150m
             type: AverageValue
+
+  externalscaler:
+    enabled: false
+    image: docker.pkg.github.com/cwm-keda-external-scaler/iamazeem/cwm-keda-external-scaler
+    imagePullPolicy: IfNotPresent
+    resources:
+      requests:
+        cpu: "20m"
+        memory: "64Mi"
+      limits:
+        memory: "150Mi"
+      # CWM_REDIS_HOST: localhost
+      # CWM_REDIS_PORT: 6379
+      # CWM_REDUS_DB: 0
+      # LAST_UPDATE_PREFIX_TEMPLATE: deploymentid:last_action
+      # METRICS_PREFIX_TEMPLATE: deploymentid:minio-metrics
+
+  scaledobject:
+    enabled: false
+
   metricsLogger:
     enable: true
     image: docker.pkg.github.com/cloudwebmanage/cwm-worker-logger/cwm-worker-logger
