@@ -25,8 +25,8 @@ spec:
           value: {{ $.Values.minio.metricsLogger.REDIS_PORT | quote }}
         - name: CWM_REDIS_DB
           value: {{ $.Values.minio.metricsLogger.REDIS_DB | quote }}
-        - name: LAST_UPDATE_PREFIX_TEMPLATE
+        - name: LAST_UPDATE_PREFIX
           value: {{ $.Values.minio.metricsLogger.REDIS_KEY_PREFIX_DEPLOYMENT_LAST_ACTION | quote }}
-        - name: METRICS_PREFIX_TEMPLATE
+        - name: METRICS_PREFIX
           value: {{ $.Values.minio.metricsLogger.REDIS_KEY_PREFIX_DEPLOYMENT_API_METRIC | quote }}
 {{ end }}

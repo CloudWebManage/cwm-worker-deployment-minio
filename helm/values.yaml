@@ -94,11 +94,11 @@ minio:
         memory: "64Mi"
       limits:
         memory: "150Mi"
-      # CWM_REDIS_HOST: localhost
-      # CWM_REDIS_PORT: 6379
-      # CWM_REDUS_DB: 0
-      # LAST_UPDATE_PREFIX_TEMPLATE: deploymentid:last_action
-      # METRICS_PREFIX_TEMPLATE: deploymentid:minio-metrics
+    # CWM_REDIS_HOST: localhost
+    # CWM_REDIS_PORT: 6379
+    # CWM_REDUS_DB: 0
+    # LAST_UPDATE_PREFIX: deploymentid:last_action
+    # METRICS_PREFIX: deploymentid:minio-metrics
 
   scaledobject:
     enabled: false

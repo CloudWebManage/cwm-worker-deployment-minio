@@ -2,7 +2,7 @@
 apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
 metadata:
-  name: minio-scaledojbect
+  name: minio
   namespace: {{ .Release.Namespace }}
 spec:
   scaleTargetRef:
