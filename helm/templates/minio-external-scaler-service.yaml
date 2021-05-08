@@ -1,0 +1,12 @@
+{{ if .Values.minio.externalscaler.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: minio-external-scaler
+spec:
+  ports:
+  - name: "50051"
+    port: 50051
+  selector:
+    app: minio-external-scaler
+{{ end }}
