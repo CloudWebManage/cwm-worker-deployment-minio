@@ -25,9 +25,9 @@ spec:
     - type: external
       metadata:
         scalerAddress: minio-external-scaler.{{ .Release.Namespace }}:50051
-        deploymentid: "minio"
+        deploymentid: "minio1"
         isActiveTtlSeconds: "60"
         scalePeriodSeconds: "60"
-        scaleMetricName: "bytes_out"
+        scaleMetricName: "num_requests_misc"
         targetValue: "10"
 {{ end }}
