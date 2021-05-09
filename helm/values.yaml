@@ -72,17 +72,6 @@ minio:
       emptyDir: {}
     cache: |
       emptyDir: {}
-  autoscaler:
-    enabled: false
-    minReplicas: 1
-    maxReplicas: 10
-    metrics: |
-      - type: Resource
-        resource:
-          name: cpu
-          target:
-            averageValue: 150m
-            type: AverageValue
 
   externalscaler:
     enabled: false
