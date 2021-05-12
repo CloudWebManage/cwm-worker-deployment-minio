@@ -219,19 +219,20 @@ minio:
 Deploy: `helm upgrade -f .values.yaml --install cwm-worker-deployment-minio ./helm`
 
 The external scaler should be up and running.
-Now, the `ScaledObject` can be configured and deployed.
+Now, the `ScaledObject` can be configured and deployed:
 
 ```yaml
 minio:
   # ...
   scaledobject:
     enabled: true
+    spec:
+      # ...
 ```
 
-A custom `ScaledObject` has been provided for the minio deployment. It can be
-modified and deployed as required. It can be found under `./helm/templates/`
-directory.
-See: [minio-external-scaler-scaledobject.yaml](helm/templates/minio-external-scaler-scaledobject.yaml)
+For the detailed configuration under `spec`, please refer to
+[Sample Configuration](https://github.com/iamazeem/cwm-keda-external-scaler#sample-configuration)
+section.
 
 Deploy: `helm upgrade -f .values.yaml --install cwm-worker-deployment-minio ./helm`
 
