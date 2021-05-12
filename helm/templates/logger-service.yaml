@@ -7,8 +7,10 @@ spec:
   ports:
   - name: "8500"
     port: 8500
+  {{- if $.Values.minio.metricsLogger.withRedis }}
   - name: "6379"
     port: 6379
+  {{- end }}
   selector:
     app: minio-logger
 {{ end }}
