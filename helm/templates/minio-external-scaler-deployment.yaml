@@ -20,7 +20,7 @@ spec:
         resources: {{ toYaml $.Values.minio.externalscaler.resources | nindent 10 }}
         env:
         - name: CWM_REDIS_HOST
-          value: {{ $.Values.minio.externalscaler.REDIS_HOST }}
+          value: {{ $.Values.minio.metricsLogger.REDIS_HOST | quote }}
         - name: CWM_REDIS_PORT
           value: {{ $.Values.minio.metricsLogger.REDIS_PORT | quote }}
         - name: CWM_REDIS_DB

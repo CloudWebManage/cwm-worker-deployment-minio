@@ -15,7 +15,7 @@ minio:
   image: docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio
   tag: ""
   imagePullPolicy: IfNotPresent
-  auditWebhookEndpoint: "http://localhost:8500/logs"
+  auditWebhookEndpoint: "http://minio-logger:8500/logs"
   skipWaitForAuditWebhook: false
   MINIO_GATEWAY_DEPLOYMENT_ID: "minio1"
   MINIO_EXTRA_ARGS: ""
@@ -83,7 +83,6 @@ minio:
         memory: "64Mi"
       limits:
         memory: "150Mi"
-    REDIS_HOST: "minio-logger"
 
   scaledobject:
     enabled: false
@@ -107,7 +106,7 @@ minio:
       triggers:
         - type: external
           metadata:
-            scalerAddress: minio-external-scaler.{{ .Release.Namespace }}:50051
+            scalerAddress: minio-external-scaler:50051
             deploymentid: "minio1"
             isActiveTtlSeconds: "60"
             scalePeriodSeconds: "60"
@@ -130,7 +129,7 @@ minio:
     LOG_LEVEL: info           # fatal, error, warn, info, debug, trace
 
     # Redis configuration
-    REDIS_HOST: localhost
+    REDIS_HOST: minio-logger
     REDIS_PORT: 6379
     REDIS_DB: 0
     UPDATE_GRACE_PERIOD_SECONDS: 300s
