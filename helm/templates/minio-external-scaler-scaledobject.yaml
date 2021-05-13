@@ -1,0 +1,9 @@
+{{ if $.Values.minio.externalscaler.enabled }}
+{{ if $.Values.minio.scaledobject.enabled }}
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: minio
+spec: {{ toYaml $.Values.minio.scaledobject.spec | nindent 2 }}
+{{ end }}
+{{ end }}

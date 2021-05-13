@@ -13,6 +13,8 @@ spec:
     metadata:
       labels:
         app: minio-logger
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/logger-configmap.yaml") . | sha256sum }}
     spec:
       dnsPolicy: ClusterFirst
       imagePullSecrets:

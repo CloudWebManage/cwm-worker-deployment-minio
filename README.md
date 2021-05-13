@@ -49,6 +49,11 @@ user: 12345678 / password: 12345678
     [cwm-worker-logger](https://github.com/cloudwebmanage/cwm-worker-logger).
   - Make sure you checked out the relevant version of `cwm-worker-logger` you want
     to test with (e.g. `git pull origin main` to get latest version).
+- Build the cwm-keda-external-scaler image: `docker build -t cwm-keda-external-scaler ../cwm-keda-external-scaler`
+  - Change the directory according to where you cloned
+    [cwm-keda-external-scaler](https://github.com/iamazeem/cwm-keda-external-scaler).
+  - Make sure you checked out the relevant version of `cwm-keda-external-scaler` you want
+    to test with (e.g. `git pull origin main` to get latest version).
 - Create a file at `.values.yaml` with the following content:
 
   ```yaml
@@ -62,6 +67,11 @@ user: 12345678 / password: 12345678
       tag: latest
       DEPLOYMENT_API_METRICS_FLUSH_INTERVAL_SECONDS: "5"
       LOG_LEVEL: debug
+    externalscaler:
+      enabled: true
+      image: cwm-keda-external-scaler
+    scaledobject:
+      enabled: false
     nginx:
       image: nginx
       tag: latest
@@ -75,7 +85,8 @@ user: 12345678 / password: 12345678
   - `kubectl port-forward service/nginx 8080:80`
   - `kubectl port-forward service/minio 8443:443`
 - Access it at http://localhost:8080 or https://localhost:8443
-- Also, try https://example003.com:8443 vs. https://example002.com:8443 - each one should serve the relevant certificate for this domain
+- Also, try https://example003.com:8443 vs. https://example002.com:8443 - each
+  one should serve the relevant certificate for this domain
 - Default username/password: `dummykey` / `dummypass`
 - Create a bucket and upload/download some objects.
 - Start Redis CLI and check the recorded metrics:
@@ -192,7 +203,48 @@ Start a port-forward to logs minio service:
 kubectl -n logs port-forward service/minio 8080
 ```
 
-Logs should appear in bucket test123
+Logs should appear in bucket `test123`.
+
+## Scaling
+
+A custom [KEDA](https://keda.sh/) external scaler
+[cwm-keda-external-scaler](https://github.com/iamazeem/cwm-keda-external-scaler)
+is being used to perform scaling.
+
+Make sure that the KEDA has already been deployed before proceeding with a
+`ScaledObject`. Use [install with YAML](https://keda.sh/docs/2.1/deploy/#yaml)
+method.
+
+By default, the external scaler is disabled i.e. no scaling.
+
+To enable it, use a custom `.values.yaml` and deploy accordingly:
+
+```yaml
+minio:
+  # ...
+  externalscaler:
+    enabled: true
+```
+
+Deploy: `helm upgrade -f .values.yaml --install cwm-worker-deployment-minio ./helm`
+
+The external scaler should be up and running.
+Now, the `ScaledObject` can be configured and deployed:
+
+```yaml
+minio:
+  # ...
+  scaledobject:
+    enabled: true
+    spec:
+      # ...
+```
+
+For the detailed configuration under `spec`, please refer to
+[Sample Configuration](https://github.com/iamazeem/cwm-keda-external-scaler#sample-configuration)
+section.
+
+Deploy: `helm upgrade -f .values.yaml --install cwm-worker-deployment-minio ./helm`
 
 ## Running Tests
 

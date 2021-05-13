@@ -1,0 +1,32 @@
+{{ if .Values.minio.externalscaler.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minio-external-scaler
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: minio-external-scaler
+  template:
+    metadata:
+      labels:
+        app: minio-external-scaler
+    spec:
+      containers:
+      - name: minio-external-scaler
+        image: {{ $.Values.minio.externalscaler.image }}
+        imagePullPolicy: {{ $.Values.minio.externalscaler.imagePullPolicy }}
+        resources: {{ toYaml $.Values.minio.externalscaler.resources | nindent 10 }}
+        env:
+        - name: CWM_REDIS_HOST
+          value: {{ $.Values.minio.metricsLogger.REDIS_HOST | quote }}
+        - name: CWM_REDIS_PORT
+          value: {{ $.Values.minio.metricsLogger.REDIS_PORT | quote }}
+        - name: CWM_REDIS_DB
+          value: {{ $.Values.minio.metricsLogger.REDIS_DB | quote }}
+        - name: LAST_UPDATE_PREFIX
+          value: {{ $.Values.minio.metricsLogger.REDIS_KEY_PREFIX_DEPLOYMENT_LAST_ACTION | quote }}
+        - name: METRICS_PREFIX
+          value: {{ $.Values.minio.metricsLogger.REDIS_KEY_PREFIX_DEPLOYMENT_API_METRIC | quote }}
+{{ end }}
