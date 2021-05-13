@@ -49,6 +49,11 @@ user: 12345678 / password: 12345678
     [cwm-worker-logger](https://github.com/cloudwebmanage/cwm-worker-logger).
   - Make sure you checked out the relevant version of `cwm-worker-logger` you want
     to test with (e.g. `git pull origin main` to get latest version).
+- Build the cwm-keda-external-scaler image: `docker build -t cwm-keda-external-scaler ../cwm-keda-external-scaler`
+  - Change the directory according to where you cloned
+    [cwm-keda-external-scaler](https://github.com/iamazeem/cwm-keda-external-scaler).
+  - Make sure you checked out the relevant version of `cwm-keda-external-scaler` you want
+    to test with (e.g. `git pull origin main` to get latest version).
 - Create a file at `.values.yaml` with the following content:
 
   ```yaml
@@ -62,6 +67,11 @@ user: 12345678 / password: 12345678
       tag: latest
       DEPLOYMENT_API_METRICS_FLUSH_INTERVAL_SECONDS: "5"
       LOG_LEVEL: debug
+    externalscaler:
+      enabled: true
+      image: cwm-keda-external-scaler
+    scaledobject:
+      enabled: false
     nginx:
       image: nginx
       tag: latest
