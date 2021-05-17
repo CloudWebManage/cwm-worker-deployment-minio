@@ -5,6 +5,7 @@ metadata:
   name: minio-external-scaler
 spec:
   replicas: 1
+  revisionHistoryLimit: {{ $.Values.minio.revisionHistoryLimit }}
   selector:
     matchLabels:
       app: minio-external-scaler
@@ -13,6 +14,19 @@ spec:
       labels:
         app: minio-external-scaler
     spec:
+      dnsPolicy: ClusterFirst
+      imagePullSecrets:
+      {{ $.Values.minio.imagePullSecrets | indent 6 }}
+      terminationGracePeriodSeconds: {{ $.Values.minio.terminationGracePeriodSeconds }}
+      automountServiceAccountToken: false
+      {{ if $.Values.minio.nodeSelector }}
+      nodeSelector:
+{{ $.Values.minio.nodeSelector | indent 8 }}
+      {{ end }}
+      {{- if $.Values.minio.tolerations }}
+      tolerations:
+{{ toYaml $.Values.minio.tolerations | indent 8 }}
+      {{- end }}
       containers:
       - name: minio-external-scaler
         image: {{ $.Values.minio.externalscaler.image }}
