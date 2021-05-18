@@ -67,6 +67,8 @@ minio:
   domain_name: "example007.com"
   access_key: "dummykey"
   secret_key: "dummypass"
+  storageVolumeSubPath: ""
+  cacheVolumeSubPath: ""
   volumes:
     storage: |
       emptyDir: {}

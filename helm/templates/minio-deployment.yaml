@@ -115,8 +115,10 @@ spec:
         volumeMounts:
         - mountPath: "/storage"
           name: "storage"
+          {{ if $.Values.minio.storageVolumeSubPath }}subPath: {{ $.Values.minio.storageVolumeSubPath | quote }}{{ end }}
         - mountPath: "/cache"
           name: "cache"
+          {{ if $.Values.minio.cacheVolumeSubPath }}subPath: {{ $.Values.minio.cacheVolumeSubPath | quote }}{{ end }}
       volumes:
       - name: storage
 {{ $.Values.minio.volumes.storage | indent 8 }}
