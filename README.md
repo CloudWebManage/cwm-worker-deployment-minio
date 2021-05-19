@@ -246,6 +246,31 @@ section.
 
 Deploy: `helm upgrade -f .values.yaml --install cwm-worker-deployment-minio ./helm`
 
+## Gateway Mode
+
+In this mode the Minio instance acts as a gateway to other S3-compatible service
+
+You can start a docker-compose environment which includes 2 minio instances - 
+one acting as the gateway and one as the source instance:
+
+```shell
+docker-compose -f docker-compose-gateway.yaml up --build
+```
+
+Logging to http://127.0.0.1:8080 using the gateway credentials (12345678 / 12345678)
+
+Create a bucket and execute a shell in source container to see the bucket there
+
+```shell
+docker-compose -f docker-compose-gateway.yaml exec minio-source ls /opt
+```
+
+Upload / download some files and see log data in redis
+
+```shell
+docker-compose -f docker-compose-gateway.yaml exec redis redis-cli keys '*'
+```
+
 ## Running Tests
 
 See [CI workflow](.github/workflows/ci.yml).

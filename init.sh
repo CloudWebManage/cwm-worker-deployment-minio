@@ -10,5 +10,10 @@ if [ "${MINIO_AUDIT_WEBHOOK_ENDPOINT_target1}" != "" ] && [ "${SKIP_WAIT_FOR_AUD
 fi &&\
 echo setting ulimit &&\
 ulimit -n 1024000 &&\
-echo starting gateway nas http &&\
-exec /usr/bin/minio gateway nas $MINIO_EXTRA_ARGS --address :8080 /storage/
+if [ "${INSTANCE_TYPE}" == "gateway_s3" ]; then
+  echo starting gateway s3 http &&\
+  exec /usr/bin/minio gateway s3 $MINIO_EXTRA_ARGS --address :8080 $GATEWAY_ARGS
+else
+  echo starting gateway nas http &&\
+  exec /usr/bin/minio gateway nas $MINIO_EXTRA_ARGS --address :8080 /storage/
+fi

@@ -83,6 +83,14 @@ spec:
         {{ end }}
         - name: MINIO_BROWSER
           value: "{{ if $.Values.minio.browser }}on{{ else }}off{{ end }}"
+        - name: INSTANCE_TYPE
+          value: {{ $.Values.minio.INSTANCE_TYPE }}
+        - name: GATEWAY_ARGS
+          value: {{ $.Values.minio.GATEWAY_ARGS }}
+        - name: AWS_ACCESS_KEY_ID
+          value: {{ $.Values.minio.AWS_ACCESS_KEY_ID }}
+        - name: AWS_SECRET_ACCESS_KEY
+          value: {{ $.Values.minio.AWS_SECRET_ACCESS_KEY }}
         ports:
         - containerPort: 8080
           name: "p8080"
@@ -113,14 +121,18 @@ spec:
         resources:
 {{ toYaml $.Values.minio.resources | indent 10 }}
         volumeMounts:
+        {{ if eq $.Values.minio.INSTANCE_TYPE "" }}
         - mountPath: "/storage"
           name: "storage"
           {{ if $.Values.minio.storageVolumeSubPath }}subPath: {{ $.Values.minio.storageVolumeSubPath | quote }}{{ end }}
+        {{ end }}
         - mountPath: "/cache"
           name: "cache"
           {{ if $.Values.minio.cacheVolumeSubPath }}subPath: {{ $.Values.minio.cacheVolumeSubPath | quote }}{{ end }}
       volumes:
+      {{ if eq $.Values.minio.INSTANCE_TYPE "" }}
       - name: storage
 {{ $.Values.minio.volumes.storage | indent 8 }}
+      {{ end }}
       - name: cache
 {{ $.Values.minio.volumes.cache | indent 8 }}
