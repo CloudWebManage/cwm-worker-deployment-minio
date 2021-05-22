@@ -82,8 +82,8 @@ user: 12345678 / password: 12345678
 - Deploy: `helm upgrade -f .values.yaml --install cwm-worker-deployment-minio ./helm`
 - Verify that the minio pod is running: `kubectl get pods`
 - Start port-forward to the nginx service:
-  - `kubectl port-forward service/nginx 8080:80`
-  - `kubectl port-forward service/minio 8443:443`
+  - `kubectl port-forward service/nginx 8080:8080`
+  - `kubectl port-forward service/minio 8443:8443`
 - Access it at http://localhost:8080 or https://localhost:8443
 - Also, try https://example003.com:8443 vs. https://example002.com:8443 - each
   one should serve the relevant certificate for this domain
@@ -282,7 +282,6 @@ See [CI workflow](.github/workflows/ci.yml).
 - Create a feature or bugfix branch from `main`.
 - Commit and push your changes.
 - Make sure to add tests.
-- Run Rubocop locally and fix all the lint warnings.
 - Submit the PR.
 
 ## License
