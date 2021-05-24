@@ -41,7 +41,7 @@ user: 12345678 / password: 12345678
 
 - Install [Minikube](https://minikube.sigs.k8s.io/docs/) (latest stable version).
 - Install [Helm](https://helm.sh/) (latest stable version).
-- Start a local cluster: `minikube start --driver=docker --kubernetes-version=v1.16.14`
+- Start a local cluster: `minikube start --driver=docker --kubernetes-version=v1.16.14 --network-plugin=cni --cni=calico`
 - Switch to the minikube docker env: `eval $(minikube -p minikube docker-env)`.
 - Build the Docker images: `docker-compose build`
 - Build the cwm-worker-logger image: `docker build -t cwm-worker-logger ../cwm-worker-logger`
