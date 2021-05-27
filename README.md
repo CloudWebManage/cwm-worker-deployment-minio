@@ -41,7 +41,7 @@ user: 12345678 / password: 12345678
 
 - Install [Minikube](https://minikube.sigs.k8s.io/docs/) (latest stable version).
 - Install [Helm](https://helm.sh/) (latest stable version).
-- Start a local cluster: `minikube start --driver=docker --kubernetes-version=v1.16.14`
+- Start a local cluster: `minikube start --driver=docker --kubernetes-version=v1.16.14 --network-plugin=cni --cni=calico`
 - Switch to the minikube docker env: `eval $(minikube -p minikube docker-env)`.
 - Build the Docker images: `docker-compose build`
 - Build the cwm-worker-logger image: `docker build -t cwm-worker-logger ../cwm-worker-logger`
@@ -82,8 +82,8 @@ user: 12345678 / password: 12345678
 - Deploy: `helm upgrade -f .values.yaml --install cwm-worker-deployment-minio ./helm`
 - Verify that the minio pod is running: `kubectl get pods`
 - Start port-forward to the nginx service:
-  - `kubectl port-forward service/nginx 8080:80`
-  - `kubectl port-forward service/minio 8443:443`
+  - `kubectl port-forward service/nginx 8080:8080`
+  - `kubectl port-forward service/minio 8443:8443`
 - Access it at http://localhost:8080 or https://localhost:8443
 - Also, try https://example003.com:8443 vs. https://example002.com:8443 - each
   one should serve the relevant certificate for this domain
@@ -282,7 +282,6 @@ See [CI workflow](.github/workflows/ci.yml).
 - Create a feature or bugfix branch from `main`.
 - Commit and push your changes.
 - Make sure to add tests.
-- Run Rubocop locally and fix all the lint warnings.
 - Submit the PR.
 
 ## License
