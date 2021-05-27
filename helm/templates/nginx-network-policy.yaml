@@ -13,8 +13,6 @@ spec:
   - from:
     - ipBlock:
         cidr: 0.0.0.0/0
-    - podSelector:
-        matchLabels: {}
     ports:
     - protocol: TCP
       port: 8080

@@ -11,8 +11,6 @@ spec:
   - Egress
   ingress:
   - from:
-    - ipBlock:
-        cidr: 0.0.0.0/0
     - podSelector:
         matchLabels:
           app: nginx
