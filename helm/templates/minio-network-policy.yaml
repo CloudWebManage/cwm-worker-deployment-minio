@@ -30,3 +30,9 @@ spec:
     - protocol: TCP
       port: 8500
     {{- end }}
+    {{- if eq $.Values.minio.INSTANCE_TYPE "gateway_s3" }}
+    {{- range $.Values.minio.gatewayNetworkPolicyExtraEgressPorts }}
+    - protocol: TCP
+      port: {{ . }}
+    {{- end }}
+    {{- end }}
