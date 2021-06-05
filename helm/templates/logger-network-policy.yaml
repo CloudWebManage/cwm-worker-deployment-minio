@@ -9,7 +9,9 @@ spec:
       app: minio-logger
   policyTypes:
   - Ingress
+  {{- if or (not $.Values.minio.metricsLogger.withRedis) (eq $.Values.minio.metricsLogger.LOG_PROVIDER "elasticsearch") (eq $.Values.minio.metricsLogger.LOG_PROVIDER "s3") }}
   - Egress
+  {{- end }}
   ingress:
   - from:
     - podSelector:
@@ -18,7 +20,7 @@ spec:
     ports:
     - protocol: TCP
       port: 8500
-  {{- if not $.Values.minio.metricsLogger.withRedis }}
+  {{- if or (not $.Values.minio.metricsLogger.withRedis) (eq $.Values.minio.metricsLogger.LOG_PROVIDER "elasticsearch") (eq $.Values.minio.metricsLogger.LOG_PROVIDER "s3") }}
   egress:
   - to:
     - ipBlock:
@@ -26,7 +28,21 @@ spec:
     ports:
     - protocol: UDP
       port: 53
+    {{- if not $.Values.minio.metricsLogger.withRedis }}
     - protocol: TCP
       port: {{ $.Values.minio.metricsLogger.REDIS_PORT }}
+    {{- end }}
+    {{- if (eq $.Values.minio.metricsLogger.LOG_PROVIDER "elasticsearch") }}
+    - protocol: TCP
+      port: {{ $.Values.minio.metricsLogger.ES_PORT }}
+    {{- else if (eq $.Values.minio.metricsLogger.LOG_PROVIDER "s3") }}
+    {{- if $.Values.minio.metricsLogger.S3_NON_AWS_TARGET }}
+    - protocol: TCP
+      port: {{ (split ":" $.Values.minio.metricsLogger.S3_ENDPOINT)._2 }}
+    {{- else }}
+    - protocol: TCP
+      port: 443
+    {{- end }}
+    {{- end }}
   {{- end }}
 {{ end }}
