@@ -1,0 +1,16 @@
+version: '3.4'
+
+services:
+
+  minio-gateway:
+    image: minio
+    restart: on-failure
+    build: .
+    environment:
+      MINIO_ACCESS_KEY: "12345678"
+      MINIO_SECRET_KEY: "12345678"
+      INSTANCE_TYPE: gateway_gcs
+      GATEWAY_ARGS: "${GOOGLE_PROJECT_ID}"
+      GOOGLE_APPLICATION_CREDENTIALS_JSON: "${GOOGLE_APPLICATION_CREDENTIALS_JSON}"
+    ports:
+      - "8080:8080"

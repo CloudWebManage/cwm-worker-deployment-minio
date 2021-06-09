@@ -248,7 +248,9 @@ Deploy: `helm upgrade -f .values.yaml --install cwm-worker-deployment-minio ./he
 
 ## Gateway Mode
 
-In this mode the Minio instance acts as a gateway to other S3-compatible service
+In this mode the Minio instance acts as a gateway to supported services
+
+### Gateway to other Minio instance
 
 You can start a docker-compose environment which includes 2 minio instances - 
 one acting as the gateway and one as the source instance:
@@ -269,6 +271,21 @@ Upload / download some files and see log data in redis
 
 ```shell
 docker-compose -f docker-compose-gateway.yaml exec redis redis-cli keys '*'
+```
+
+### Gateway to Google Cloud Storage
+
+See GATEWAY.md for how to get the required credentials and set them in env vars:
+
+```
+export GOOGLE_PROJECT_ID=
+export GOOGLE_APPLICATION_CREDENTIALS_JSON="$(cat credentials.json)"
+```
+
+Start the docker-compose environment:
+
+```
+docker-compose -f docker-compose-gateway-google.yaml up --build 
 ```
 
 ## Running Tests

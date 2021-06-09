@@ -35,12 +35,12 @@ minio:
   #   for gateway_s3: GATEWAY_ARGS should be the URL of the source s3 endpoint (or keep empty to use AWS S3)
   #                   AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY are the credentials for the source instance
   #   for gateway_gcs: GATEWAY_ARGS should be the google project id
-  #                    GOOGLE_APPLICATION_CREDENTIALS_JSON should contain json of the google credentials
+  #                    GOOGLE_APPLICATION_CREDENTIALS should contain the google credentials (as a yaml map)
   #   for gateway_azure: AZURE_STORAGE_ACCOUNT_NAME / AZURE_STORAGE_ACCOUNT_KEY should be set
   GATEWAY_ARGS: ""
   AWS_ACCESS_KEY_ID: ""
   AWS_SECRET_ACCESS_KEY: ""
-  GOOGLE_APPLICATION_CREDENTIALS_JSON: ""
+  GOOGLE_APPLICATION_CREDENTIALS: {}
   AZURE_STORAGE_ACCOUNT_NAME: ""
   AZURE_STORAGE_ACCOUNT_KEY: ""
 

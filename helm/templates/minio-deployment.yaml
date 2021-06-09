@@ -92,7 +92,7 @@ spec:
         - name: AWS_SECRET_ACCESS_KEY
           value: {{ $.Values.minio.AWS_SECRET_ACCESS_KEY }}
         - name: GOOGLE_APPLICATION_CREDENTIALS_JSON
-          value: {{ $.Values.minio.GOOGLE_APPLICATION_CREDENTIALS_JSON }}
+          value: {{ toJson $.Values.minio.GOOGLE_APPLICATION_CREDENTIALS | quote }}
         - name: AZURE_STORAGE_ACCOUNT_NAME
           value: {{ $.Values.minio.AZURE_STORAGE_ACCOUNT_NAME }}
         - name: AZURE_STORAGE_ACCOUNT_KEY
