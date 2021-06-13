@@ -1,0 +1,16 @@
+version: '3.4'
+
+services:
+
+  minio-gateway:
+    image: minio
+    restart: on-failure
+    build: .
+    environment:
+      MINIO_ACCESS_KEY: "12345678"
+      MINIO_SECRET_KEY: "12345678"
+      INSTANCE_TYPE: gateway_azure
+      AZURE_STORAGE_ACCOUNT_NAME: "${AZURE_STORAGE_ACCOUNT_NAME}"
+      AZURE_STORAGE_ACCOUNT_KEY: "${AZURE_STORAGE_ACCOUNT_KEY}"
+    ports:
+      - "8080:8080"

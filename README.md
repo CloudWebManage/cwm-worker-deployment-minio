@@ -279,13 +279,43 @@ See GATEWAY.md for how to get the required credentials and set them in env vars:
 
 ```
 export GOOGLE_PROJECT_ID=
-export GOOGLE_APPLICATION_CREDENTIALS_JSON="$(cat credentials.json)"
+export GOOGLE_APPLICATION_CREDENTIALS_JSON='{}'
 ```
 
 Start the docker-compose environment:
 
 ```
-docker-compose -f docker-compose-gateway-google.yaml up --build 
+docker-compose -f docker-compose-gateway-google.yaml up --build
+```
+
+### Gateway to Azure Blob Storage
+
+See GATEWAY.md for how to get the required credentials and set them in env vars:
+
+```
+export AZURE_STORAGE_ACCOUNT_NAME=
+export AZURE_STORAGE_ACCOUNT_KEY=
+```
+
+Start the docker-compose environment:
+
+```
+docker-compose -f docker-compose-gateway-azure.yaml up --build
+```
+
+### Gateway to AWS S3
+
+See GATEWAY.md for how to get the required credentials and set them in env vars:
+
+```
+export AWS_ACCESS_KEY_ID=
+export AWS_SECRET_ACCESS_KEY=
+```
+
+Start the docker-compose environment:
+
+```
+docker-compose -f docker-compose-gateway-aws.yaml up --build
 ```
 
 ## Running Tests
