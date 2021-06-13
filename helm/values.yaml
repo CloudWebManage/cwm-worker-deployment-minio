@@ -26,16 +26,23 @@ minio:
   # it requires prometheus operator version 0.45 (kube-prometheus-stack 13.13)
   enableServiceMonitors: false
 
-  # to enable gateway instance, set INSTANCE_TYPE to gateway_s3
-  # GATEWAY_ARGS should be the URL of the source s3 endpoint (or keep empty to use AWS S3)
-  # AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY are the credentials for the source instance
+  # to enable gateway instance, set INSTANCE_TYPE to one of gateway_s3 / gateway_gcs / gateway_azure
   INSTANCE_TYPE: ""
+  # when using gateway instance you need to also set appropriate ports to open in network policy
+  # this is only used if INSTANCE_TYPE value is provided
+  gatewayNetworkPolicyExtraEgressPorts: [ 443 ]
+  # when INSTANCE_TYPE is enabled the following values should also be provided depending on the gateway type:
+  #   for gateway_s3: GATEWAY_ARGS should be the URL of the source s3 endpoint (or keep empty to use AWS S3)
+  #                   AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY are the credentials for the source instance
+  #   for gateway_gcs: GATEWAY_ARGS should be the google project id
+  #                    GOOGLE_APPLICATION_CREDENTIALS should contain the google credentials (as a yaml map)
+  #   for gateway_azure: AZURE_STORAGE_ACCOUNT_NAME / AZURE_STORAGE_ACCOUNT_KEY should be set
   GATEWAY_ARGS: ""
   AWS_ACCESS_KEY_ID: ""
   AWS_SECRET_ACCESS_KEY: ""
-  # this is only used if INSTANCE_TYPE = gateway_s3 to allow access to the external gateway
-  # default value is for the default AWS S3 endpoint
-  gatewayNetworkPolicyExtraEgressPorts: [443]
+  GOOGLE_APPLICATION_CREDENTIALS: {}
+  AZURE_STORAGE_ACCOUNT_NAME: ""
+  AZURE_STORAGE_ACCOUNT_KEY: ""
 
   startupProbe:
     path: /minio/health/live
