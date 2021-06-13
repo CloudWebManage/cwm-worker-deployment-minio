@@ -33,16 +33,50 @@ spec:
       port: {{ $.Values.minio.metricsLogger.REDIS_PORT }}
     {{- end }}
     {{- if (eq $.Values.minio.metricsLogger.LOG_PROVIDER "elasticsearch") }}
+      {{- if not $.Values.minio.metricsLogger.ES_MULTIPLE_HOSTS_ENABLED }}
     - protocol: TCP
       port: {{ $.Values.minio.metricsLogger.ES_PORT }}
-    {{- else if (eq $.Values.minio.metricsLogger.LOG_PROVIDER "s3") }}
-    {{- if $.Values.minio.metricsLogger.S3_NON_AWS_TARGET }}
+      {{- else if $.Values.minio.metricsLogger.ES_HOSTS }}
+        {{- $es_hosts := splitList "," $.Values.minio.metricsLogger.ES_HOSTS }}
+        {{- range $es_host := $es_hosts }}
+          {{- $es_port := (split ":" $es_host) }}
+          {{- if or (hasPrefix "http://" $es_host) (hasPrefix "https://" $es_host) }}
+            {{- $es_port = $es_port._2 }}
+          {{- else }}
+            {{- $es_port = $es_port._1 }}
+          {{- end }}
+          {{- if not $es_port }}
+            {{- if (eq $.Values.minio.metricsLogger.ES_SCHEME "http") }}
+              {{- $es_port = 80 }}
+            {{- else }}
+              {{- $es_port = 443 }}
+            {{- end }}
+          {{- end }}
     - protocol: TCP
-      port: {{ (split ":" $.Values.minio.metricsLogger.S3_ENDPOINT)._2 }}
-    {{- else }}
+      port: {{ $es_port }}
+        {{- end }}
+      {{- end }}
+    {{- else if (eq $.Values.minio.metricsLogger.LOG_PROVIDER "s3") }}
+      {{- if not $.Values.minio.metricsLogger.S3_NON_AWS_TARGET }}
     - protocol: TCP
       port: 443
-    {{- end }}
+      {{- else }}
+        {{- $s3_port := (split ":" $.Values.minio.metricsLogger.S3_ENDPOINT) }}
+        {{- if or (hasPrefix "http://" $.Values.minio.metricsLogger.S3_ENDPOINT) (hasPrefix "https://" $.Values.minio.metricsLogger.S3_ENDPOINT) }}
+          {{- $s3_port = $s3_port._2 }}
+        {{- else }}
+          {{- $s3_port = $s3_port._1 }}
+        {{- end }}
+        {{- if not $s3_port }}
+          {{- if (hasPrefix "http://" $.Values.minio.metricsLogger.S3_ENDPOINT) }}
+            {{- $s3_port = 80 }}
+          {{- else }}
+            {{- $s3_port = 443 }}
+          {{- end }}
+        {{- end }}
+    - protocol: TCP
+      port: {{ $s3_port }}
+      {{- end }}
     {{- end }}
   {{- end }}
 {{ end }}
