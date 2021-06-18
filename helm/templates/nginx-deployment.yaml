@@ -8,8 +8,7 @@ spec:
   selector:
     matchLabels:
       app: nginx
-  strategy:
-{{ toYaml $.Values.minio.nginx.strategy | indent 4 }}
+  strategy: {{ toYaml $.Values.minio.nginx.strategy | nindent 4 }}
   template:
     metadata:
       labels:
@@ -18,17 +17,14 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/nginx-hostnames-configmap.yaml") . | sha256sum }}
     spec:
       dnsPolicy: ClusterFirst
-      imagePullSecrets:
-      {{ $.Values.minio.imagePullSecrets | indent 6 }}
+      imagePullSecrets: {{ $.Values.minio.imagePullSecrets | nindent 6 }}
       terminationGracePeriodSeconds: {{ $.Values.minio.terminationGracePeriodSeconds }}
       automountServiceAccountToken: false
-      {{ if $.Values.minio.nodeSelector }}
-      nodeSelector:
-{{ $.Values.minio.nodeSelector | indent 8 }}
-      {{ end }}
+      {{- if $.Values.minio.nodeSelector }}
+      nodeSelector: {{ $.Values.minio.nodeSelector | nindent 8 }}
+      {{- end }}
       {{- if $.Values.minio.tolerations }}
-      tolerations:
-{{ toYaml $.Values.minio.tolerations | indent 8 }}
+      tolerations: {{ toYaml $.Values.minio.tolerations | nindent 8 }}
       {{- end }}
       containers:
       - name: nginx
@@ -37,11 +33,14 @@ spec:
         env:
           - name: HOSTNAMES_DIR
             value: "/hostnames"
+          - name: DISABLE_HTTP
+            value: {{ $.Values.minio.nginx.disableHttp | quote }}
+          - name: DISABLE_HTTPS
+            value: {{ $.Values.minio.nginx.disableHttps | quote }}
         ports:
         - containerPort: 8080
         - containerPort: 8443
-        resources:
-{{ toYaml $.Values.minio.nginx.resources | indent 10 }}
+        resources: {{ toYaml $.Values.minio.nginx.resources | nindent 10 }}
         volumeMounts:
         - name: hostnames
           mountPath: /hostnames
