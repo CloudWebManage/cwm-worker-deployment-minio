@@ -1,4 +1,4 @@
-{{ if .Values.minio.metricsLogger.enable }}
+{{- if .Values.minio.metricsLogger.enable }}
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -9,7 +9,9 @@ spec:
       app: minio-logger
   policyTypes:
   - Ingress
+  {{- if or (not $.Values.minio.metricsLogger.withRedis) (eq $.Values.minio.metricsLogger.LOG_PROVIDER "elasticsearch") (eq $.Values.minio.metricsLogger.LOG_PROVIDER "s3") }}
   - Egress
+  {{- end }}
   ingress:
   - from:
     - podSelector:
@@ -18,7 +20,7 @@ spec:
     ports:
     - protocol: TCP
       port: 8500
-  {{- if not $.Values.minio.metricsLogger.withRedis }}
+  {{- if or (not $.Values.minio.metricsLogger.withRedis) (eq $.Values.minio.metricsLogger.LOG_PROVIDER "elasticsearch") (eq $.Values.minio.metricsLogger.LOG_PROVIDER "s3") }}
   egress:
   - to:
     - ipBlock:
@@ -26,7 +28,75 @@ spec:
     ports:
     - protocol: UDP
       port: 53
+    {{- if not $.Values.minio.metricsLogger.withRedis }}
     - protocol: TCP
       port: {{ $.Values.minio.metricsLogger.REDIS_PORT }}
+    {{- end }}
+    {{- if (eq $.Values.minio.metricsLogger.LOG_PROVIDER "elasticsearch") }}
+      {{- if not $.Values.minio.metricsLogger.ES_MULTIPLE_HOSTS_ENABLED }}
+    - protocol: TCP
+      port: {{ $.Values.minio.metricsLogger.ES_PORT }}
+      {{- else if $.Values.minio.metricsLogger.ES_HOSTS }}
+        {{- $es_hosts := (splitList "," ($.Values.minio.metricsLogger.ES_HOSTS | replace " " "")) }}
+        {{- range $es_host := $es_hosts }}
+          {{- $es_host = (trim $es_host) }}
+          {{- if and (not (hasPrefix "http://" $es_host)) (not (hasPrefix "https://" $es_host)) }}
+            {{- if (eq $.Values.minio.metricsLogger.ES_SCHEME "http") }}
+              {{- $es_host = (printf "http://%s" $es_host) }}
+            {{- else }}
+              {{- $es_host = (printf "https://%s" $es_host) }}
+            {{- end }}
+          {{- else }}
+            {{- if and (hasPrefix "http://" $es_host) (eq $.Values.minio.metricsLogger.ES_SCHEME "https") }}
+              {{- $es_host = ($es_host | replace "http" "https") }}
+            {{- else if and (hasPrefix "https://" $es_host) (eq $.Values.minio.metricsLogger.ES_SCHEME "http") }}
+              {{- $es_host = ($es_host | replace "https" "http") }}
+            {{- end }}
+          {{- end }}
+          {{- $url := (urlParse $es_host) }}
+          {{- $scheme := (get $url "scheme") }}
+          {{- $host := (get $url "host") }}
+          {{- $port := (split ":" $host) }}
+          {{- if $port._1 }}
+            {{- $port = $port._1 }}
+          {{- else if $.Values.minio.metricsLogger.ES_PORT }}
+            {{- $port = $.Values.minio.metricsLogger.ES_PORT }}
+          {{- else }}
+            {{- if (eq $scheme "https") }}
+              {{- $port = 443 }}
+            {{- else }}
+              {{- $port = 80 }}
+            {{- end }}
+          {{- end }}
+    - protocol: TCP
+      port: {{ $port }}
+        {{- end }}
+      {{- end }}
+    {{- else if (eq $.Values.minio.metricsLogger.LOG_PROVIDER "s3") }}
+      {{- if not $.Values.minio.metricsLogger.S3_NON_AWS_TARGET }}
+    - protocol: TCP
+      port: 443
+      {{- else }}
+        {{- $s3_endpoint := ($.Values.minio.metricsLogger.S3_ENDPOINT | replace " " "") }}
+        {{- if and (not (hasPrefix "http://" $s3_endpoint)) (not (hasPrefix "https://" $s3_endpoint)) }}
+          {{- $s3_endpoint = (printf "http://%s" $s3_endpoint) }}
+        {{- end }}
+        {{- $url := (urlParse $s3_endpoint) }}
+        {{- $scheme := (get $url "scheme") }}
+        {{- $host := (get $url "host") }}
+        {{- $port := (split ":" $host) }}
+        {{- if $port._1 }}
+          {{- $port = $port._1 }}
+        {{- else }}
+          {{- if (eq $scheme "https") }}
+            {{- $port = 443 }}
+          {{- else }}
+            {{- $port = 80 }}
+          {{- end }}
+        {{- end }}
+    - protocol: TCP
+      port: {{ $port }}
+      {{- end }}
+    {{- end }}
   {{- end }}
-{{ end }}
+{{- end }}

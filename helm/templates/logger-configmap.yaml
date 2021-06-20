@@ -1,4 +1,4 @@
-{{ if .Values.minio.metricsLogger.enable }}
+{{- if .Values.minio.metricsLogger.enable }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -31,7 +31,7 @@ data:
       </redis>
     </source>
 
-  {{ if or (eq $.Values.minio.metricsLogger.LOG_PROVIDER "elasticsearch") (eq $.Values.minio.metricsLogger.LOG_PROVIDER "s3") }}
+  {{- if or (eq $.Values.minio.metricsLogger.LOG_PROVIDER "elasticsearch") (eq $.Values.minio.metricsLogger.LOG_PROVIDER "s3") }}
   cwm-fluent-buffer.conf: |
     # file buffer configurations for output plugins (log targets)
     <buffer>
@@ -49,17 +49,17 @@ data:
 
       chunk_limit_size      100m
     </buffer>
-  {{ end }}
+  {{- end }}
 
-  {{ if eq $.Values.minio.metricsLogger.LOG_PROVIDER "stdout" }}
+  {{- if eq $.Values.minio.metricsLogger.LOG_PROVIDER "stdout" }}
   cwm-fluent-stdout.conf: |
     @include                ./cwm-fluent-default.conf
     <match logs>
       @type                 stdout
     </match>
-  {{ end }}
+  {{- end }}
 
-  {{ if eq $.Values.minio.metricsLogger.LOG_PROVIDER "elasticsearch" }}
+  {{- if eq $.Values.minio.metricsLogger.LOG_PROVIDER "elasticsearch" }}
   cwm-fluent-elasticsearch.conf: |
     @include                ./cwm-fluent-default.conf
     # ElasticSearch: https://docs.fluentd.org/output/elasticsearch
@@ -67,38 +67,42 @@ data:
       @type                 elasticsearch
       @id                   elasticsearch_log_target
 
-      {{ if not $.Values.minio.metricsLogger.ES_MULTIPLE_HOSTS_ENABLED }}
+      {{- if not $.Values.minio.metricsLogger.ES_MULTIPLE_HOSTS_ENABLED }}
       host                  {{ $.Values.minio.metricsLogger.ES_HOST }}
       port                  {{ $.Values.minio.metricsLogger.ES_PORT }}
       {{ else if $.Values.minio.metricsLogger.ES_HOSTS }}
-      hosts                 {{ $.Values.minio.metricsLogger.ES_HOSTS }}
-      {{ end }}
+        {{- $hosts := ($.Values.minio.metricsLogger.ES_HOSTS | replace " " "") }}
+        {{- if (eq $.Values.minio.metricsLogger.ES_SCHEME "https") }}
+          {{- $hosts = ($hosts | replace "https://" "") }}
+        {{- end }}
+      hosts                 {{ $hosts }}
+      {{- end }}
 
       scheme                {{ $.Values.minio.metricsLogger.ES_SCHEME }}
       ssl_verify            {{ $.Values.minio.metricsLogger.ES_SSL_VERIFY }}
 
-      {{ if $.Values.minio.metricsLogger.ES_AUTH_ENABLED }}
+      {{- if $.Values.minio.metricsLogger.ES_AUTH_ENABLED }}
       user                  {{ $.Values.minio.metricsLogger.ES_USERNAME }}
       password              {{ $.Values.minio.metricsLogger.ES_PASSWORD }}
-      {{ end }}
+      {{- end }}
 
       index_name            {{ $.Values.minio.metricsLogger.ES_INDEX_NAME }}
       type_name             {{ $.Values.minio.metricsLogger.ES_TYPE_NAME }}
 
-      {{ if $.Values.minio.metricsLogger.ES_INDEX_NAME }}
-      {{ if $.Values.minio.metricsLogger.ES_PATH }}
+      {{- if $.Values.minio.metricsLogger.ES_INDEX_NAME }}
+      {{- if $.Values.minio.metricsLogger.ES_PATH }}
       path                  {{ $.Values.minio.metricsLogger.ES_PATH }}
-      {{ end }}
-      {{ end }}
+      {{- end }}
+      {{- end }}
 
       # Timeout issue: https://github.com/uken/fluent-plugin-elasticsearch/issues/590
       request_timeout       2147483648
 
       @include              ./cwm-fluent-buffer.conf
     </match>
-  {{ end }}
+  {{- end }}
 
-  {{ if eq $.Values.minio.metricsLogger.LOG_PROVIDER "s3" }}
+  {{- if eq $.Values.minio.metricsLogger.LOG_PROVIDER "s3" }}
   cwm-fluent-s3.conf: |
     @include                ./cwm-fluent-default.conf
     # S3: https://docs.fluentd.org/output/s3
@@ -112,10 +116,10 @@ data:
       s3_region             {{ $.Values.minio.metricsLogger.S3_REGION }}
       path                  {{ $.Values.minio.metricsLogger.S3_PATH }}
 
-      {{ if $.Values.minio.metricsLogger.S3_NON_AWS_TARGET }}
+      {{- if $.Values.minio.metricsLogger.S3_NON_AWS_TARGET }}
       s3_endpoint           {{ $.Values.minio.metricsLogger.S3_ENDPOINT }}
       force_path_style      true
-      {{ end }}
+      {{- end }}
 
       ssl_verify_peer       {{ $.Values.minio.metricsLogger.S3_SSL_VERIFY }}
 
@@ -127,5 +131,5 @@ data:
 
       @include              ./cwm-fluent-buffer.conf
     </match>
-  {{ end }}
-{{ end }}
+  {{- end }}
+{{- end }}

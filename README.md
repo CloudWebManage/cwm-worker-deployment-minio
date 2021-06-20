@@ -8,6 +8,25 @@
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/CloudWebManage/cwm-worker-deployment-minio)
 ![GitHub repo size](https://img.shields.io/github/repo-size/CloudWebManage/cwm-worker-deployment-minio)
 
+- [cwm-worker-deployment-minio](#cwm-worker-deployment-minio)
+  - [Local Development](#local-development)
+    - [Using Docker Compose](#using-docker-compose)
+    - [Using Helm](#using-helm)
+    - [Manual testing of log providers](#manual-testing-of-log-providers)
+      - [Elasticsearch](#elasticsearch)
+      - [S3](#s3)
+      - [Logger disabled](#logger-disabled)
+      - [Logging to Minio](#logging-to-minio)
+  - [Scaling](#scaling)
+  - [Gateway Mode](#gateway-mode)
+    - [Gateway to other Minio instance](#gateway-to-other-minio-instance)
+    - [Gateway to Google Cloud Storage](#gateway-to-google-cloud-storage)
+    - [Gateway to Azure Blob Storage](#gateway-to-azure-blob-storage)
+    - [Gateway to AWS S3](#gateway-to-aws-s3)
+  - [Running Tests](#running-tests)
+  - [Contribute](#contribute)
+  - [License](#license)
+
 ## Local Development
 
 ### Using Docker Compose
@@ -117,7 +136,7 @@ section above):
 ```yaml
 # under metricsLogger:
   LOG_PROVIDER: elasticsearch
-  ES_HOST: 
+  ES_HOST:
   ES_PORT:
 ```
 
@@ -133,7 +152,7 @@ section above):
 ```yaml
 # under metricsLogger:
   LOG_PROVIDER: s3
-  AWS_KEY_ID: 
+  AWS_KEY_ID:
   AWS_SECRET_KEY:
   S3_BUCKET_NAME:
   S3_REGION:
@@ -240,7 +259,7 @@ minio:
       # ...
 ```
 
-For the detailed configuration under `spec`, please refer to
+For the detailed configuration under the `spec`, please refer to the
 [Sample Configuration](https://github.com/iamazeem/cwm-keda-external-scaler#sample-configuration)
 section.
 
@@ -248,26 +267,27 @@ Deploy: `helm upgrade -f .values.yaml --install cwm-worker-deployment-minio ./he
 
 ## Gateway Mode
 
-In this mode the Minio instance acts as a gateway to supported services
+
+In this mode, the Minio instance acts as a gateway to the other S3-compatible service.
 
 ### Gateway to other Minio instance
 
-You can start a docker-compose environment which includes 2 minio instances - 
+You can start a docker-compose environment which includes 2 minio instances -
 one acting as the gateway and one as the source instance:
 
 ```shell
 docker-compose -f docker-compose-gateway.yaml up --build
 ```
 
-Logging to http://127.0.0.1:8080 using the gateway credentials (12345678 / 12345678)
+Log in to http://127.0.0.1:8080 using the gateway credentials (`12345678` / `12345678`).
 
-Create a bucket and execute a shell in source container to see the bucket there
+Create a bucket and execute a shell in the source container to see the bucket there:
 
 ```shell
 docker-compose -f docker-compose-gateway.yaml exec minio-source ls /opt
 ```
 
-Upload / download some files and see log data in redis
+Upload/download some files and see log data in Redis:
 
 ```shell
 docker-compose -f docker-compose-gateway.yaml exec redis redis-cli keys '*'

@@ -1,5 +1,16 @@
 # Logging
 
+- [Logging](#logging)
+  - [Overview](#overview)
+  - [Helm Values](#helm-values)
+    - [Common Configuration](#common-configuration)
+    - [Redis Server Configuration](#redis-server-configuration)
+    - [Logs Flushing Configuration (Buffering)](#logs-flushing-configuration-buffering)
+    - [Log Targets Confiugration](#log-targets-confiugration)
+      - [ElasticSearch Log Target Confiugration (`LOG_PROVIDER: elasticsearch`)](#elasticsearch-log-target-confiugration-log_provider-elasticsearch)
+      - [S3 Log Target Confiugration (`LOG_PROVIDER: s3`)](#s3-log-target-confiugration-log_provider-s3)
+    - [Deployment with Helm Values](#deployment-with-helm-values)
+
 ## Overview
 
 The logging component
