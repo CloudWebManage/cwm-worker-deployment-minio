@@ -8,24 +8,34 @@
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/CloudWebManage/cwm-worker-deployment-minio)
 ![GitHub repo size](https://img.shields.io/github/repo-size/CloudWebManage/cwm-worker-deployment-minio)
 
-- [cwm-worker-deployment-minio](#cwm-worker-deployment-minio)
-  - [Local Development](#local-development)
-    - [Using Docker Compose](#using-docker-compose)
-    - [Using Helm](#using-helm)
-    - [Manual testing of log providers](#manual-testing-of-log-providers)
-      - [Elasticsearch](#elasticsearch)
-      - [S3](#s3)
-      - [Logger disabled](#logger-disabled)
-      - [Logging to Minio](#logging-to-minio)
-  - [Scaling](#scaling)
-  - [Gateway Mode](#gateway-mode)
-    - [Gateway to other Minio instance](#gateway-to-other-minio-instance)
-    - [Gateway to Google Cloud Storage](#gateway-to-google-cloud-storage)
-    - [Gateway to Azure Blob Storage](#gateway-to-azure-blob-storage)
-    - [Gateway to AWS S3](#gateway-to-aws-s3)
-  - [Running Tests](#running-tests)
-  - [Contribute](#contribute)
-  - [License](#license)
+<!--
+  To update the TOC:
+  * install nodejs (https://nodejs.org/en/)
+  * run the following command:
+    * npx doctoc@2.0.1 --github --notitle README.md
+-->
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+- [Local Development](#local-development)
+  - [Using Docker Compose](#using-docker-compose)
+  - [Using Helm](#using-helm)
+  - [Manual testing of log providers](#manual-testing-of-log-providers)
+    - [Elasticsearch](#elasticsearch)
+    - [S3](#s3)
+    - [Logger disabled](#logger-disabled)
+    - [Logging to Minio](#logging-to-minio)
+- [Scaling](#scaling)
+- [Gateway Mode](#gateway-mode)
+  - [Gateway to other Minio instance](#gateway-to-other-minio-instance)
+  - [Gateway to Google Cloud Storage](#gateway-to-google-cloud-storage)
+  - [Gateway to Azure Blob Storage](#gateway-to-azure-blob-storage)
+  - [Gateway to AWS S3](#gateway-to-aws-s3)
+- [Running Tests](#running-tests)
+- [Contribute](#contribute)
+- [License](#license)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 ## Local Development
 
