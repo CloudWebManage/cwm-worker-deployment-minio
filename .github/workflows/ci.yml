@@ -27,6 +27,7 @@ jobs:
         fi &&\
         sudo bin/install_helm.sh && helm version &&\
         if [ "${SKIP_TESTS}" == "no" ]; then
+          helm lint helm &&\
           sudo bin/install_minikube.sh && minikube version &&\
           sudo bin/install_kubectl.sh && kubectl version --client &&\
           sudo bin/install_python.sh &&\

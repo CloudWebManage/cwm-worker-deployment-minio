@@ -330,7 +330,7 @@ minio:
     CDN_CACHE_PROXY_BUFFER_SIZE: "16k"
     CDN_CACHE_PROXY_BUSY_BUFFERS_SIZE: "32k"
     CDN_CACHE_PROXY_CACHE_VALID_200: "1m"
-    CDN_CACHE_NOCACHE_REGEX: "\.(pdf|txt|json)$"
+    CDN_CACHE_NOCACHE_REGEX: '\.(pdf|txt|json)$'
     cacheVolumeSubPath: "_cdncache_"
     cacheVolumeMountPath: "/var/cache/nginx/minio"
 
