@@ -277,7 +277,6 @@ Deploy: `helm upgrade -f .values.yaml --install cwm-worker-deployment-minio ./he
 
 ## Gateway Mode
 
-
 In this mode, the Minio instance acts as a gateway to the other S3-compatible service.
 
 ### Gateway to other Minio instance
@@ -347,6 +346,39 @@ Start the docker-compose environment:
 ```
 docker-compose -f docker-compose-gateway-aws.yaml up --build
 ```
+
+## Nginx Cache
+
+This is an optional caching layer which acts like a CDN and caches download requests for a given TTL.
+
+### Testing the cache layer locally using Docker Compose
+
+Set the following in `.env` file:
+
+```
+CDN_CACHE_ENABLE=yes
+```
+
+Run the docker compose environment:
+
+```
+docker-compose up -d --build
+```
+
+Create a bucket named `test` and upload some files.
+
+Set download bucket policy to allow unauthenticated download of files:
+
+```
+docker-compose exec minio-client mc policy set download minio/test
+```
+
+* Using the minio web UI - click the share link for a file in test bucket to get the direct download link
+* Copy the direct download link, modify the hostname to localhost:8080 and Download the file
+* Delete the file from the minio web UI
+* Try to download again from the direct download link
+* Should download the file from cache
+* Wait 1 minute, download the file again - should not download as cache is expired (default TTL is 1 minute)
 
 ## Running Tests
 

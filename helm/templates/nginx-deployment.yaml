@@ -37,6 +37,30 @@ spec:
             value: {{ $.Values.minio.nginx.disableHttp | quote }}
           - name: DISABLE_HTTPS
             value: {{ $.Values.minio.nginx.disableHttps | quote }}
+          {{ if $.Values.minio.nginx.CDN_CACHE_ENABLE }}
+          - name: CDN_CACHE_ENABLE
+            value: "yes"
+          - name: CDN_CACHE_PROXY_PATH
+            value: {{ $.Values.minio.nginx.CDN_CACHE_PROXY_PATH | quote }}
+          - name: CDN_CACHE_PROXY_KEYS_MAX_SIZE
+            value: {{ $.Values.minio.nginx.CDN_CACHE_PROXY_KEYS_MAX_SIZE | quote }}
+          - name: CDN_CACHE_PROXY_MAX_SIZE
+            value: {{ $.Values.minio.nginx.CDN_CACHE_PROXY_MAX_SIZE | quote }}
+          - name: CDN_CACHE_PROXY_INACTIVE
+            value: {{ $.Values.minio.nginx.CDN_CACHE_PROXY_INACTIVE | quote }}
+          - name: CDN_CACHE_PROXY_TEMP_PATH
+            value: {{ $.Values.minio.nginx.CDN_CACHE_PROXY_TEMP_PATH | quote }}
+          - name: CDN_CACHE_PROXY_BUFFERS
+            value: {{ $.Values.minio.nginx.CDN_CACHE_PROXY_BUFFERS | quote }}
+          - name: CDN_CACHE_PROXY_BUFFER_SIZE
+            value: {{ $.Values.minio.nginx.CDN_CACHE_PROXY_BUFFER_SIZE | quote }}
+          - name: CDN_CACHE_PROXY_BUSY_BUFFERS_SIZE
+            value: {{ $.Values.minio.nginx.CDN_CACHE_PROXY_BUSY_BUFFERS_SIZE | quote }}
+          - name: CDN_CACHE_PROXY_CACHE_VALID_200
+            value: {{ $.Values.minio.nginx.CDN_CACHE_PROXY_CACHE_VALID_200 | quote }}
+          - name: CDN_CACHE_NOCACHE_REGEX
+            value: {{ $.Values.minio.nginx.CDN_CACHE_NOCACHE_REGEX | quote }}
+          {{ end }}
         ports:
         - containerPort: 8080
         - containerPort: 8443
@@ -44,7 +68,16 @@ spec:
         volumeMounts:
         - name: hostnames
           mountPath: /hostnames
+        {{ if $.Values.minio.nginx.CDN_CACHE_ENABLE }}
+        - mountPath: {{ $.Values.minio.nginx.cacheVolumeMountPath | quote }}
+          name: "cache"
+          subPath: {{ $.Values.minio.nginx.cacheVolumeSubPath | quote }}
+        {{ end }}
       volumes:
       - name: hostnames
         configMap:
           name: nginx-hostnames
+      {{ if $.Values.minio.nginx.CDN_CACHE_ENABLE }}
+      - name: cache
+{{ $.Values.minio.volumes.cache | indent 8 }}
+      {{ end }}

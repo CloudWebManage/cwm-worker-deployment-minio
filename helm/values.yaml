@@ -320,6 +320,19 @@ minio:
           -----END PRIVATE KEY-----
     disableHttp: false
     disableHttps: false
+    CDN_CACHE_ENABLE: false
+    CDN_CACHE_PROXY_PATH: "/var/cache/nginx/minio/cache"
+    CDN_CACHE_PROXY_KEYS_MAX_SIZE: "10m"
+    CDN_CACHE_PROXY_MAX_SIZE: "1g"
+    CDN_CACHE_PROXY_INACTIVE: "1m"
+    CDN_CACHE_PROXY_TEMP_PATH: "/var/cache/nginx/minio/temp"
+    CDN_CACHE_PROXY_BUFFERS: "8 16k"
+    CDN_CACHE_PROXY_BUFFER_SIZE: "16k"
+    CDN_CACHE_PROXY_BUSY_BUFFERS_SIZE: "32k"
+    CDN_CACHE_PROXY_CACHE_VALID_200: "1m"
+    CDN_CACHE_NOCACHE_REGEX: "\.(pdf|txt|json)$"
+    cacheVolumeSubPath: "_cdncache_"
+    cacheVolumeMountPath: "/var/cache/nginx/minio"
 
 # each object have required attributes: apiVersion, kind, name, spec
 extraObjects: []
