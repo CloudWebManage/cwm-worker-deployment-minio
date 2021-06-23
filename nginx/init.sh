@@ -35,7 +35,7 @@ for filename in $(ls "${HOSTNAMES_DIR}"/*.name); do
 done
 
 if [ "${CDN_CACHE_ENABLE}" == "yes" ]; then
-  echo cdn cache enabled
+  echo "CDN cache enabled"
   sed -i "s;proxy_cache_path /var/cache/nginx/minio/cache levels=1:2 keys_zone=minio:10m max_size=1g inactive=1m use_temp_path=on;proxy_cache_path ${CDN_CACHE_PROXY_PATH:-/var/cache/nginx/minio/cache} levels=1:2 keys_zone=minio:${CDN_CACHE_PROXY_KEYS_MAX_SIZE:-10m} max_size=${CDN_CACHE_PROXY_MAX_SIZE:-1g} inactive=${CDN_CACHE_PROXY_INACTIVE:-1m} use_temp_path=on;g" "${NGINX_SOURCES_DIR}/cache_server.conf"
   sed -i "s;proxy_temp_path /var/cache/nginx/minio/temp;proxy_temp_path ${CDN_CACHE_PROXY_TEMP_PATH:-/var/cache/nginx/minio/temp};g" "${NGINX_SOURCES_DIR}/cache_server.conf"
 
@@ -57,7 +57,7 @@ if [ "${CDN_CACHE_ENABLE}" == "yes" ]; then
     echo '}' >> "${NGINX_SOURCES_DIR}/cache_server_map_ext_nocache.conf"
   fi
 else
-  echo cdn cache disabled
+  echo "CDN cache disabled"
   echo "" > "${NGINX_SOURCES_DIR}/cache_server.conf"
   echo "" > "${NGINX_SOURCES_DIR}/cache_location.conf"
 fi

@@ -306,81 +306,88 @@ docker-compose -f docker-compose-gateway.yaml exec redis redis-cli keys '*'
 
 ### Gateway to Google Cloud Storage
 
-See GATEWAY.md for how to get the required credentials and set them in env vars:
+See [GATEWAY.md](./GATEWAY.md) for how to get the required credentials and set
+them in env vars:
 
-```
+```shell
 export GOOGLE_PROJECT_ID=
 export GOOGLE_APPLICATION_CREDENTIALS_JSON='{}'
 ```
 
-Start the docker-compose environment:
+Start the `docker-compose` environment:
 
-```
+```shell
 docker-compose -f docker-compose-gateway-google.yaml up --build
 ```
 
 ### Gateway to Azure Blob Storage
 
-See GATEWAY.md for how to get the required credentials and set them in env vars:
+See [GATEWAY.md](./GATEWAY.md) for how to get the required credentials and set
+them in env vars:
 
-```
+```shell
 export AZURE_STORAGE_ACCOUNT_NAME=
 export AZURE_STORAGE_ACCOUNT_KEY=
 ```
 
-Start the docker-compose environment:
+Start the `docker-compose` environment:
 
-```
+```shell
 docker-compose -f docker-compose-gateway-azure.yaml up --build
 ```
 
 ### Gateway to AWS S3
 
-See GATEWAY.md for how to get the required credentials and set them in env vars:
+See [GATEWAY.md](./GATEWAY.md) for how to get the required credentials and set
+them in env vars:
 
-```
+```shell
 export AWS_ACCESS_KEY_ID=
 export AWS_SECRET_ACCESS_KEY=
 ```
 
-Start the docker-compose environment:
+Start the `docker-compose` environment:
 
-```
+```shell
 docker-compose -f docker-compose-gateway-aws.yaml up --build
 ```
 
 ## Nginx Cache
 
-This is an optional caching layer which acts like a CDN and caches download requests for a given TTL.
+It is an optional caching layer that acts as a CDN and caches download requests
+for a given TTL.
 
 ### Testing the cache layer locally using Docker Compose
 
 Set the following in `.env` file:
 
-```
+```text
 CDN_CACHE_ENABLE=yes
 ```
 
-Run the docker compose environment:
+Run the `docker-compose` environment:
 
-```
+```shell
 docker-compose up -d --build
 ```
 
 Create a bucket named `test` and upload some files.
 
-Set download bucket policy to allow unauthenticated download of files:
+Set the download bucket policy to allow unauthenticated download of files:
 
-```
+```shell
 docker-compose exec minio-client mc policy set download minio/test
 ```
 
-* Using the minio web UI - click the share link for a file in test bucket to get the direct download link
-* Copy the direct download link, modify the hostname to localhost:8080 and Download the file
-* Delete the file from the minio web UI
-* Try to download again from the direct download link
-* Should download the file from cache
-* Wait 1 minute, download the file again - should not download as cache is expired (default TTL is 1 minute)
+- Using the MinIO web UI, click on the share link for a file in the `test`
+  bucket to get the direct download link.
+- Copy the direct download link, modify the hostname to `localhost:8080` and
+  download the file.
+- Delete the file from the MinIO web UI.
+- Try to download again from the direct download link.
+- The file should be downloaded from the cache using the direct link.
+- Wait for 1 minute, try to download the file again. It should not download
+  because the cache is expired (default TTL is 1 minute).
 
 ## Running Tests
 
