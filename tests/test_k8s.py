@@ -50,17 +50,25 @@ def test():
     https_bucketname = str(uuid.uuid4())
     miniopf = subprocess.Popen('exec kubectl port-forward service/nginx 8080:8080 8443:8443', shell=True)
     try:
-        time.sleep(15)
-        http_returncode, http_output = subprocess.getstatusoutput('warp mixed --host localhost:8080 --access-key dummykey --secret-key dummypass --objects 50 --duration 0m10s --bucket {}'.format(http_bucketname))
-        https_returncode, https_output = subprocess.getstatusoutput('warp mixed --tls --insecure --host localhost:8443 --access-key dummykey --secret-key dummypass --objects 50 --duration 0m10s  --bucket {}'.format(https_bucketname))
-        if http_returncode != 0 or https_returncode != 0:
+        time.sleep(12)
+        results = {'http': False, 'https': False}
+        for method in ['http', 'https']:
+            for try_num in [1, 2, 3]:
+                print('Testing {}: attempt {} / 3'.format(method, try_num))
+                time.sleep(3)
+                if method == 'http':
+                    returncode, output = subprocess.getstatusoutput('warp mixed --host localhost:8080 --access-key dummykey --secret-key dummypass --objects 50 --duration 0m10s --bucket {}'.format(http_bucketname))
+                else:
+                    returncode, output = subprocess.getstatusoutput('warp mixed --tls --insecure --host localhost:8443 --access-key dummykey --secret-key dummypass --objects 50 --duration 0m10s  --bucket {}'.format(https_bucketname))
+                if returncode == 0:
+                    results[method] = True
+                    break
+                else:
+                    print('{} failed: {}'.format(method, output))
+        if not results['http'] or not results['https']:
             _, logs_output = subprocess.getstatusoutput(minio_logs_commands)
             print("-- logs_output")
             print(logs_output)
-            print("-- http_output")
-            print(http_output)
-            print("-- https_output")
-            print(https_output)
-            raise Exception("Failed warp: http_returncode={} https_returncode={}".format(http_returncode, https_returncode))
+            raise Exception("Failed warp")
     finally:
         miniopf.terminate()
