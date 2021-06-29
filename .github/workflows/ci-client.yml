@@ -1,0 +1,26 @@
+name: CI-client
+on:
+  push:
+    paths-ignore:
+      - '**.md'
+
+jobs:
+  ci-client:
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@v2
+    - env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        bin/docker_login.sh &&\
+        BUILD_ARGS="" &&\
+        if docker pull docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/client:latest; then
+          BUILD_ARGS=" --cache-from docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/client:latest "
+        fi &&\
+        docker build $BUILD_ARGS -t client client &&\
+        docker tag client docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/client:$GITHUB_SHA &&\
+        docker push docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/client:$GITHUB_SHA &&\
+        if [ "${GITHUB_REF}" == "refs/heads/main" ]; then
+          docker tag client docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/client:latest &&\
+          docker push docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/client:latest
+        fi
