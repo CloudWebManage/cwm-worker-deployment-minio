@@ -50,6 +50,7 @@ if [ "${CDN_CACHE_ENABLE}" == "yes" ]; then
 
   if [ "${CDN_CACHE_NOCACHE_REGEX}" == "" ]; then
     echo "" > "${NGINX_SOURCES_DIR}/cache_server_map_ext_nocache.conf"
+    echo "" > "${NGINX_SOURCES_DIR}/cache_location_proxy_ext_nocache.conf"
   else
     echo 'map $basename $ext_nocache {' > "${NGINX_SOURCES_DIR}/cache_server_map_ext_nocache.conf"
     echo '    "~*'"${CDN_CACHE_NOCACHE_REGEX}"'" 1;' >> "${NGINX_SOURCES_DIR}/cache_server_map_ext_nocache.conf"
