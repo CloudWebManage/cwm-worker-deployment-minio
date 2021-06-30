@@ -87,6 +87,8 @@ services:
       - |
         mc alias set minio http://minio:8080 12345678 12345678 &&\
         while true; do sleep 86400; done
+    depends_on:
+      - minio
 
 volumes:
   storage:
