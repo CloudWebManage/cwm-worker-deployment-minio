@@ -1,9 +1,7 @@
-{{- if $.Values.minio.metricsLogger.externalscaler.enabled }}
 {{- if $.Values.minio.metricsLogger.scaledobject.enabled }}
 apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
 metadata:
   name: minio-logger
 spec: {{ toYaml $.Values.minio.scaledobject.spec | nindent 2 }}
-{{- end }}
 {{- end }}
