@@ -192,6 +192,46 @@ minio:
     S3_SSL_VERIFY: true
     S3_STORE_AS: gzip         # gzip, lzo, json, txt
 
+    externalscaler:
+      enabled: false
+      image: docker.pkg.github.com/cwm-keda-external-scaler/iamazeem/cwm-keda-external-scaler
+      imagePullPolicy: IfNotPresent
+      resources:
+        requests:
+          cpu: "20m"
+          memory: "64Mi"
+        limits:
+          memory: "150Mi"
+
+    scaledobject:
+      enabled: false
+      spec:
+        scaleTargetRef:
+          name: minio-logger
+        pollingInterval: 10
+        cooldownPeriod:  60
+        minReplicaCount: 1
+        maxReplicaCount: 10
+        # advanced:
+        #   restoreToOriginalReplicaCount: true
+        #   horizontalPodAutoscalerConfig:
+        #     behavior:
+        #       scaleDown:
+        #         stabilizationWindowSeconds: 30
+        #         policies:
+        #         - type: Percent
+        #           value: 80
+        #           periodSeconds: 15
+        triggers:
+          - type: external
+            metadata:
+              scalerAddress: minio-logger-external-scaler:50051
+              deploymentid: "minio-logger1"
+              isActiveTtlSeconds: "60"
+              scalePeriodSeconds: "60"
+              scaleMetricName: "num_requests_misc"
+              targetValue: "10"
+
   nginx:
     replicas: 1
     strategy:

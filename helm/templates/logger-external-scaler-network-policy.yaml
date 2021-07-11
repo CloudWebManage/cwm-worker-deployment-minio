@@ -1,0 +1,29 @@
+{{- if $.Values.minio.metricsLogger.externalscaler.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: minio-logger-external-scaler
+spec:
+  podSelector:
+    matchLabels:
+      app: minio-logger-external-scaler
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - ipBlock:
+        cidr: 0.0.0.0/0
+    ports:
+    - protocol: TCP
+      port: 50051
+  egress:
+  - to:
+    - ipBlock:
+        cidr: 0.0.0.0/0
+    ports:
+    - protocol: UDP
+      port: 53
+    - protocol: TCP
+      port: {{ $.Values.minio.metricsLogger.REDIS_PORT }}
+{{- end }}
