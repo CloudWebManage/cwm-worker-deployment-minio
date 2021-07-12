@@ -1,4 +1,4 @@
-{{ if .Values.minio.metricsLogger.enable }}
+{{- if .Values.minio.metricsLogger.enable }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -13,4 +13,4 @@ spec:
   {{- end }}
   selector:
     app: minio-logger
-{{ end }}
+{{- end }}
