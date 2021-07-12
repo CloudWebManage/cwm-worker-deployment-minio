@@ -33,6 +33,8 @@
   - [Gateway to AWS S3](#gateway-to-aws-s3)
 - [Nginx Cache](#nginx-cache)
   - [Testing the cache layer locally using Docker Compose](#testing-the-cache-layer-locally-using-docker-compose)
+- [Certificate Challenge](#certificate-challenge)
+  - [Testing the challenge response using Docker Compose](#testing-the-challenge-response-using-docker-compose)
 - [Running Tests](#running-tests)
 - [Contribute](#contribute)
 - [License](#license)
@@ -388,6 +390,32 @@ docker-compose exec minio-client mc policy set download minio/test
 - The file should be downloaded from the cache using the direct link.
 - Wait for 1 minute, try to download the file again. It should not download
   because the cache is expired (default TTL is 1 minute).
+
+## Certificate Challenge
+
+To enable Let's Encrypt SSL certificate registration and renewal, the Nginx
+proxy supports an http challenge response.
+
+### Testing the challenge response using Docker Compose
+
+Run the `docker-compose` environment:
+
+```shell
+docker-compose up -d --build
+```
+
+Verify that the challenge response returns the correct payload:
+
+```shell
+echo "$(curl -s "http://localhost:8080/.well-known/acme-challenge/$(cat tests/hostnames/hostname1.cc_token)")"
+echo "$(cat tests/hostnames/hostname1.cc_payload)"
+```
+
+Access hostname3 which doesn't have a payload/token and verify it returns an error:
+
+```shell
+curl -H "Host: example003.com" "http://localhost:8080/.well-known/acme-challenge/$(cat tests/hostnames/hostname1.cc_token)"
+```
 
 ## Running Tests
 

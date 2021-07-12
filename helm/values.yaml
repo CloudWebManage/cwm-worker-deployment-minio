@@ -239,6 +239,8 @@ minio:
     hostnames:
       - id: "1"
         name: example001.com
+        cc_token: "p70xAjo7b7lLMi-Y4tgixcE55POuVQh1dWqitJMyoxM"
+        cc_payload: "p70xAjo7b7lLMi-Y4tgixcE55POuVQh1dWqitJMyoxM.hqI2tvoKxfy5mN1hvTLZwkt4o0WXwYv1uZFrvvr_sXM"
       - id: "2"
         name: example002.com
         pem: |
@@ -293,6 +295,8 @@ minio:
           YPLZWrfjq7Z2dGlcZyhJ1SoLYnfX5iPOf+TwE5+wCmlSda1HfiWgHFCTdAZrpYqu
           BDhxYQnRXIDemidN0HgOfw==
           -----END PRIVATE KEY-----
+        cc_token: "x70xAjo7b7lLMi-Y4tgixcE55POuVQh1dWqitJMyoxM"
+        cc_payload: "x70xAjo7b7lLMi-Y4tgixcE55POuVQh1dWqitJMyoxM.hqI2tvoKxfy5mN1hvTLZwkt4o0WXwYv1uZFrvvr_sXM"
       - id: "3"
         name: "example003.com"
         pem: |
@@ -347,6 +351,8 @@ minio:
           4UPwsg+SqwY8YNN5sBHotFMjdp3W2bmiXIqEgq880NPzdihwFiT3N+kZm/g8XWiE
           J8N7SZILaDxONvOjzwnGGc2acw==
           -----END PRIVATE KEY-----
+        cc_token: ""
+        cc_payload: ""
     disableHttp: false
     disableHttps: false
     CDN_CACHE_ENABLE: false

@@ -12,11 +12,28 @@ for filename in $(ls "${HOSTNAMES_DIR}"/*.name); do
   host_id="$(echo "${filename%.*}")" &&\
   host_name="$(cat "${HOSTNAMES_DIR}/${host_id}.name")" &&\
   echo "${host_id} ${host_name}"
+  if [ -f "${HOSTNAMES_DIR}/${host_id}.cc_payload" ] && [ -f "${HOSTNAMES_DIR}/${host_id}.cc_token" ]; then
+    CC_PAYLOAD="$(cat "${HOSTNAMES_DIR}/${host_id}.cc_payload")"
+    CC_TOKEN="$(cat "${HOSTNAMES_DIR}/${host_id}.cc_token")"
+  else
+    CC_PAYLOAD=""
+    CC_TOKEN=""
+  fi
 
-  if [ -f "$DEFAULT_HTTP_CONF" ]; then
+  if [ "$DISABLE_HTTP" != "true" ] || ([ "${CC_PAYLOAD}" != "" ] && [ "${CC_TOKEN}" != "" ]); then
     http_conf="$NGINX_CONFD_DIR/$host_id-http.conf"
     echo "setting up $http_conf"
     sed "s/__SERVER_NAME__/server_name ${host_name};/" "$DEFAULT_HTTP_CONF" > "$http_conf"
+    if [ "$DISABLE_HTTP" == "true" ]; then
+      sed -i "s/include location.conf;//" "$http_conf"
+    fi
+    if [ "${CC_PAYLOAD}" != "" ] && [ "${CC_TOKEN}" != "" ]; then
+      sed -i "s^__CERT_CHALLENGE__^include ${NGINX_SOURCES_DIR}/${host_id}-cert-challenge.conf;^" "$http_conf"
+      sed "s/CERT_CHALLENGE_TOKEN/${CC_TOKEN}/" "${NGINX_SOURCES_DIR}/cert_challenge.conf" > "${NGINX_SOURCES_DIR}/${host_id}-cert-challenge.conf"
+      sed -i "s/CERT_CHALLENGE_PAYLOAD/${CC_PAYLOAD}/" "${NGINX_SOURCES_DIR}/${host_id}-cert-challenge.conf"
+    else
+      sed -i "s/__CERT_CHALLENGE__//" "$http_conf"
+    fi
   fi
 
   if [ -f "$DEFAULT_HTTPS_CONF" ]; then

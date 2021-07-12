@@ -9,4 +9,8 @@ data:
   {{ .id }}.pem: {{ .pem | quote }}
   {{ .id }}.key: {{ .key | quote }}
   {{ end }}
+  {{ if and .cc_token .cc_payload }}
+  {{ .id }}.cc_token: {{ .cc_token | quote }}
+  {{ .id }}.cc_payload: {{ .cc_payload | quote }}
+  {{ end }}
 {{ end }}
