@@ -1,4 +1,4 @@
-{{ if .Values.minio.metricsLogger.enable }}
+{{- if .Values.minio.metricsLogger.enable }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -17,24 +17,20 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/logger-configmap.yaml") . | sha256sum }}
     spec:
       dnsPolicy: ClusterFirst
-      imagePullSecrets:
-      {{ $.Values.minio.imagePullSecrets | indent 6 }}
+      imagePullSecrets: {{ $.Values.minio.imagePullSecrets | nindent 6 }}
       terminationGracePeriodSeconds: {{ $.Values.minio.terminationGracePeriodSeconds }}
       automountServiceAccountToken: false
-      {{ if $.Values.minio.nodeSelector }}
-      nodeSelector:
-{{ $.Values.minio.nodeSelector | indent 8 }}
-      {{ end }}
+      {{- if $.Values.minio.nodeSelector }}
+      nodeSelector: {{ $.Values.minio.nodeSelector | nindent 8 }}
+      {{- end }}
       {{- if $.Values.minio.tolerations }}
-      tolerations:
-{{ toYaml $.Values.minio.tolerations | indent 8 }}
+      tolerations: {{ toYaml $.Values.minio.tolerations | nindent 8 }}
       {{- end }}
       containers:
       - name: logger
         image: {{ $.Values.minio.metricsLogger.image }}
         imagePullPolicy: {{ $.Values.minio.metricsLogger.imagePullPolicy }}
-        resources:
-{{ toYaml $.Values.minio.metricsLogger.resources | indent 10 }}
+        resources: {{ toYaml $.Values.minio.metricsLogger.resources | nindent 10 }}
         volumeMounts:
         - name: "fluentd-conf-volume"
           mountPath: "/fluentd/etc/"
@@ -42,12 +38,12 @@ spec:
         env:
         - name: LOG_PROVIDER
           value: {{ $.Values.minio.metricsLogger.LOG_PROVIDER | default "default" | quote }}
-      {{ if $.Values.minio.metricsLogger.withRedis }}
+      {{- if $.Values.minio.metricsLogger.withRedis }}
       - name: redis
         image: redis
-      {{ end }}
+      {{- end }}
       volumes:
       - name: fluentd-conf-volume
         configMap:
           name: fluentd-conf
-{{ end }}
+{{- end }}

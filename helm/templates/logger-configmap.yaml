@@ -124,7 +124,7 @@ data:
       ssl_verify_peer       {{ $.Values.minio.metricsLogger.S3_SSL_VERIFY }}
 
       time_slice_format     %Y%m%d%H%M
-      s3_object_key_format  %{path}%{time_slice}_%{index}.%{file_extension}
+      s3_object_key_format  "%{path}%{time_slice}_%{index}_#{ENV['HOSTNAME']}.%{file_extension}"
 
       # Compression Type: gzip (default), lzo, json, txt
       store_as              {{ $.Values.minio.metricsLogger.S3_STORE_AS }}
