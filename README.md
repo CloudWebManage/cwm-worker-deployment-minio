@@ -33,6 +33,8 @@
   - [Gateway to AWS S3](#gateway-to-aws-s3)
 - [Nginx Cache](#nginx-cache)
   - [Testing the cache layer locally using Docker Compose](#testing-the-cache-layer-locally-using-docker-compose)
+- [Certificate Challenge](#certificate-challenge)
+  - [Testing the challenge response using Docker Compose](#testing-the-challenge-response-using-docker-compose)
 - [Running Tests](#running-tests)
 - [Contribute](#contribute)
 - [License](#license)
