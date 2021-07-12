@@ -398,23 +398,23 @@ proxy supports an http challenge response.
 
 ### Testing the challenge response using Docker Compose
 
-Set the following in `.env` file:
-
-```text
-CERT_CHALLENGE_TOKEN=p70xAjo7b7lLMi-Y4tgixcE55POuVQh1dWqitJMyoxM
-CERT_CHALLENGE_PAYLOAD=p70xAjo7b7lLMi-Y4tgixcE55POuVQh1dWqitJMyoxM.hqI2tvoKxfy5mN1hvTLZwkt4o0WXwYv1uZFrvvr_sXM
-```
-
 Run the `docker-compose` environment:
 
 ```shell
 docker-compose up -d --build
 ```
 
-Access the challenge response URL, the response should be the payload:
+Verify that the challenge response returns the correct payload:
 
 ```shell
-curl http://localhost:8080/.well-known/acme-challenge/p70xAjo7b7lLMi-Y4tgixcE55POuVQh1dWqitJMyoxM
+echo "$(curl -s "http://localhost:8080/.well-known/acme-challenge/$(cat tests/hostnames/hostname1.cc_token)")"
+echo "$(cat tests/hostnames/hostname1.cc_payload)"
+```
+
+Access hostname3 which doesn't have a payload/token and verify it returns an error:
+
+```shell
+curl -H "Host: example003.com" "http://localhost:8080/.well-known/acme-challenge/$(cat tests/hostnames/hostname1.cc_token)"
 ```
 
 ## Running Tests

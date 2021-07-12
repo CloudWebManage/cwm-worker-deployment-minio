@@ -68,10 +68,6 @@ spec:
           - name: CDN_CACHE_NOCACHE_REGEX
             value: {{ $.Values.minio.nginx.CDN_CACHE_NOCACHE_REGEX | quote }}
           {{ end }}
-          - name: CERT_CHALLENGE_TOKEN
-            value: {{ $.Values.minio.nginx.CERT_CHALLENGE_TOKEN | quote }}
-          - name: CERT_CHALLENGE_PAYLOAD
-            value: {{ $.Values.minio.nginx.CERT_CHALLENGE_PAYLOAD | quote }}
         ports:
         - containerPort: 8080
         - containerPort: 8443
