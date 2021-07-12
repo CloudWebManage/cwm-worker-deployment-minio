@@ -333,6 +333,8 @@ minio:
     CDN_CACHE_NOCACHE_REGEX: '\.(pdf|txt|json)$'
     cacheVolumeSubPath: "_cdncache_"
     cacheVolumeMountPath: "/var/cache/nginx/minio"
+    CERT_CHALLENGE_TOKEN: ""
+    CERT_CHALLENGE_PAYLOAD: ""
 
 # each object have required attributes: apiVersion, kind, name, spec
 extraObjects: []

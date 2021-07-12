@@ -13,6 +13,8 @@ services:
       HOSTNAMES_DIR: "/hostnames"
       CDN_CACHE_ENABLE: "${CDN_CACHE_ENABLE}"
       CDN_CACHE_NOCACHE_REGEX: '\.(pdf|txt|json)$$'
+      CERT_CHALLENGE_TOKEN: "${CERT_CHALLENGE_TOKEN}"
+      CERT_CHALLENGE_PAYLOAD: "${CERT_CHALLENGE_PAYLOAD}"
     volumes:
       - "./tests/hostnames:/hostnames"
     depends_on:

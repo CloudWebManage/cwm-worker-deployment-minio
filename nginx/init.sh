@@ -63,5 +63,12 @@ else
   echo "" > "${NGINX_SOURCES_DIR}/cache_location.conf"
 fi
 
+if [ "${CERT_CHALLENGE_TOKEN}" != "" ] && [ "${CERT_CHALLENGE_PAYLOAD}" != "" ]; then
+  sed -i "s/CERT_CHALLENGE_TOKEN/${CERT_CHALLENGE_TOKEN}/g" "${NGINX_SOURCES_DIR}/cert_challenge.conf"
+  sed -i "s/CERT_CHALLENGE_PAYLOAD/${CERT_CHALLENGE_PAYLOAD}/g" "${NGINX_SOURCES_DIR}/cert_challenge.conf"
+else
+  echo "" > "${NGINX_SOURCES_DIR}/cert_challenge.conf"
+fi
+
 echo "init OK"
 exit 0
