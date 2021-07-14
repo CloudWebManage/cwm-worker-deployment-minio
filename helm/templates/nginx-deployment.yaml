@@ -40,6 +40,8 @@ spec:
         env:
           - name: HOSTNAMES_DIR
             value: "/hostnames"
+          - name: MINIO_PROXY_PASS_HOST
+            value: "minio-server"
           - name: DISABLE_HTTP
             value: {{ $.Values.minio.nginx.disableHttp | quote }}
           - name: DISABLE_HTTPS

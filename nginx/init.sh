@@ -80,5 +80,9 @@ else
   echo "" > "${NGINX_SOURCES_DIR}/cache_location.conf"
 fi
 
+if [ "${MINIO_PROXY_PASS_HOST}" != "" ]; then
+  echo "proxy_pass http://${MINIO_PROXY_PASS_HOST}:8080;" > "${NGINX_SOURCES_DIR}/minio_proxy_pass.conf"
+fi
+
 echo "init OK"
 exit 0
