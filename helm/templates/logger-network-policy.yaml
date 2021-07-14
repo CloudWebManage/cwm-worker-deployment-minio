@@ -16,7 +16,7 @@ spec:
   - from:
     - podSelector:
         matchLabels:
-          app: minio
+          app: minio-server
     ports:
     - protocol: TCP
       port: 8500
