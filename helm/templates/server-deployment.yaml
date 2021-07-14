@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: minio
+  name: minio-server
 spec:
   replicas: {{ $.Values.minio.replicas }}
   revisionHistoryLimit: {{ $.Values.minio.revisionHistoryLimit }}
   selector:
     matchLabels:
-      app: minio
+      app: minio-server
   strategy:
 {{ toYaml $.Values.minio.strategy | indent 4 }}
   template:
     metadata:
       labels:
-        app: minio
+        app: minio-server
     spec:
       dnsPolicy: ClusterFirst
       imagePullSecrets:
@@ -36,9 +36,9 @@ spec:
         - name: "MINIO_DOMAIN"
           value: {{ $.Values.minio.domain_name | quote }}
         - name: MINIO_ACCESS_KEY
-          valueFrom: {"secretKeyRef":{"name":"minio", "key":"MINIO_ACCESS_KEY"}}
+          valueFrom: {"secretKeyRef":{"name":"minio-server", "key":"MINIO_ACCESS_KEY"}}
         - name: MINIO_SECRET_KEY
-          valueFrom: {"secretKeyRef":{"name":"minio", "key":"MINIO_SECRET_KEY"}}
+          valueFrom: {"secretKeyRef":{"name":"minio-server", "key":"MINIO_SECRET_KEY"}}
         {{ if $.Values.minio.cache.enabled }}
         - name: MINIO_CACHE
           value: "on"

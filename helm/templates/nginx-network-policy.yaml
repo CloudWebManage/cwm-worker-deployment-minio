@@ -1,11 +1,11 @@
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
-  name: nginx
+  name: minio-nginx
 spec:
   podSelector:
     matchLabels:
-      app: nginx
+      app: minio-nginx
   policyTypes:
   - Ingress
   - Egress

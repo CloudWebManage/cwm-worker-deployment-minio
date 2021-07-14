@@ -9,7 +9,7 @@ spec:
     - {{ .Release.Namespace }}
   selector:
     matchLabels:
-      app: minio
+      app: minio-server
   endpoints:
   - port: "8080"
     path: /minio/v2/metrics/node
