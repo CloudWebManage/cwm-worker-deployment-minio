@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nginx
+  name: minio-nginx
 spec:
   replicas: {{ $.Values.minio.nginx.replicas }}
   revisionHistoryLimit: {{ $.Values.minio.revisionHistoryLimit }}
   selector:
     matchLabels:
-      app: nginx
+      app: minio-nginx
   strategy: {{ toYaml $.Values.minio.nginx.strategy | nindent 4 }}
   template:
     metadata:
       labels:
-        app: nginx
+        app: minio-nginx
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/nginx-hostnames-configmap.yaml") . | sha256sum }}
     spec:
