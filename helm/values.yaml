@@ -108,34 +108,34 @@ minio:
       limits:
         memory: "150Mi"
 
+  # External: https://github.com/iamazeem/cwm-keda-external-scaler
+  # CPU: https://keda.sh/docs/2.3/scalers/cpu/
+  # Memory: https://keda.sh/docs/2.3/scalers/memory/
   scaledobject:
     enabled: false
-    spec:
-      scaleTargetRef:
-        name: minio-server
-      pollingInterval: 10
-      cooldownPeriod:  60
-      minReplicaCount: 1
-      maxReplicaCount: 10
-      # advanced:
-      #   restoreToOriginalReplicaCount: true
-      #   horizontalPodAutoscalerConfig:
-      #     behavior:
-      #       scaleDown:
-      #         stabilizationWindowSeconds: 30
-      #         policies:
-      #         - type: Percent
-      #           value: 80
-      #           periodSeconds: 15
-      triggers:
-        - type: external
-          metadata:
-            scalerAddress: minio-external-scaler:50051
-            deploymentid: "minio1"
-            isActiveTtlSeconds: "60"
-            scalePeriodSeconds: "60"
-            scaleMetricName: "num_requests_misc"
-            targetValue: "10"
+    type: external          # external, cpu, memory
+    # external
+    pollingInterval: 10
+    cooldownPeriod:  60
+    minReplicaCount: 1
+    maxReplicaCount: 10
+    # advanced:
+    #   restoreToOriginalReplicaCount: true
+    #   horizontalPodAutoscalerConfig:
+    #     behavior:
+    #       scaleDown:
+    #         stabilizationWindowSeconds: 30
+    #         policies:
+    #         - type: Percent
+    #           value: 80
+    #           periodSeconds: 15
+    isActiveTtlSeconds: "60"
+    scalePeriodSeconds: "60"
+    scaleMetricName: "num_requests_misc"
+    targetValue: "10"
+    # cpu / memory
+    metricType: Utilization # Utilization, Value, AverageValue
+    metricValue: "80"
 
   metricsLogger:
     enable: true
@@ -192,34 +192,34 @@ minio:
     S3_SSL_VERIFY: true
     S3_STORE_AS: gzip         # gzip, lzo, json, txt
 
+    # External: https://github.com/iamazeem/cwm-keda-external-scaler
+    # CPU: https://keda.sh/docs/2.3/scalers/cpu/
+    # Memory: https://keda.sh/docs/2.3/scalers/memory/
     scaledobject:
       enabled: false
-      spec:
-        scaleTargetRef:
-          name: minio-logger
-        pollingInterval: 10
-        cooldownPeriod:  60
-        minReplicaCount: 1
-        maxReplicaCount: 10
-        # advanced:
-        #   restoreToOriginalReplicaCount: true
-        #   horizontalPodAutoscalerConfig:
-        #     behavior:
-        #       scaleDown:
-        #         stabilizationWindowSeconds: 30
-        #         policies:
-        #         - type: Percent
-        #           value: 80
-        #           periodSeconds: 15
-        triggers:
-          - type: external
-            metadata:
-              scalerAddress: minio-external-scaler:50051
-              deploymentid: "minio-logger1"
-              isActiveTtlSeconds: "60"
-              scalePeriodSeconds: "60"
-              scaleMetricName: "num_requests_misc"
-              targetValue: "10"
+      type: external          # external, cpu, memory
+      # external
+      pollingInterval: 10
+      cooldownPeriod:  60
+      minReplicaCount: 1
+      maxReplicaCount: 10
+      # advanced:
+      #   restoreToOriginalReplicaCount: true
+      #   horizontalPodAutoscalerConfig:
+      #     behavior:
+      #       scaleDown:
+      #         stabilizationWindowSeconds: 30
+      #         policies:
+      #         - type: Percent
+      #           value: 80
+      #           periodSeconds: 15
+      isActiveTtlSeconds: "60"
+      scalePeriodSeconds: "60"
+      scaleMetricName: "num_requests_misc"
+      targetValue: "10"
+      # cpu / memory
+      metricType: Utilization # Utilization, Value, AverageValue
+      metricValue: "80"
 
   nginx:
     replicas: 1

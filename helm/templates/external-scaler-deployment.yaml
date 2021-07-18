@@ -1,4 +1,4 @@
-{{ if .Values.minio.externalscaler.enabled }}
+{{- if .Values.minio.externalscaler.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -15,17 +15,14 @@ spec:
         app: minio-external-scaler
     spec:
       dnsPolicy: ClusterFirst
-      imagePullSecrets:
-      {{ $.Values.minio.imagePullSecrets | indent 6 }}
+      imagePullSecrets: {{ $.Values.minio.imagePullSecrets | nindent 6 }}
       terminationGracePeriodSeconds: {{ $.Values.minio.terminationGracePeriodSeconds }}
       automountServiceAccountToken: false
-      {{ if $.Values.minio.nodeSelector }}
-      nodeSelector:
-{{ $.Values.minio.nodeSelector | indent 8 }}
-      {{ end }}
+      {{- if $.Values.minio.nodeSelector }}
+      nodeSelector: {{ $.Values.minio.nodeSelector | nindent 8 }}
+      {{- end }}
       {{- if $.Values.minio.tolerations }}
-      tolerations:
-{{ toYaml $.Values.minio.tolerations | indent 8 }}
+      tolerations: {{ toYaml $.Values.minio.tolerations | nindent 8 }}
       {{- end }}
       containers:
       - name: minio-external-scaler
@@ -43,4 +40,4 @@ spec:
           value: {{ $.Values.minio.metricsLogger.REDIS_KEY_PREFIX_DEPLOYMENT_LAST_ACTION | quote }}
         - name: METRICS_PREFIX
           value: {{ $.Values.minio.metricsLogger.REDIS_KEY_PREFIX_DEPLOYMENT_API_METRIC | quote }}
-{{ end }}
+{{- end }}

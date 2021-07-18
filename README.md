@@ -240,11 +240,18 @@ Logs should appear in bucket `test123`.
 
 ## Scaling
 
-A custom [KEDA](https://keda.sh/) external scaler
-[cwm-keda-external-scaler](https://github.com/iamazeem/cwm-keda-external-scaler)
-is being used to perform scaling.
+Following types of scaling via ScaledObjects are supported:
 
-Make sure that the KEDA has already been deployed before proceeding with a
+- `external` (external scaler must be enabled and deployed)
+- `cpu`
+- `memmory`
+
+For scaling with the external metrics, a custom [KEDA](https://keda.sh/)
+external scaler
+[cwm-keda-external-scaler](https://github.com/iamazeem/cwm-keda-external-scaler)
+is used.
+
+Make sure that the KEDA has already been deployed before proceeding with the
 `ScaledObject`. Use [install with YAML](https://keda.sh/docs/2.1/deploy/#yaml)
 method.
 
@@ -254,7 +261,6 @@ To enable it, use a custom `.values.yaml` and deploy accordingly:
 
 ```yaml
 minio:
-  # ...
   externalscaler:
     enabled: true
 ```
@@ -266,16 +272,44 @@ Now, the `ScaledObject` can be configured and deployed:
 
 ```yaml
 minio:
-  # ...
   scaledobject:
     enabled: true
-    spec:
-      # ...
+    type: external
+    pollingInterval: 10
+    cooldownPeriod:  60
+    minReplicaCount: 1
+    maxReplicaCount: 10
+    # advanced:
+    #   restoreToOriginalReplicaCount: true
+    #   horizontalPodAutoscalerConfig:
+    #     behavior:
+    #       scaleDown:
+    #         stabilizationWindowSeconds: 30
+    #         policies:
+    #         - type: Percent
+    #           value: 80
+    #           periodSeconds: 15
+    isActiveTtlSeconds: "60"
+    scalePeriodSeconds: "60"
+    scaleMetricName: "num_requests_misc"
+    targetValue: "10"
 ```
 
 For the detailed configuration under the `spec`, please refer to the
 [Sample Configuration](https://github.com/iamazeem/cwm-keda-external-scaler#sample-configuration)
 section.
+
+The `cpu` or `memory` scaler can be configured like this:
+
+```yaml
+minio:
+  # ...
+  scaledobject:
+    enabled: true
+    type: cpu                   # Supported types: [cpu, memory]
+    metricType: Utilization     # Supported metric types: [Utilization, Value, AverageValue]
+    metricValue: "80"
+```
 
 Deploy: `helm upgrade -f .values.yaml --install cwm-worker-deployment-minio ./helm`
 
