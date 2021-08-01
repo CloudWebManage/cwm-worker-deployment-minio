@@ -353,8 +353,8 @@ minio:
           -----END PRIVATE KEY-----
         cc_token: ""
         cc_payload: ""
-    disableHttp: false
-    disableHttps: false
+    DISABLE_HTTP: false
+    DISABLE_HTTPS: false
     CDN_CACHE_ENABLE: false
     CDN_CACHE_PROXY_PATH: "/var/cache/nginx/minio/cache"
     CDN_CACHE_PROXY_KEYS_MAX_SIZE: "10m"
