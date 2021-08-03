@@ -92,9 +92,9 @@ minio:
   storageVolumeSubPath: ""
   cacheVolumeSubPath: ""
   volumes:
-    storage: |
+    storage:
       emptyDir: {}
-    cache: |
+    cache:
       emptyDir: {}
 
   externalscaler:

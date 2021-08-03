@@ -138,7 +138,7 @@ spec:
       volumes:
       {{ if eq $.Values.minio.INSTANCE_TYPE "" }}
       - name: storage
-{{ $.Values.minio.volumes.storage | indent 8 }}
+{{ toYaml $.Values.minio.volumes.storage | indent 8 }}
       {{ end }}
       - name: cache
-{{ $.Values.minio.volumes.cache | indent 8 }}
+{{ toYaml $.Values.minio.volumes.cache | indent 8 }}

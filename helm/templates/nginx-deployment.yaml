@@ -88,5 +88,5 @@ spec:
           name: nginx-hostnames
       {{ if $.Values.minio.nginx.CDN_CACHE_ENABLE }}
       - name: cache
-{{ $.Values.minio.volumes.cache | indent 8 }}
+{{ toYaml $.Values.minio.volumes.cache | indent 8 }}
       {{ end }}
