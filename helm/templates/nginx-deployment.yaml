@@ -24,7 +24,7 @@ spec:
                 matchLabels:
                   app: nginx
       dnsPolicy: ClusterFirst
-      imagePullSecrets: {{ $.Values.minio.imagePullSecrets | nindent 6 }}
+      imagePullSecrets: {{ $.Values.minio.imagePullSecrets | trim | nindent 6 }}
       terminationGracePeriodSeconds: {{ $.Values.minio.terminationGracePeriodSeconds }}
       automountServiceAccountToken: false
       {{- if $.Values.minio.nodeSelector }}
@@ -46,7 +46,7 @@ spec:
             value: {{ $.Values.minio.nginx.DISABLE_HTTP | quote }}
           - name: DISABLE_HTTPS
             value: {{ $.Values.minio.nginx.DISABLE_HTTPS | quote }}
-          {{ if $.Values.minio.nginx.CDN_CACHE_ENABLE }}
+          {{- if $.Values.minio.nginx.CDN_CACHE_ENABLE }}
           - name: CDN_CACHE_ENABLE
             value: "yes"
           - name: CDN_CACHE_PROXY_PATH
@@ -69,7 +69,7 @@ spec:
             value: {{ $.Values.minio.nginx.CDN_CACHE_PROXY_CACHE_VALID_200 | quote }}
           - name: CDN_CACHE_NOCACHE_REGEX
             value: {{ $.Values.minio.nginx.CDN_CACHE_NOCACHE_REGEX | quote }}
-          {{ end }}
+          {{- end }}
         ports:
         - containerPort: 8080
         - containerPort: 8443
@@ -77,16 +77,20 @@ spec:
         volumeMounts:
         - name: hostnames
           mountPath: /hostnames
-        {{ if $.Values.minio.nginx.CDN_CACHE_ENABLE }}
+        {{- if $.Values.minio.nginx.CDN_CACHE_ENABLE }}
         - mountPath: {{ $.Values.minio.nginx.cacheVolumeMountPath | quote }}
           name: "cache"
           subPath: {{ $.Values.minio.nginx.cacheVolumeSubPath | quote }}
-        {{ end }}
+        {{- end }}
       volumes:
       - name: hostnames
         configMap:
           name: nginx-hostnames
-      {{ if $.Values.minio.nginx.CDN_CACHE_ENABLE }}
+      {{- if $.Values.minio.nginx.CDN_CACHE_ENABLE }}
       - name: cache
+        {{- if $.Values.minio.volumes.cache }}
 {{ toYaml $.Values.minio.volumes.cache | indent 8 }}
-      {{ end }}
+        {{- else }}
+        emptyDir: {}
+        {{- end }}
+      {{- end }}

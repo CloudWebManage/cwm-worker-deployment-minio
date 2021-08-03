@@ -16,14 +16,13 @@ spec:
         app: minio-server
     spec:
       dnsPolicy: ClusterFirst
-      imagePullSecrets:
-      {{ $.Values.minio.imagePullSecrets | indent 6 }}
+      imagePullSecrets: {{ $.Values.minio.imagePullSecrets | trim | nindent 6 }}
       terminationGracePeriodSeconds: {{ $.Values.minio.terminationGracePeriodSeconds }}
       automountServiceAccountToken: false
-      {{ if $.Values.minio.nodeSelector }}
+      {{- if $.Values.minio.nodeSelector }}
       nodeSelector:
 {{ $.Values.minio.nodeSelector | indent 8 }}
-      {{ end }}
+      {{- end }}
       {{- if $.Values.minio.tolerations }}
       tolerations:
 {{ toYaml $.Values.minio.tolerations | indent 8 }}
@@ -39,7 +38,7 @@ spec:
           valueFrom: {"secretKeyRef":{"name":"minio-server", "key":"MINIO_ACCESS_KEY"}}
         - name: MINIO_SECRET_KEY
           valueFrom: {"secretKeyRef":{"name":"minio-server", "key":"MINIO_SECRET_KEY"}}
-        {{ if $.Values.minio.cache.enabled }}
+        {{- if $.Values.minio.cache.enabled }}
         - name: MINIO_CACHE
           value: "on"
         - name: MINIO_CACHE_DRIVES
@@ -54,33 +53,33 @@ spec:
           value: {{ $.Values.minio.cache.watermark_low | quote }}
         - name: MINIO_CACHE_WATERMARK_HIGH
           value: {{ $.Values.minio.cache.watermark_high | quote }}
-        {{ end }}
-        {{ if $.Values.minio.auditWebhookEndpoint }}
+        {{- end }}
+        {{- if $.Values.minio.auditWebhookEndpoint }}
         - name: MINIO_AUDIT_WEBHOOK_ENABLE_target1
           value: "on"
         - name: MINIO_AUDIT_WEBHOOK_AUTH_TOKEN_target1
           value: ""
         - name: MINIO_AUDIT_WEBHOOK_ENDPOINT_target1
           value: {{ if .Values.minio.metricsLogger.enable }}http://minio-logger:8500/logs{{ else }}{{ $.Values.minio.auditWebhookEndpoint | quote }}{{ end }}
-        {{ end }}
-        {{ if $.Values.minio.skipWaitForAuditWebhook }}
+        {{- end }}
+        {{- if $.Values.minio.skipWaitForAuditWebhook }}
         - name: SKIP_WAIT_FOR_AUDIT_WEBHOOK
           value: "yes"
-        {{ end }}
+        {{- end }}
         - name: MINIO_GATEWAY_DEPLOYMENT_ID
           value: {{ $.Values.minio.MINIO_GATEWAY_DEPLOYMENT_ID | quote }}
         - name: MINIO_EXTRA_ARGS
           value: {{ $.Values.minio.MINIO_EXTRA_ARGS | quote }}
-        {{ if $.Values.minio.initDebugEnable }}
+        {{- if $.Values.minio.initDebugEnable }}
         - name: CWM_INIT_DEBUG
           value: "yes"
-        {{ end }}
+        {{- end }}
         - name: CWM_INIT_CURL_MAX_TIME
           value: "{{ $.Values.minio.initCurlMaxTime }}"
-        {{ if $.Values.minio.enablePrometheusAuthTypePublic }}
+        {{- if $.Values.minio.enablePrometheusAuthTypePublic }}
         - name: MINIO_PROMETHEUS_AUTH_TYPE
           value: "public"
-        {{ end }}
+        {{- end }}
         - name: MINIO_BROWSER
           value: "{{ if $.Values.minio.browser }}on{{ else }}off{{ end }}"
         - name: INSTANCE_TYPE
@@ -127,18 +126,30 @@ spec:
         resources:
 {{ toYaml $.Values.minio.resources | indent 10 }}
         volumeMounts:
-        {{ if eq $.Values.minio.INSTANCE_TYPE "" }}
+        {{- if eq $.Values.minio.INSTANCE_TYPE "" }}
         - mountPath: "/storage"
           name: "storage"
-          {{ if $.Values.minio.storageVolumeSubPath }}subPath: {{ $.Values.minio.storageVolumeSubPath | quote }}{{ end }}
-        {{ end }}
+          {{- if $.Values.minio.storageVolumeSubPath }}
+          subPath: {{ $.Values.minio.storageVolumeSubPath | quote }}
+          {{- end }}
+        {{- end }}
         - mountPath: "/cache"
           name: "cache"
-          {{ if $.Values.minio.cacheVolumeSubPath }}subPath: {{ $.Values.minio.cacheVolumeSubPath | quote }}{{ end }}
+          {{- if $.Values.minio.cacheVolumeSubPath }}
+          subPath: {{ $.Values.minio.cacheVolumeSubPath | quote }}
+          {{- end }}
       volumes:
-      {{ if eq $.Values.minio.INSTANCE_TYPE "" }}
+      {{- if eq $.Values.minio.INSTANCE_TYPE "" }}
       - name: storage
+        {{- if $.Values.minio.volumes.storage }}
 {{ toYaml $.Values.minio.volumes.storage | indent 8 }}
-      {{ end }}
+        {{- else }}
+        emptyDir: {}
+        {{- end }}
+      {{- end }}
       - name: cache
+        {{- if $.Values.minio.volumes.cache }}
 {{ toYaml $.Values.minio.volumes.cache | indent 8 }}
+        {{- else }}
+        emptyDir: {}
+        {{- end }}
