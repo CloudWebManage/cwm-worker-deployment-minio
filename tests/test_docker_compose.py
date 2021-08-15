@@ -5,6 +5,7 @@ import boto3
 import pytest
 import datetime
 import traceback
+import subprocess
 from botocore.client import Config
 
 
@@ -29,7 +30,12 @@ def connect():
             https_num_requests_misc += 1
             return r, s3_http, s3_https, http_num_requests_misc, https_num_requests_misc
         except:
+            print('--------- unexpected exception --------- ')
             traceback.print_exc()
+            print('--------- docker-compose logs ---------')
+            subprocess.check_call(['docker-compose', 'logs'])
+            print('---------------------------------------')
+            print("Unexpected exception, will retry in 5 seconds...")
             time.sleep(5)
     raise Exception("Failed to connect to redis or minio")
 
