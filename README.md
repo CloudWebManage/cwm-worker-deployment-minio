@@ -74,7 +74,7 @@ user: 12345678 / password: 12345678
 
 - Install [Minikube](https://minikube.sigs.k8s.io/docs/) (latest stable version).
 - Install [Helm](https://helm.sh/) (latest stable version).
-- Start a local cluster: `minikube start --driver=docker --kubernetes-version=v1.16.14 --network-plugin=cni --cni=calico`
+- Start a local cluster: `minikube start --driver=docker --kubernetes-version=v1.18.15 --network-plugin=cni --cni=calico`
 - Switch to the minikube docker env: `eval $(minikube -p minikube docker-env)`.
 - Build the Docker images: `docker-compose build`
 - Build the cwm-worker-logger image: `docker build -t cwm-worker-logger ../cwm-worker-logger`
@@ -115,8 +115,8 @@ user: 12345678 / password: 12345678
 - Deploy: `helm upgrade -f .values.yaml --install cwm-worker-deployment-minio ./helm`
 - Verify that the minio pod is running: `kubectl get pods`
 - Start port-forward to the nginx service:
-  - `kubectl port-forward service/nginx 8080:8080`
-  - `kubectl port-forward service/minio 8443:8443`
+  - `kubectl port-forward service/minio-nginx 8080:8080`
+  - `kubectl port-forward service/minio-nginx 8443:8443`
 - Access it at http://localhost:8080 or https://localhost:8443
 - Also, try https://example003.com:8443 vs. https://example002.com:8443 - each
   one should serve the relevant certificate for this domain
@@ -225,7 +225,7 @@ helm upgrade -f .values.yaml -n storage --create-namespace --install cwm-worker-
 Start a port-forward to storage minio service:
 
 ```shell
-kubectl -n storage port-forward service/minio 8080
+kubectl -n storage port-forward service/minio-server 8080
 ```
 
 Make some actions (upload/download objects)
@@ -233,7 +233,7 @@ Make some actions (upload/download objects)
 Start a port-forward to logs minio service:
 
 ```shell
-kubectl -n logs port-forward service/minio 8080
+kubectl -n logs port-forward service/minio-server 8080
 ```
 
 Logs should appear in bucket `test123`.

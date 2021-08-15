@@ -8,8 +8,7 @@ spec:
   selector:
     matchLabels:
       app: minio-server
-  strategy:
-{{ toYaml $.Values.minio.strategy | indent 4 }}
+  strategy: {{ toYaml $.Values.minio.strategy | nindent 4 }}
   template:
     metadata:
       labels:
@@ -20,20 +19,27 @@ spec:
       terminationGracePeriodSeconds: {{ $.Values.minio.terminationGracePeriodSeconds }}
       automountServiceAccountToken: false
       {{- if $.Values.minio.nodeSelector }}
-      nodeSelector:
-{{ $.Values.minio.nodeSelector | indent 8 }}
+      nodeSelector: {{ $.Values.minio.nodeSelector | nindent 8 }}
       {{- end }}
       {{- if $.Values.minio.tolerations }}
-      tolerations:
-{{ toYaml $.Values.minio.tolerations | indent 8 }}
+      tolerations: {{ toYaml $.Values.minio.tolerations | nindent 8 }}
       {{- end }}
       containers:
       - name: http
         image: {{ $.Values.minio.image }}:{{ $.Values.minio.tag | default $.Chart.AppVersion }}
         imagePullPolicy: {{ $.Values.minio.imagePullPolicy }}
         env:
+        {{- $domains := list }}
+        {{- range $hostname := $.Values.minio.nginx.hostnames }}
+        {{-   $domains = (append $domains (trim $hostname.name)) }}
+        {{- end }}
+        {{- if $domains }}
+        {{-   $domains = (join "," $domains) }}
+        {{- else }}
+        {{-   $domains = "" }}
+        {{- end }}
         - name: "MINIO_DOMAIN"
-          value: {{ $.Values.minio.domain_name | quote }}
+          value: {{ $domains | quote }}
         - name: MINIO_ACCESS_KEY
           valueFrom: {"secretKeyRef":{"name":"minio-server", "key":"MINIO_ACCESS_KEY"}}
         - name: MINIO_SECRET_KEY
@@ -123,8 +129,7 @@ spec:
           timeoutSeconds: {{ $.Values.minio.readinessProbe.timeoutSeconds }}
           successThreshold: {{ $.Values.minio.readinessProbe.successThreshold }}
           failureThreshold: {{ $.Values.minio.readinessProbe.failureThreshold }}
-        resources:
-{{ toYaml $.Values.minio.resources | indent 10 }}
+        resources: {{ toYaml $.Values.minio.resources | nindent 10 }}
         volumeMounts:
         {{- if eq $.Values.minio.INSTANCE_TYPE "" }}
         - mountPath: "/storage"
