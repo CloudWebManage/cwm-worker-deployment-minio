@@ -33,6 +33,7 @@
   - [Gateway to AWS S3](#gateway-to-aws-s3)
 - [Nginx Cache](#nginx-cache)
   - [Testing the cache layer locally using Docker Compose](#testing-the-cache-layer-locally-using-docker-compose)
+- [Testing virtual-style-host requests](#testing-virtual-style-host-requests)
 - [Certificate Challenge](#certificate-challenge)
   - [Testing the challenge response using Docker Compose](#testing-the-challenge-response-using-docker-compose)
 - [Running Tests](#running-tests)
@@ -424,6 +425,45 @@ docker-compose exec minio-client mc policy set download minio/test
 - The file should be downloaded from the cache using the direct link.
 - Wait for 1 minute, try to download the file again. It should not download
   because the cache is expired (default TTL is 1 minute).
+
+## Testing virtual-style-host requests
+
+Run the `docker-compose` environment:
+
+```shell
+docker-compose up -d --build
+```
+
+Create a bucket named `test` and upload a file e.g. `file.pdf`.
+
+Add this in `/etc/hosts` file:
+
+```text
+127.0.0.0 example001.com test.example001.com
+```
+
+Set the download bucket policy to allow unauthenticated download of files:
+
+```shell
+docker-compose exec minio-client mc policy set download minio/test
+```
+
+Using the MinIO web UI, click on the share link for a file in the `test` bucket
+to get the direct download link.
+
+Copy the direct download link and download it with `curl`.
+
+With `path-style` request i.e. `http://domain/bucket/object`:
+
+```shell
+curl 'http://example001.com:8080/test/file.pdf'
+```
+
+With `virtual-host-style` request i.e. `http://bucket.domain/object`:
+
+```shell
+curl 'http://test.example001.com:8080/file.pdf'
+```
 
 ## Certificate Challenge
 
