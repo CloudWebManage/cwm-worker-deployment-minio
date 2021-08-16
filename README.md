@@ -434,7 +434,7 @@ Run the `docker-compose` environment:
 docker-compose up -d --build
 ```
 
-Create a bucket named `test` and upload a file e.g. `file.pdf`.
+Create a bucket named `test` and upload a file e.g. `file.txt`.
 
 Add this in `/etc/hosts` file:
 
@@ -456,13 +456,13 @@ Copy the direct download link and download it with `curl`.
 With `path-style` request i.e. `http://domain/bucket/object`:
 
 ```shell
-curl 'http://example001.com:8080/test/file.pdf'
+curl 'http://example001.com:8080/test/file.txt'
 ```
 
 With `virtual-host-style` request i.e. `http://bucket.domain/object`:
 
 ```shell
-curl 'http://test.example001.com:8080/file.pdf'
+curl 'http://test.example001.com:8080/file.txt'
 ```
 
 ## Certificate Challenge
