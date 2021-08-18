@@ -367,5 +367,34 @@ minio:
     cacheVolumeSubPath: "_cdncache_"
     cacheVolumeMountPath: "/var/cache/nginx/minio"
 
+    # External: https://github.com/iamazeem/cwm-keda-external-scaler
+    # CPU: https://keda.sh/docs/2.3/scalers/cpu/
+    # Memory: https://keda.sh/docs/2.3/scalers/memory/
+    scaledobject:
+      enabled: false
+      type: external          # external, cpu, memory
+      # external
+      pollingInterval: 10
+      cooldownPeriod:  60
+      minReplicaCount: 1
+      maxReplicaCount: 10
+      # advanced:
+      #   restoreToOriginalReplicaCount: true
+      #   horizontalPodAutoscalerConfig:
+      #     behavior:
+      #       scaleDown:
+      #         stabilizationWindowSeconds: 30
+      #         policies:
+      #         - type: Percent
+      #           value: 80
+      #           periodSeconds: 15
+      isActiveTtlSeconds: "60"
+      scalePeriodSeconds: "60"
+      scaleMetricName: "num_requests_misc"
+      targetValue: "10"
+      # cpu / memory
+      metricType: Utilization # Utilization, Value, AverageValue
+      metricValue: "80"
+
 # each object have required attributes: apiVersion, kind, name, spec
 extraObjects: []

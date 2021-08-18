@@ -9,7 +9,7 @@
 {{- if or (eq $type "cpu") (eq $type "memory") }}
   {{- $metricType := (title $.Values.minio.scaledobject.metricType) }}
   {{- if and (ne $metricType "Utilization") (ne $metricType "Value") (ne $metricType "AverageValue") }}
-  {{- fail (cat "metricType [" $metricType "] not supported! Supported metric types: [Utilization, Value, AverageValue]") }}
+  {{-   fail (cat "metricType [" $metricType "] not supported! Supported metric types: [Utilization, Value, AverageValue]") }}
   {{- end }}
 {{- end }}
 apiVersion: keda.sh/v1alpha1

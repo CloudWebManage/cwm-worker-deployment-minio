@@ -9,13 +9,13 @@
 {{- if or (eq $type "cpu") (eq $type "memory") }}
   {{- $metricType := (title $.Values.minio.metricsLogger.scaledobject.metricType) }}
   {{- if and (ne $metricType "Utilization") (ne $metricType "Value") (ne $metricType "AverageValue") }}
-  {{- fail (cat "metricType [" $metricType "] not supported! Supported metric types: [Utilization, Value, AverageValue]") }}
+  {{-   fail (cat "metricType [" $metricType "] not supported! Supported metric types: [Utilization, Value, AverageValue]") }}
   {{- end }}
 {{- end }}
 apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
 metadata:
-  name: minio-logger-{{ $.Values.minio.scaledobject.type }}-scaledobject
+  name: minio-logger-{{ $.Values.minio.metricsLogger.scaledobject.type }}-scaledobject
 spec:
   scaleTargetRef:
     name: minio-logger
