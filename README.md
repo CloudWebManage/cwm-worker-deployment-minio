@@ -33,6 +33,7 @@
   - [Gateway to AWS S3](#gateway-to-aws-s3)
 - [Nginx Cache](#nginx-cache)
   - [Testing the cache layer locally using Docker Compose](#testing-the-cache-layer-locally-using-docker-compose)
+- [Testing virtual-style-host requests](#testing-virtual-style-host-requests)
 - [Certificate Challenge](#certificate-challenge)
   - [Testing the challenge response using Docker Compose](#testing-the-challenge-response-using-docker-compose)
 - [Running Tests](#running-tests)
@@ -74,7 +75,7 @@ user: 12345678 / password: 12345678
 
 - Install [Minikube](https://minikube.sigs.k8s.io/docs/) (latest stable version).
 - Install [Helm](https://helm.sh/) (latest stable version).
-- Start a local cluster: `minikube start --driver=docker --kubernetes-version=v1.16.14 --network-plugin=cni --cni=calico`
+- Start a local cluster: `minikube start --driver=docker --kubernetes-version=v1.18.15 --network-plugin=cni --cni=calico`
 - Switch to the minikube docker env: `eval $(minikube -p minikube docker-env)`.
 - Build the Docker images: `docker-compose build`
 - Build the cwm-worker-logger image: `docker build -t cwm-worker-logger ../cwm-worker-logger`
@@ -115,8 +116,8 @@ user: 12345678 / password: 12345678
 - Deploy: `helm upgrade -f .values.yaml --install cwm-worker-deployment-minio ./helm`
 - Verify that the minio pod is running: `kubectl get pods`
 - Start port-forward to the nginx service:
-  - `kubectl port-forward service/nginx 8080:8080`
-  - `kubectl port-forward service/minio 8443:8443`
+  - `kubectl port-forward service/minio-nginx 8080:8080`
+  - `kubectl port-forward service/minio-nginx 8443:8443`
 - Access it at http://localhost:8080 or https://localhost:8443
 - Also, try https://example003.com:8443 vs. https://example002.com:8443 - each
   one should serve the relevant certificate for this domain
@@ -225,7 +226,7 @@ helm upgrade -f .values.yaml -n storage --create-namespace --install cwm-worker-
 Start a port-forward to storage minio service:
 
 ```shell
-kubectl -n storage port-forward service/minio 8080
+kubectl -n storage port-forward service/minio-server 8080
 ```
 
 Make some actions (upload/download objects)
@@ -233,7 +234,7 @@ Make some actions (upload/download objects)
 Start a port-forward to logs minio service:
 
 ```shell
-kubectl -n logs port-forward service/minio 8080
+kubectl -n logs port-forward service/minio-server 8080
 ```
 
 Logs should appear in bucket `test123`.
@@ -424,6 +425,45 @@ docker-compose exec minio-client mc policy set download minio/test
 - The file should be downloaded from the cache using the direct link.
 - Wait for 1 minute, try to download the file again. It should not download
   because the cache is expired (default TTL is 1 minute).
+
+## Testing virtual-style-host requests
+
+Run the `docker-compose` environment:
+
+```shell
+docker-compose up -d --build
+```
+
+Create a bucket named `test` and upload a file e.g. `file.txt`.
+
+Add this in `/etc/hosts` file:
+
+```text
+127.0.0.0 example001.com test.example001.com
+```
+
+Set the download bucket policy to allow unauthenticated download of files:
+
+```shell
+docker-compose exec minio-client mc policy set download minio/test
+```
+
+Using the MinIO web UI, click on the share link for a file in the `test` bucket
+to get the direct download link.
+
+Copy the direct download link and download it with `curl`.
+
+With `path-style` request i.e. `http://domain/bucket/object`:
+
+```shell
+curl 'http://example001.com:8080/test/file.txt'
+```
+
+With `virtual-host-style` request i.e. `http://bucket.domain/object`:
+
+```shell
+curl 'http://test.example001.com:8080/file.txt'
+```
 
 ## Certificate Challenge
 

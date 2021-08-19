@@ -43,7 +43,7 @@ for filename in $(ls "${HOSTNAMES_DIR}"/*.name); do
     if [ -f "${key_filename}" ] && [ -f "${pem_filename}" ]; then
       https_conf="$NGINX_CONFD_DIR/$host_id-https.conf"
       echo "setting up $https_conf"
-      sed "s/__SERVER_NAME__/server_name ${host_name};/" "$DEFAULT_HTTPS_CONF" > "$https_conf" &&\
+      sed "s/__SERVER_NAME__/server_name ${host_name} *.${host_name};/" "$DEFAULT_HTTPS_CONF" > "$https_conf" &&\
       sed -i "s;__PEM__;${pem_filename};g" "$https_conf" &&\
       sed -i "s;__KEY__;${key_filename};g" "$https_conf"
       [ "$?" != "0" ] && echo "failed to setup https" && exit 1
