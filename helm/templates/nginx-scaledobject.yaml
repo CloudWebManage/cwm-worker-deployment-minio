@@ -1,0 +1,43 @@
+{{- if $.Values.minio.nginx.scaledobject.enabled }}
+{{- $type := (lower $.Values.minio.nginx.scaledobject.type) }}
+{{- if and (ne $type "external") (ne $type "cpu") (ne $type "memory") }}
+  {{- fail (cat "ScaledObject type [" $type "] not supported! Supported types: [external, cpu, memory]") }}
+{{- end }}
+{{- if and (eq $type "external") (not $.Values.minio.externalscaler.enabled) }}
+  {{- fail "minio.externalscaler must be enabled for the external ScaledObject!" }}
+{{- end }}
+{{- if or (eq $type "cpu") (eq $type "memory") }}
+  {{- $metricType := (title $.Values.minio.nginx.scaledobject.metricType) }}
+  {{- if and (ne $metricType "Utilization") (ne $metricType "Value") (ne $metricType "AverageValue") }}
+  {{-   fail (cat "metricType [" $metricType "] not supported! Supported metric types: [Utilization, Value, AverageValue]") }}
+  {{- end }}
+{{- end }}
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: minio-nginx-scaledobject
+spec:
+  scaleTargetRef:
+    name: minio-nginx
+  pollingInterval: {{ $.Values.minio.nginx.scaledobject.pollingInterval }}
+  cooldownPeriod:  {{ $.Values.minio.nginx.scaledobject.cooldownPeriod }}
+  minReplicaCount: {{ $.Values.minio.nginx.scaledobject.minReplicaCount }}
+  maxReplicaCount: {{ $.Values.minio.nginx.scaledobject.maxReplicaCount }}
+  {{- if $.Values.minio.nginx.scaledobject.advanced }}
+  advanced: {{ toYaml $.Values.minio.nginx.scaledobject.advanced | nindent 4 }}
+  {{- end }}
+  triggers:
+  - type: {{ $type }}
+    metadata:
+      {{- if (eq $type "external") }}
+      scalerAddress: minio-external-scaler:50051
+      deploymentid: {{ $.Values.minio.MINIO_GATEWAY_DEPLOYMENT_ID | quote }}
+      isActiveTtlSeconds: {{ $.Values.minio.nginx.scaledobject.isActiveTtlSeconds | quote }}
+      scalePeriodSeconds: {{ $.Values.minio.nginx.scaledobject.scalePeriodSeconds | quote }}
+      scaleMetricName: {{ $.Values.minio.nginx.scaledobject.scaleMetricName | quote }}
+      targetValue: {{ $.Values.minio.nginx.scaledobject.targetValue | quote }}
+      {{- else if or (eq $type "cpu") (eq $type "memory") }}
+      type: {{ $.Values.minio.nginx.scaledobject.metricType }}
+      value: {{ $.Values.minio.nginx.scaledobject.metricValue | quote }}
+      {{- end }}
+{{- end }}
