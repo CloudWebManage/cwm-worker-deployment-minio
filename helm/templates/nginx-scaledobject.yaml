@@ -15,18 +15,16 @@
 apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
 metadata:
-  name: minio-nginx-{{ $.Values.minio.nginx.scaledobject.type }}-scaledobject
+  name: minio-nginx-scaledobject
 spec:
   scaleTargetRef:
     name: minio-nginx
-  {{- if (eq $type "external") }}
   pollingInterval: {{ $.Values.minio.nginx.scaledobject.pollingInterval }}
   cooldownPeriod:  {{ $.Values.minio.nginx.scaledobject.cooldownPeriod }}
   minReplicaCount: {{ $.Values.minio.nginx.scaledobject.minReplicaCount }}
   maxReplicaCount: {{ $.Values.minio.nginx.scaledobject.maxReplicaCount }}
   {{- if $.Values.minio.nginx.scaledobject.advanced }}
   advanced: {{ toYaml $.Values.minio.nginx.scaledobject.advanced | nindent 4 }}
-  {{- end }}
   {{- end }}
   triggers:
   - type: {{ $type }}

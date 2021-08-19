@@ -15,18 +15,16 @@
 apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
 metadata:
-  name: minio-logger-{{ $.Values.minio.metricsLogger.scaledobject.type }}-scaledobject
+  name: minio-logger-scaledobject
 spec:
   scaleTargetRef:
     name: minio-logger
-  {{- if (eq $type "external") }}
   pollingInterval: {{ $.Values.minio.metricsLogger.scaledobject.pollingInterval }}
   cooldownPeriod:  {{ $.Values.minio.metricsLogger.scaledobject.cooldownPeriod }}
   minReplicaCount: {{ $.Values.minio.metricsLogger.scaledobject.minReplicaCount }}
   maxReplicaCount: {{ $.Values.minio.metricsLogger.scaledobject.maxReplicaCount }}
   {{- if $.Values.minio.metricsLogger.scaledobject.advanced }}
   advanced: {{ toYaml $.Values.minio.metricsLogger.scaledobject.advanced | nindent 4 }}
-  {{- end }}
   {{- end }}
   triggers:
   - type: {{ $type }}
