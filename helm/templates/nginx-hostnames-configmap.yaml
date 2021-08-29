@@ -3,11 +3,15 @@ kind: ConfigMap
 metadata:
   name: nginx-hostnames
 data:
+  dhparam.pem: {{ $.Values.minio.nginx.dhparam_key | quote }}
 {{ range $.Values.minio.nginx.hostnames }}
   {{ .id }}.name: {{ .name }}
-  {{ if and .pem .key }}
-  {{ .id }}.pem: {{ .pem | quote }}
-  {{ .id }}.key: {{ .key | quote }}
+  {{ if and .fullchain .privkey }}
+  {{ .id }}.privkey: {{ .privkey | quote }}
+  {{ .id }}.fullchain: {{ .fullchain | quote }}
+  {{ if .chain }}
+  {{ .id }}.chain: {{ .chain | quote }}
+  {{ end }}
   {{ end }}
   {{ if and .cc_token .cc_payload }}
   {{ .id }}.cc_token: {{ .cc_token | quote }}

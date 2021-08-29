@@ -36,6 +36,7 @@
 - [Testing virtual-style-host requests](#testing-virtual-style-host-requests)
 - [Certificate Challenge](#certificate-challenge)
   - [Testing the challenge response using Docker Compose](#testing-the-challenge-response-using-docker-compose)
+- [Generating self-signed certificates and DH key](#generating-self-signed-certificates-and-dh-key)
 - [Running Tests](#running-tests)
 - [Contribute](#contribute)
 - [License](#license)
@@ -489,6 +490,31 @@ Access hostname3 which doesn't have a payload/token and verify it returns an err
 
 ```shell
 curl -H "Host: example003.com" "http://localhost:8080/.well-known/acme-challenge/$(cat tests/hostnames/hostname1.cc_token)"
+```
+
+## Generating self-signed certificates and DH key
+
+The generated files are committed to Git, so you don't need to re-run the
+following steps, but they are documented here for reference.
+
+Generate DH Key
+
+```
+openssl dhparam -out tests/hostnames/dhparam.pem 2048
+```
+
+Generate self-signed certificates
+
+```
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+  -keyout tests/hostnames/hostname2.privkey \
+  -out tests/hostnames/hostname2.fullchain \
+  -subj "/C=IL/ST=Center/L=Tel-Aviv/O=Acme/OU=DevOps/CN=example002.com" &&\
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+  -keyout tests/hostnames/hostname3.privkey \
+  -out tests/hostnames/hostname3.fullchain \
+  -subj "/C=IL/ST=Center/L=Tel-Aviv/O=Acme/OU=DevOps/CN=example003.com" &&\
+cp tests/hostnames/hostname3.fullchain tests/hostnames/hostname3.chain
 ```
 
 ## Running Tests
