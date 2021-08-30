@@ -9,9 +9,6 @@ minio:
       maxSurge: 1
   nodeSelector: ""
   # tolerations: []
-  createPullSecret: ""
-  imagePullSecrets: |
-    - name: github
   image: ghcr.io/cloudwebmanage/cwm-worker-deployment-minio/minio
   tag: ""
   imagePullPolicy: IfNotPresent

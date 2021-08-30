@@ -15,7 +15,6 @@ spec:
         app: minio-external-scaler
     spec:
       dnsPolicy: ClusterFirst
-      imagePullSecrets: {{ $.Values.minio.imagePullSecrets | nindent 6 }}
       terminationGracePeriodSeconds: {{ $.Values.minio.terminationGracePeriodSeconds }}
       automountServiceAccountToken: false
       {{- if $.Values.minio.nodeSelector }}

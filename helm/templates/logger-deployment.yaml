@@ -17,7 +17,6 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/logger-configmap.yaml") . | sha256sum }}
     spec:
       dnsPolicy: ClusterFirst
-      imagePullSecrets: {{ $.Values.minio.imagePullSecrets | nindent 6 }}
       terminationGracePeriodSeconds: {{ $.Values.minio.terminationGracePeriodSeconds }}
       automountServiceAccountToken: false
       {{- if $.Values.minio.nodeSelector }}
