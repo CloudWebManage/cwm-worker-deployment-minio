@@ -42,10 +42,10 @@ jobs:
         uci github actions docker-login &&\
         uci docker build-cache \
           --cache-from ghcr.io/cloudwebmanage/cwm-worker-deployment-minio/minio:latest \
-          -t minio . &&\
+          -- -t minio . &&\
         uci docker build-cache \
           --cache-from ghcr.io/cloudwebmanage/cwm-worker-deployment-minio/minio-nginx:latest \
-          -t nginx nginx &&\
+          -- -t nginx nginx &&\
         if [ "${SKIP_TESTS}" == "no" ]; then
           docker-compose up -d &&\
           venv/bin/pytest tests/test_docker_compose.py &&\

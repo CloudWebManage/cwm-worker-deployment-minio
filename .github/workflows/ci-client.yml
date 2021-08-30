@@ -16,7 +16,7 @@ jobs:
         uci github actions docker-login &&\
         uci docker build-cache \
           --cache-from ghcr.io/cloudwebmanage/cwm-worker-deployment-minio/client:latest \
-          -t client client &&\
+          -- -t client client &&\
         uci docker tag-push \
           --source-tag-name client \
           --push-tag-name ghcr.io/cloudwebmanage/cwm-worker-deployment-minio/client:$GITHUB_SHA &&\
