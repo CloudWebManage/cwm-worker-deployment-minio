@@ -4,15 +4,6 @@ import datetime
 import subprocess
 
 
-def set_github_secret():
-    returncode, _ = subprocess.getstatusoutput('kubectl get secret github')
-    if returncode != 0:
-        print("Setting github pull secret")
-        returncode, output = subprocess.getstatusoutput(
-            """echo '{"auths":{"docker.pkg.github.com":{"auth":"'"$(echo -n "${PACKAGES_READER_GITHUB_USER}:${PACKAGES_READER_GITHUB_TOKEN}" | base64 -w0)"'"}}}' | kubectl create secret generic github --type=kubernetes.io/dockerconfigjson --from-file=.dockerconfigjson=/dev/stdin""")
-        assert returncode == 0, output
-
-
 def wait_for_cmd(cmd, expected_returncode, ttl_seconds, error_msg, expected_output=None, extra_error_msg_cmds=None):
     start_time = datetime.datetime.now()
     while True:
@@ -33,7 +24,6 @@ def test():
     subprocess.getstatusoutput('DEBUG= helm delete cwm-worker-deployment-minio')
     wait_for_cmd('DEBUG= kubectl get deployment/minio-server deployment/minio-nginx deployment/minio-logger',
                  1, 30, 'waited too long for minio deployment to be deleted')
-    set_github_secret()
     returncode, output = subprocess.getstatusoutput('DEBUG= helm upgrade --install cwm-worker-deployment-minio ./helm')
     assert returncode == 0, output
     minio_logs_commands = """

@@ -3,24 +3,25 @@ on:
   push:
     paths-ignore:
       - '**.md'
-
 jobs:
   ci-client:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v2
     - env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        bin/docker_login.sh &&\
-        BUILD_ARGS="" &&\
-        if docker pull docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/client:latest; then
-          BUILD_ARGS=" --cache-from docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/client:latest "
-        fi &&\
-        docker build $BUILD_ARGS -t client client &&\
-        docker tag client docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/client:$GITHUB_SHA &&\
-        docker push docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/client:$GITHUB_SHA &&\
+        curl -s https://raw.githubusercontent.com/CloudWebManage/uumpa-ci-toolbox/main/bin/github_actions_install.sh \
+          | bash -s 807a483b65f3ec28787300499d961338a9d6bc4a CloudWebManage/uumpa-ci-toolbox &&\
+        uci github actions self-checkout --config-user-name "cwm-worker-deployment-minio-ci" &&\
+        uci github actions docker-login &&\
+        uci docker build-cache \
+          --cache-from ghcr.io/cloudwebmanage/cwm-worker-deployment-minio/client:latest \
+          -- -t client client &&\
+        uci docker tag-push \
+          --source-tag-name client \
+          --push-tag-name ghcr.io/cloudwebmanage/cwm-worker-deployment-minio/client:$GITHUB_SHA &&\
         if [ "${GITHUB_REF}" == "refs/heads/main" ]; then
-          docker tag client docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/client:latest &&\
-          docker push docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/client:latest
+          uci docker tag-push \
+            --source-tag-name client \
+            --push-tag-name ghcr.io/cloudwebmanage/cwm-worker-deployment-minio/client:latest
         fi

@@ -9,8 +9,8 @@ Pull and tag the image for quick access (alternatively, build it from this
 directory):
 
 ```shell
-docker pull docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/client:latest &&\
-docker tag docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/client:latest mc
+docker pull ghcr.io/cloudwebmanage/cwm-worker-deployment-minio/client:latest &&\
+docker tag ghcr.io/cloudwebmanage/cwm-worker-deployment-minio/client:latest mc
 ```
 
 Run a command on a local MinIO instance:

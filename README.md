@@ -85,7 +85,7 @@ user: 12345678 / password: 12345678
     to test with (e.g. `git pull origin main` to get latest version).
 - Build the cwm-keda-external-scaler image: `docker build -t cwm-keda-external-scaler ../cwm-keda-external-scaler`
   - Change the directory according to where you cloned
-    [cwm-keda-external-scaler](https://github.com/iamazeem/cwm-keda-external-scaler).
+    [cwm-keda-external-scaler](https://github.com/cloudwebmanage/cwm-keda-external-scaler).
   - Make sure you checked out the relevant version of `cwm-keda-external-scaler` you want
     to test with (e.g. `git pull origin main` to get latest version).
 - Create a file at `.values.yaml` with the following content:
@@ -249,7 +249,7 @@ Following types of scaling via ScaledObjects are supported:
 
 For scaling with the external metrics, a custom [KEDA](https://keda.sh/)
 external scaler
-[cwm-keda-external-scaler](https://github.com/iamazeem/cwm-keda-external-scaler)
+[cwm-keda-external-scaler](https://github.com/cloudwebmanage/cwm-keda-external-scaler)
 is used.
 
 Make sure that the KEDA has already been deployed before proceeding with the
@@ -297,7 +297,7 @@ minio:
 ```
 
 For the detailed configuration under the `spec`, please refer to the
-[Sample Configuration](https://github.com/iamazeem/cwm-keda-external-scaler#sample-configuration)
+[Sample Configuration](https://github.com/cloudwebmanage/cwm-keda-external-scaler#sample-configuration)
 section.
 
 The `cpu` or `memory` scaler can be configured like this:
