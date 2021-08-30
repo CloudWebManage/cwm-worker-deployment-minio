@@ -12,7 +12,7 @@ minio:
   createPullSecret: ""
   imagePullSecrets: |
     - name: github
-  image: docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio
+  image: ghcr.io/cloudwebmanage/cwm-worker-deployment-minio/minio
   tag: ""
   imagePullPolicy: IfNotPresent
   auditWebhookEndpoint: "http://minio-logger:8500/logs"
@@ -96,7 +96,7 @@ minio:
 
   externalscaler:
     enabled: false
-    image: docker.pkg.github.com/cwm-keda-external-scaler/iamazeem/cwm-keda-external-scaler
+    image: ghcr.io/cloudwebmanage/cwm-keda-external-scaler
     imagePullPolicy: IfNotPresent
     resources:
       requests:
@@ -105,7 +105,7 @@ minio:
       limits:
         memory: "150Mi"
 
-  # External: https://github.com/iamazeem/cwm-keda-external-scaler
+  # External: https://github.com/cloudwebmanage/cwm-keda-external-scaler
   # CPU: https://keda.sh/docs/2.3/scalers/cpu/
   # Memory: https://keda.sh/docs/2.3/scalers/memory/
   scaledobject:
@@ -136,7 +136,7 @@ minio:
 
   metricsLogger:
     enable: true
-    image: docker.pkg.github.com/cloudwebmanage/cwm-worker-logger/cwm-worker-logger
+    image: ghcr.io/cloudwebmanage/cwm-worker-logger/cwm-worker-logger
     imagePullPolicy: IfNotPresent
     resources:
       requests:
@@ -189,7 +189,7 @@ minio:
     S3_SSL_VERIFY: true
     S3_STORE_AS: gzip         # gzip, lzo, json, txt
 
-    # External: https://github.com/iamazeem/cwm-keda-external-scaler
+    # External: https://github.com/cloudwebmanage/cwm-keda-external-scaler
     # CPU: https://keda.sh/docs/2.3/scalers/cpu/
     # Memory: https://keda.sh/docs/2.3/scalers/memory/
     scaledobject:
@@ -225,7 +225,7 @@ minio:
       rollingUpdate:
         maxUnavailable: 0
         maxSurge: 1
-    image: docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio-nginx
+    image: ghcr.io/cloudwebmanage/cwm-worker-deployment-minio/minio-nginx
     tag: ""
     resources:
       requests:
@@ -366,7 +366,7 @@ minio:
     cacheVolumeSubPath: "_cdncache_"
     cacheVolumeMountPath: "/var/cache/nginx/minio"
 
-    # External: https://github.com/iamazeem/cwm-keda-external-scaler
+    # External: https://github.com/cloudwebmanage/cwm-keda-external-scaler
     # CPU: https://keda.sh/docs/2.3/scalers/cpu/
     # Memory: https://keda.sh/docs/2.3/scalers/memory/
     scaledobject:

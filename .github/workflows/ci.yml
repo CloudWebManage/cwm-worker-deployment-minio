@@ -3,51 +3,60 @@ on:
   push:
     paths-ignore:
       - '**.md'
-
 jobs:
   ci:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v2
     - env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        PACKAGES_READER_GITHUB_TOKEN: ${{ secrets.PACKAGES_READER_GITHUB_TOKEN }}
-        PACKAGES_READER_GITHUB_USER: ${{ secrets.PACKAGES_READER_GITHUB_USER }}
         CWM_WORKER_HELM_DEPLOY_KEY: ${{ secrets.CWM_WORKER_HELM_DEPLOY_KEY }}
+        HELM_VERSION: "v3.2.4"
+        MINIKUBE_VERSION: "v1.21.0"
+        MINIKUBE_KUBERNETES_VERSION: "v1.18.15"
+        KUBECTL_VERSION: "v1.19.0"
       run: |
-        if git log -1 --pretty=format:"%s" | grep -- --skip-tests; then
+        curl -s https://raw.githubusercontent.com/CloudWebManage/uumpa-ci-toolbox/main/bin/github_actions_install.sh \
+          | bash -s 807a483b65f3ec28787300499d961338a9d6bc4a CloudWebManage/uumpa-ci-toolbox &&\
+        uci github actions self-checkout --config-user-name "cwm-worker-deployment-minio-ci" &&\
+        if uci git check-last-commit-message --contains --skip-tests; then
           SKIP_TESTS=yes
         else
           SKIP_TESTS=no
         fi &&\
-        if git log -1 --pretty=format:"%s" | grep -- --no-deploy; then
+        if uci git check-last-commit-message --contains --no-deploy; then
           NO_DEPLOY=yes
         else
           NO_DEPLOY=no
         fi &&\
-        sudo bin/install_helm.sh && helm version &&\
+        uci helm install --version "${HELM_VERSION}" --with-sudo &&\
         if [ "${SKIP_TESTS}" == "no" ]; then
           helm lint helm &&\
-          sudo bin/install_minikube.sh && minikube version &&\
-          sudo bin/install_kubectl.sh && kubectl version --client &&\
-          sudo bin/install_python.sh &&\
+          uci minikube install --version "${MINIKUBE_VERSION}" --with-sudo &&\
+          uci kubectl install --version "${KUBECTL_VERSION}" --with-sudo &&\
           sudo bin/install_warp.sh &&\
-          python3 -m venv venv &&\
-          venv/bin/python -m pip install --upgrade pip &&\
-          venv/bin/python -m pip install --upgrade setuptools wheel &&\
-          venv/bin/python -m pip install -r tests/requirements.txt
+          python -m venv venv &&\
+          venv/bin/pip install --upgrade pip &&\
+          venv/bin/pip install --upgrade setuptools wheel &&\
+          venv/bin/pip install -r tests/requirements.txt
         fi &&\
-        bin/docker_login.sh &&\
-        bin/docker_build.sh &&\
+        uci github actions docker-login &&\
+        uci docker build-cache \
+          --cache-from ghcr.io/cloudwebmanage/cwm-worker-deployment-minio/minio:latest \
+          -t minio . &&\
+        uci docker build-cache \
+          --cache-from ghcr.io/cloudwebmanage/cwm-worker-deployment-minio/minio-nginx:latest \
+          -t nginx nginx &&\
         if [ "${SKIP_TESTS}" == "no" ]; then
           docker-compose up -d &&\
           venv/bin/pytest tests/test_docker_compose.py &&\
           docker-compose down -v
         fi &&\
-        docker tag minio docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio:$GITHUB_SHA &&\
-        docker tag nginx docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio-nginx:$GITHUB_SHA &&\
-        docker push docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio:$GITHUB_SHA &&\
-        docker push docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio-nginx:$GITHUB_SHA &&\
+        uci docker tag-push \
+          --source-tag-name minio \
+          --push-tag-name ghcr.io/cloudwebmanage/cwm-worker-deployment-minio/minio:$GITHUB_SHA &&\
+        uci docker tag-push \
+          --source-tag-name nginx \
+          --push-tag-name ghcr.io/cloudwebmanage/cwm-worker-deployment-minio/minio-nginx:$GITHUB_SHA &&\
         sed -i "s/appVersion: latest/appVersion: ${GITHUB_SHA}/g" helm/Chart.yaml &&\
         bin/update_logger_image.sh && \
         bin/update_scaler_image.sh && \
@@ -55,24 +64,27 @@ jobs:
           bin/minikube_start.sh &&\
           venv/bin/pytest -svvv tests/test_k8s.py
         fi &&\
-        if [ "${GITHUB_REF}" == "refs/heads/main" ] && [ "${NO_DEPLOY}" == "no" ]; then
-          docker tag minio docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio:latest &&\
-          docker tag nginx docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio-nginx:latest &&\
-          docker push docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio:latest &&\
-          docker push docker.pkg.github.com/cloudwebmanage/cwm-worker-deployment-minio/minio-nginx:latest &&\
-          echo "${CWM_WORKER_HELM_DEPLOY_KEY}" > cwm_worker_helm_deploy_key &&\
-          chmod 400 cwm_worker_helm_deploy_key &&\
-          export GIT_SSH_COMMAND="ssh -i $(pwd)/cwm_worker_helm_deploy_key -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" &&\
-          git clone git@github.com:CloudWebManage/cwm-worker-helm.git &&\
-          git config --global user.name "cwm-worker-deployment-minio CI" &&\
-          git config --global user.email "cwm-worker-deployment-minio-ci@localhost" &&\
+        if [ "$(uci github actions get-branch-name)" == "main" ] && [ "${NO_DEPLOY}" == "no" ]; then
+          uci docker tag-push \
+            --source-tag-name minio \
+            --push-tag-name ghcr.io/cloudwebmanage/cwm-worker-deployment-minio/minio:latest &&\
+          uci docker tag-push \
+            --source-tag-name nginx \
+            --push-tag-name ghcr.io/cloudwebmanage/cwm-worker-deployment-minio/minio-nginx:latest &&\
+          uci git checkout \
+            --github-repo-name CloudWebManage/cwm-worker-helm \
+            --branch-name master \
+            --ssh-key "${CWM_WORKER_HELM_DEPLOY_KEY}" \
+            --path cwm-worker-helm \
+            --config-user-name cwm-worker-deployment-minio-ci &&\
           mkdir -p cwm-worker-helm/cwm-worker-deployment-minio &&\
           helm package ./helm --version "0.0.0-$(date +%Y%m%dT%H%M%S)" --destination ./cwm-worker-helm/cwm-worker-deployment-minio &&\
           helm repo index --url "https://raw.githubusercontent.com/CloudWebManage/cwm-worker-helm/master/cwm-worker-deployment-minio/" ./cwm-worker-helm/cwm-worker-deployment-minio &&\
           cd cwm-worker-helm &&\
           git add cwm-worker-deployment-minio &&\
           git commit -m "automatic update of cwm-worker-deployment-minio" &&\
-          git push origin master
+          git push origin master &&\
+          cd ..
         fi
 
     - uses: 8398a7/action-slack@v3
