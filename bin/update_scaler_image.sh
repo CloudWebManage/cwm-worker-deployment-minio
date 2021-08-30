@@ -7,7 +7,7 @@
 
 set -e
 
-IMAGE_NAME="docker.pkg.github.com/cwm-keda-external-scaler/iamazeem/cwm-keda-external-scaler"
+IMAGE_NAME="ghcr.io/cloudwebmanage/cwm-keda-external-scaler"
 IMAGE_FILE="./helm/cwm-keda-external-scaler.image"
 VALUES_FILE="./helm/values.yaml"
 
