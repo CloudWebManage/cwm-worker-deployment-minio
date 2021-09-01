@@ -23,7 +23,7 @@ for filename in $(ls "${HOSTNAMES_DIR}"/*.name); do
   if [ "$DISABLE_HTTP" != "true" ] || ([ "${CC_PAYLOAD}" != "" ] && [ "${CC_TOKEN}" != "" ]); then
     http_conf="$NGINX_CONFD_DIR/$host_id-http.conf"
     echo "setting up $http_conf"
-    sed "s/__SERVER_NAME__/server_name ${host_name};/" "$DEFAULT_HTTP_CONF" > "$http_conf"
+    sed "s/__SERVER_NAME__/server_name .${host_name};/" "$DEFAULT_HTTP_CONF" > "$http_conf"
     if [ "$DISABLE_HTTP" == "true" ]; then
       sed -i "s/include location.conf;//" "$http_conf"
     fi
@@ -36,16 +36,27 @@ for filename in $(ls "${HOSTNAMES_DIR}"/*.name); do
     fi
   fi
 
-  if [ -f "$DEFAULT_HTTPS_CONF" ]; then
-    key_filename="${HOSTNAMES_DIR}/${host_id}.key" &&\
-    pem_filename="${HOSTNAMES_DIR}/${host_id}.pem"
-    [ "$?" != "0" ] && echo "failed to setup hostname" && exit 1
-    if [ -f "${key_filename}" ] && [ -f "${pem_filename}" ]; then
+  dhparam_filename="${HOSTNAMES_DIR}/dhparam.pem" &&\
+  if [ -f "$DEFAULT_HTTPS_CONF" ] && [ -f "${dhparam_filename}" ]; then
+    chain_filename="${HOSTNAMES_DIR}/${host_id}.chain" &&\
+    privkey_filename="${HOSTNAMES_DIR}/${host_id}.privkey" &&\
+    fullchain_filename="${HOSTNAMES_DIR}/${host_id}.fullchain" &&\
+    if [ -f "${privkey_filename}" ] && [ -f "${fullchain_filename}" ]; then
       https_conf="$NGINX_CONFD_DIR/$host_id-https.conf"
       echo "setting up $https_conf"
-      sed "s/__SERVER_NAME__/server_name ${host_name} *.${host_name};/" "$DEFAULT_HTTPS_CONF" > "$https_conf" &&\
-      sed -i "s;__PEM__;${pem_filename};g" "$https_conf" &&\
-      sed -i "s;__KEY__;${key_filename};g" "$https_conf"
+      sed "s/__SERVER_NAME__/server_name .${host_name};/" "$DEFAULT_HTTPS_CONF" > "$https_conf" &&\
+      sed -i "s;__SSL_CERTIFICATE__;${fullchain_filename};g" "$https_conf" &&\
+      sed -i "s;__SSL_CERTIFICATE_KEY__;${privkey_filename};g" "$https_conf" &&\
+      if [ -f "${chain_filename}" ]; then
+        sed -i "s~__SSL_TRUSTED_CERTIFICATE__~ssl_trusted_certificate ${chain_filename};~g" "$https_conf" &&\
+        sed -i "s~__SSL_STAPLING__~ssl_stapling on;~g" "$https_conf" &&\
+        sed -i "s~__SSL_STAPLING_VERIFY__~ssl_stapling_verify on;~g" "$https_conf"
+      else
+        sed -i "s~__SSL_TRUSTED_CERTIFICATE__~~g" "$https_conf" &&\
+        sed -i "s~__SSL_STAPLING__~~g" "$https_conf" &&\
+        sed -i "s~__SSL_STAPLING_VERIFY__~~g" "$https_conf"
+      fi &&\
+      sed -i "s;__SSL_DHPARAM__;${dhparam_filename};g" "$https_conf"
       [ "$?" != "0" ] && echo "failed to setup https" && exit 1
     fi
   fi
