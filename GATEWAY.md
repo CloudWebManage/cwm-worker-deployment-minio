@@ -28,7 +28,7 @@ To configure the minio instance you will need the Storage account name and a key
 
 ## AWS S3
 
-1. In the AWS Console: navigate to [IAM Policies](https://console.aws.amazon.com/iam/home#/policies)
+1. In the AWS Console: navigate to [IAM Users](https://console.aws.amazon.com/iamv2/home?#/users)
 2. Click on "Add User"
 3. Input User Name and select Programattic Access
 4. Click on "Next: Permissions"
