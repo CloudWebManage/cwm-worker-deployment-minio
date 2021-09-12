@@ -3,12 +3,30 @@ version: '3.4'
 services:
 
   minio-source:
-    # standard minio image pulled on May 19, 2021
-    image: minio/minio@sha256:c99efb3042e23fa065738eb100a3484f0dbb6c063844b19a70a31e5231d621b6
-    command: [server, /opt]
+    image: minio
+    restart: on-failure
+    build: .
     environment:
+      MINIO_DOMAIN: "example001.com"
       MINIO_ACCESS_KEY: "accesskey"
       MINIO_SECRET_KEY: "secretkey"
+#    ports:
+#      - "8082:8080"
+
+  nginx-source:
+    image: nginx
+    restart: on-failure
+    build: nginx
+    environment:
+      HOSTNAMES_DIR: "/hostnames"
+      CDN_CACHE_ENABLE: "yes"
+      MINIO_PROXY_PASS_HOST: minio-source
+#    ports:
+#      - "8081:8080"
+    volumes:
+      - "./tests/hostnames:/hostnames"
+    depends_on:
+      - minio-source
 
   minio-gateway:
     image: minio
@@ -18,7 +36,7 @@ services:
       MINIO_ACCESS_KEY: "12345678"
       MINIO_SECRET_KEY: "12345678"
       INSTANCE_TYPE: gateway_s3
-      GATEWAY_ARGS: "http://minio-source:9000"
+      GATEWAY_ARGS: "http://nginx-source:8080"
       AWS_ACCESS_KEY_ID: accesskey
       AWS_SECRET_ACCESS_KEY: secretkey
       MINIO_AUDIT_WEBHOOK_ENABLE_target1: "on"
@@ -28,7 +46,7 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - minio-source
+      - nginx-source
       - cwm-worker-logger
 
   cwm-worker-logger:
