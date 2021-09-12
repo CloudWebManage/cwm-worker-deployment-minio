@@ -398,6 +398,9 @@ minio:
     CDN_CACHE_PROXY_BUSY_BUFFERS_SIZE: "32k"
     CDN_CACHE_PROXY_CACHE_VALID_200: "1m"
     CDN_CACHE_NOCACHE_REGEX: '\.(pdf|txt|json)$'
+    # dedicated cache volume configuration for nginx cache
+    # if not specified - uses the minio cache at minio.volumes.cache
+    cacheVolume: ""
     cacheVolumeSubPath: "_cdncache_"
     cacheVolumeMountPath: "/var/cache/nginx/minio"
 

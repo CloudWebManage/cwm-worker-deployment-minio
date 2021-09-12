@@ -79,7 +79,9 @@ spec:
         {{- if $.Values.minio.nginx.CDN_CACHE_ENABLE }}
         - mountPath: {{ $.Values.minio.nginx.cacheVolumeMountPath | quote }}
           name: "cache"
+          {{ if $.Values.minio.nginx.cacheVolumeSubPath }}
           subPath: {{ $.Values.minio.nginx.cacheVolumeSubPath | quote }}
+          {{ end }}
         {{- end }}
       volumes:
       - name: hostnames
@@ -87,7 +89,9 @@ spec:
           name: nginx-hostnames
       {{- if $.Values.minio.nginx.CDN_CACHE_ENABLE }}
       - name: cache
-        {{- if $.Values.minio.volumes.cache }}
+        {{- if $.Values.minio.nginx.cacheVolume }}
+{{ toYaml $.Values.minio.nginx.cacheVolume | indent 8 }}
+        {{- else if $.Values.minio.volumes.cache }}
 {{ toYaml $.Values.minio.volumes.cache | indent 8 }}
         {{- else }}
         emptyDir: {}
