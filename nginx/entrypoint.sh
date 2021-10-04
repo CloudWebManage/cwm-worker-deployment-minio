@@ -10,8 +10,12 @@ NGINX_CONFD_DIR="$NGINX_SOURCES_DIR/conf.d"
 
 if [ "${NGINX_DEBUG}" == "yes" ]; then
   echo Running nginx in debug mode
-  sed -i "s;error_log /var/log/nginx/error.log warn;error_log /var/log/nginx/error.log debug;g" "${NGINX_SOURCES_DIR}/nginx.conf"
+  sed -i "s;error_log /var/log/nginx/error.log error;error_log /var/log/nginx/error.log debug;g" "${NGINX_SOURCES_DIR}/nginx.conf"
   nginx_bin="nginx-debug"
+elif [ "${NGINX_ERROR_LEVEL}" != "" ]; then
+  echo Setting Nginx log level to "${NGINX_ERROR_LEVEL}"
+  sed -i "s;error_log /var/log/nginx/error.log error;error_log /var/log/nginx/error.log ${NGINX_ERROR_LEVEL};g" "${NGINX_SOURCES_DIR}/nginx.conf"
+  nginx_bin="nginx"
 else
   nginx_bin="nginx"
 fi

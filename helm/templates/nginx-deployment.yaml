@@ -69,6 +69,18 @@ spec:
           - name: CDN_CACHE_NOCACHE_REGEX
             value: {{ $.Values.minio.nginx.CDN_CACHE_NOCACHE_REGEX | quote }}
           {{- end }}
+          {{ if $.Values.minio.nginx.ENABLE_ACCESS_LOG }}
+          - name: ENABLE_ACCESS_LOG
+            value: "yes"
+          {{ end }}
+          {{ if $.Values.minio.nginx.NGINX_ERROR_LEVEL }}
+          - name: NGINX_ERROR_LEVEL
+            value: {{ $.Values.minio.nginx.NGINX_ERROR_LEVEL | quote }}
+          {{ end }}
+          {{ if $.Values.minio.nginx.NGINX_DEBUG }}
+          - name: NGINX_DEBUG
+            value: "yes"
+          {{ end }}
         ports:
         - containerPort: 8080
         - containerPort: 8443
