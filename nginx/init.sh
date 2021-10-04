@@ -95,5 +95,9 @@ if [ "${MINIO_PROXY_PASS_HOST}" != "" ]; then
   echo "proxy_pass http://${MINIO_PROXY_PASS_HOST}:8080;" > "${NGINX_SOURCES_DIR}/minio_proxy_pass.conf"
 fi
 
+if [ "${ENABLE_ACCESS_LOG}" != "yes" ]; then
+  echo "access_log off;" > "${NGINX_SOURCES_DIR}/access_log.conf"
+fi
+
 echo "init OK"
 exit 0
