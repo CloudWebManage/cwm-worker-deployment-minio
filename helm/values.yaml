@@ -185,6 +185,8 @@ minio:
     S3_ENDPOINT: http://localhost:8080
     S3_SSL_VERIFY: true
     S3_STORE_AS: gzip         # gzip, lzo, json, txt
+    S3_CHECK_APIKEY_ON_START: "true"
+    S3_CHECK_BUCKET: "true"
 
     # External: https://github.com/cloudwebmanage/cwm-keda-external-scaler
     # CPU: https://keda.sh/docs/2.3/scalers/cpu/

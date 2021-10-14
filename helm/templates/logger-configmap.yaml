@@ -126,8 +126,11 @@ data:
       time_slice_format     %Y%m%d%H%M
       s3_object_key_format  "%{path}%{time_slice}_%{index}_#{ENV['HOSTNAME']}.%{file_extension}"
 
-      # Compression Type: gzip (default), lzo, json, txt
+      # Compression Type: gzip (default), lzo, json, text
       store_as              {{ $.Values.minio.metricsLogger.S3_STORE_AS }}
+
+      check_apikey_on_start {{ $.Values.minio.metricsLogger.S3_CHECK_APIKEY_ON_START }}
+      check_bucket          {{ $.Values.minio.metricsLogger.S3_CHECK_BUCKET }}
 
       @include              ./cwm-fluent-buffer.conf
     </match>
