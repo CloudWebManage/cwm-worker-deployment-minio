@@ -38,5 +38,5 @@ spec:
         - name: LAST_UPDATE_PREFIX
           value: {{ $.Values.minio.metricsLogger.REDIS_KEY_PREFIX_DEPLOYMENT_LAST_ACTION | quote }}
         - name: METRICS_PREFIX
-          value: {{ $.Values.minio.metricsLogger.REDIS_KEY_PREFIX_DEPLOYMENT_API_METRIC | quote }}
+          value: "{{ $.Values.minio.metricsLogger.REDIS_KEY_PREFIX_DEPLOYMENT_API_METRIC }}:{{ .Release.Namespace }}"
 {{- end }}
