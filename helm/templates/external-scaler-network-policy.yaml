@@ -28,4 +28,9 @@ spec:
     - protocol: TCP
       port: {{ $.Values.minio.metricsLogger.REDIS_PORT }}
     {{- end }}
-{{ end }}
+    # connection to the keda metrics server
+    - protocol: TCP
+      port: 6443
+    - protocol: TCP
+      port: 8080
+  {{ end }}

@@ -30,7 +30,7 @@ spec:
   - type: {{ $type }}
     metadata:
       {{- if (eq $type "external") }}
-      scalerAddress: minio-external-scaler:50051
+      scalerAddress: minio-external-scaler.{{ .Release.Namespace }}:50051
       deploymentid: {{ $.Values.minio.MINIO_GATEWAY_DEPLOYMENT_ID | quote }}
       isActiveTtlSeconds: {{ $.Values.minio.scaledobject.isActiveTtlSeconds | quote }}
       scalePeriodSeconds: {{ $.Values.minio.scaledobject.scalePeriodSeconds | quote }}
