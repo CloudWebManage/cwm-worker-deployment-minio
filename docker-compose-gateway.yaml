@@ -8,8 +8,8 @@ services:
     build: .
     environment:
       MINIO_DOMAIN: "example001.com"
-      MINIO_ACCESS_KEY: "accesskey"
-      MINIO_SECRET_KEY: "secretkey"
+      MINIO_ROOT_USER: "accesskey"
+      MINIO_ROOT_PASSWORD: "secretkey"
 #    ports:
 #      - "8082:8080"
 
@@ -33,8 +33,8 @@ services:
     restart: on-failure
     build: .
     environment:
-      MINIO_ACCESS_KEY: "12345678"
-      MINIO_SECRET_KEY: "12345678"
+      MINIO_ROOT_USER: "12345678"
+      MINIO_ROOT_PASSWORD: "12345678"
       INSTANCE_TYPE: gateway_s3
       GATEWAY_ARGS: "http://nginx-source:8080"
       AWS_ACCESS_KEY_ID: accesskey

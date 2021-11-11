@@ -8,8 +8,7 @@ services:
     build: nginx
     ports:
       - "8080:8080"
-      - "8081:8081"
-      # - "8443:8443"
+      - "8443:8443"
     environment:
       HOSTNAMES_DIR: "/hostnames"
       CDN_CACHE_ENABLE: "${CDN_CACHE_ENABLE}"
@@ -23,14 +22,13 @@ services:
     image: minio
     restart: on-failure
     build: .
+    ports:
+      - "8180:8080"
+      - "8181:8081"
     environment:
       MINIO_DOMAIN: "example001.com"
-      # MINIO_ACCESS_KEY: "12345678"
-      # MINIO_SECRET_KEY: "12345678"
       MINIO_ROOT_USER: "12345678"
       MINIO_ROOT_PASSWORD: "12345678"
-      # MINIO_BROWSER_REDIRECT_URL: "http://127.0.0.1:8081/"
-      # MINIO_SERVER_URL: ""
       MINIO_CACHE: "on"
       MINIO_CACHE_DRIVES: "/cache"
       MINIO_CACHE_EXCLUDE: "*.pdf"

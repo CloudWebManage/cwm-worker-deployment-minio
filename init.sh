@@ -27,6 +27,4 @@ elif [ "${INSTANCE_TYPE}" == "gateway_azure" ]; then
 else
   echo "starting gateway nas http" &&\
   exec /opt/bin/minio gateway nas $MINIO_EXTRA_ARGS --address ":8080" --console-address ":8081" /storage/
-fi &&\
-export MINIO_BROWSER_REDIRECT_URL="http://127.0.0.1:8081/"
-# export MINIO_SERVER_URL="https://127.0.0.1:8080/"
+fi
