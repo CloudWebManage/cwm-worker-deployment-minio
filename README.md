@@ -43,6 +43,12 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
+## Minio Client
+
+Most of the following operations require minio client binary available locally at `./mc`
+
+See [Install Minio Client](https://github.com/minio/mc/blob/master/docs/minio-client-complete-guide.md#1--download-minio-client) for details.
+
 ## Local Development
 
 ### Using Docker Compose
@@ -68,9 +74,23 @@ You can resolve it like this:
 export COMPOSE_TLS_VERSION=TLSv1_2
 ```
 
-Login to Minio at http://localhost:8080 or https://localhost:8443
+Create a test bucket
 
-user: 12345678 / password: 12345678
+```
+docker-compose exec minio-client mc mb minio/test
+```
+
+Upload a file to the bucket
+
+```
+echo 'Hello Minio!' | docker-compose exec minio-client mc cat minio/test/hello.txt
+```
+
+List the contents of the bucket
+
+```
+docker-compose exec minio-client mc ls minio/test
+```
 
 ### Using Helm
 
@@ -328,15 +348,27 @@ one acting as the gateway and one as the source instance:
 docker-compose -f docker-compose-gateway.yaml up --build
 ```
 
-Log in to http://127.0.0.1:8080 using the gateway credentials (`12345678` / `12345678`).
-
-Create a bucket and execute a shell in the source container to see the bucket there:
+Add aliases for the instances:
 
 ```shell
-docker-compose -f docker-compose-gateway.yaml exec minio-source ls /opt
+./mc alias set source http://localhost:8080 accesskey secretkey
+./mc alias set gateway http://localhost:8082 12345678 12345678
 ```
 
-Upload/download some files and see log data in Redis:
+Create a bucket and upload a file to source insance:
+
+```shell
+./mc mb source/test
+echo hi | ./mc pipe source/test/hello.txt
+```
+
+Get the file from gateway instance
+
+```shell
+./mc cat gateway/test/hello.txt
+```
+
+See log data in Redis:
 
 ```shell
 docker-compose -f docker-compose-gateway.yaml exec redis redis-cli keys '*'
@@ -358,6 +390,12 @@ Start the `docker-compose` environment:
 docker-compose -f docker-compose-gateway-google.yaml up --build
 ```
 
+Add mc alias
+
+```
+./mc alias set minio http://localhost:8080 12345678 12345678
+```
+
 ### Gateway to Azure Blob Storage
 
 See [GATEWAY.md](./GATEWAY.md) for how to get the required credentials and set
@@ -372,6 +410,12 @@ Start the `docker-compose` environment:
 
 ```shell
 docker-compose -f docker-compose-gateway-azure.yaml up --build
+```
+
+Add mc alias
+
+```
+./mc alias set minio http://localhost:8080 12345678 12345678
 ```
 
 ### Gateway to AWS S3
@@ -390,6 +434,12 @@ Start the `docker-compose` environment:
 docker-compose -f docker-compose-gateway-aws.yaml up --build
 ```
 
+Add mc alias
+
+```
+./mc alias set minio http://localhost:8080 12345678 12345678
+```
+
 ## Nginx Cache
 
 It is an optional caching layer that acts as a CDN and caches download requests
@@ -406,26 +456,57 @@ CDN_CACHE_ENABLE=yes
 Run the `docker-compose` environment:
 
 ```shell
-docker-compose up -d --build
+docker-compose up --build
 ```
 
-Create a bucket named `test` and upload some files.
+Add mc alias
+
+```shell
+./mc alias set minio http://localhost:8080 12345678 12345678
+```
+
+Create a bucket named `test` and upload a file:
+
+```shell
+./mc mb minio/test
+./mc cp ./README.md minio/test/README.md
+```
+
+Try to download the file (it should fail):
+
+```shell
+curl http://localhost:8080/test/README.md
+```
 
 Set the download bucket policy to allow unauthenticated download of files:
 
 ```shell
-docker-compose exec minio-client mc policy set download minio/test
+./mc policy set download minio/test
 ```
 
-- Using the MinIO web UI, click on the share link for a file in the `test`
-  bucket to get the direct download link.
-- Copy the direct download link, modify the hostname to `localhost:8080` and
-  download the file.
-- Delete the file from the MinIO web UI.
-- Try to download again from the direct download link.
-- The file should be downloaded from the cache using the direct link.
-- Wait for 1 minute, try to download the file again. It should not download
-  because the cache is expired (default TTL is 1 minute).
+Try to download the file (it should succeed):
+
+```shell
+curl http://localhost:8080/test/README.md
+```
+
+Download again and check the headers:
+
+```shell
+curl -v http://localhost:8080/test/README.md > /dev/null
+```
+
+You should see `X-Cache-Status: HIT`
+
+Delete the file:
+
+```shell
+./mc rm minio/test/README.md
+```
+
+File should still be available from cache
+
+Wait 1 minute for cache to expire, then file will not be available.
 
 ## Testing virtual-style-host requests
 

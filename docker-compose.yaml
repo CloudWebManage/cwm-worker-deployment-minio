@@ -22,9 +22,6 @@ services:
     image: minio
     restart: on-failure
     build: .
-    ports:
-      - "8180:8080"
-      - "8181:8081"
     environment:
       MINIO_DOMAIN: "example001.com"
       MINIO_ROOT_USER: "12345678"
@@ -81,17 +78,6 @@ services:
     image: redis:6
     ports:
       - "6379:6379"
-
-  minio-client:
-    image: minio/mc
-    entrypoint:
-      - /bin/sh
-      - -c
-      - |
-        mc alias set minio http://minio:8080 12345678 12345678 &&\
-        while true; do sleep 86400; done
-    depends_on:
-      - minio
 
 volumes:
   storage:

@@ -10,8 +10,6 @@ services:
       MINIO_DOMAIN: "example001.com"
       MINIO_ROOT_USER: "accesskey"
       MINIO_ROOT_PASSWORD: "secretkey"
-#    ports:
-#      - "8082:8080"
 
   nginx-source:
     image: nginx
@@ -21,8 +19,8 @@ services:
       HOSTNAMES_DIR: "/hostnames"
       CDN_CACHE_ENABLE: "yes"
       MINIO_PROXY_PASS_HOST: minio-source
-#    ports:
-#      - "8081:8080"
+    ports:
+      - "8080:8080"
     volumes:
       - "./tests/hostnames:/hostnames"
     depends_on:
@@ -43,11 +41,24 @@ services:
       MINIO_AUDIT_WEBHOOK_AUTH_TOKEN_target1: ""
       MINIO_AUDIT_WEBHOOK_ENDPOINT_target1: http://cwm-worker-logger:8500/logs
       MINIO_GATEWAY_DEPLOYMENT_ID: "docker-compose-http"
-    ports:
-      - "8080:8080"
     depends_on:
       - nginx-source
       - cwm-worker-logger
+
+  nginx-gateway:
+    image: nginx
+    restart: on-failure
+    build: nginx
+    environment:
+      HOSTNAMES_DIR: "/hostnames"
+      CDN_CACHE_ENABLE: "yes"
+      MINIO_PROXY_PASS_HOST: minio-gateway
+    ports:
+      - "8082:8080"
+    volumes:
+      - "./tests/hostnames:/hostnames"
+    depends_on:
+      - minio-gateway
 
   cwm-worker-logger:
     image: ghcr.io/cloudwebmanage/cwm-worker-logger/cwm-worker-logger:latest
