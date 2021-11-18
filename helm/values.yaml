@@ -47,7 +47,7 @@ minio:
     periodSeconds: 1
     timeoutSeconds: 1
     successThreshold: 1
-    failureThreshold: 2
+    failureThreshold: 30
     curlMaxTimeSeconds: "0.9"
     curlConnectTimeoutSeconds: "0.2"
   livenessProbe:
