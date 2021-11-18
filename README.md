@@ -34,8 +34,6 @@
 - [Nginx Cache](#nginx-cache)
   - [Testing the cache layer locally using Docker Compose](#testing-the-cache-layer-locally-using-docker-compose)
 - [Testing virtual-style-host requests](#testing-virtual-style-host-requests)
-- [Certificate Challenge](#certificate-challenge)
-  - [Testing the challenge response using Docker Compose](#testing-the-challenge-response-using-docker-compose)
 - [Generating self-signed certificates and DH key](#generating-self-signed-certificates-and-dh-key)
 - [Running Tests](#running-tests)
 - [Contribute](#contribute)
@@ -43,20 +41,24 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-## Minio Client
+## Local Development
 
 Most of the following operations require minio client binary available locally at `./mc`
 
 See [Install Minio Client](https://github.com/minio/mc/blob/master/docs/minio-client-complete-guide.md#1--download-minio-client) for details.
-
-## Local Development
 
 ### Using Docker Compose
 
 Docker Compose is used for quick prototyping of the deployment without using
 Kubernetes.
 
-Start the stack:
+The docker-compose examples use the following pattern:
+
+* First, start the environment in the foreground so you can see the logs
+* Then, open a new terminal to interact with the environment (usually using the minio client `./mc`)
+* When done, press CTRL+C in the docker compose environment to stop the environment and remove all containers
+
+Start the default stack:
 
 ```shell
 docker-compose up --build
@@ -74,22 +76,18 @@ You can resolve it like this:
 export COMPOSE_TLS_VERSION=TLSv1_2
 ```
 
-Create a test bucket
+Set an alias, create a bucket and upload a file
 
 ```
-docker-compose exec minio-client mc mb minio/test
-```
-
-Upload a file to the bucket
-
-```
-echo 'Hello Minio!' | docker-compose exec minio-client mc cat minio/test/hello.txt
+./mc alias set minio http://localhost:8080 12345678 12345678
+./mc mb minio/test
+./mc cp README.md minio/test/
 ```
 
 List the contents of the bucket
 
 ```
-docker-compose exec minio-client mc ls minio/test
+./mc ls minio/test
 ```
 
 ### Using Helm
@@ -136,21 +134,56 @@ docker-compose exec minio-client mc ls minio/test
   `helm/values.yaml`.
 - Deploy: `helm upgrade -f .values.yaml --install cwm-worker-deployment-minio ./helm`
 - Verify that the minio pod is running: `kubectl get pods`
-- Start port-forward to the nginx service:
+- Start port-forwards to the nginx service:
   - `kubectl port-forward service/minio-nginx 8080:8080`
   - `kubectl port-forward service/minio-nginx 8443:8443`
-- Access it at http://localhost:8080 or https://localhost:8443
-- Also, try https://example003.com:8443 vs. https://example002.com:8443 - each
-  one should serve the relevant certificate for this domain
-- Default username/password: `dummykey` / `dummypass`
-- Create a bucket and upload/download some objects.
-- Start Redis CLI and check the recorded metrics:
 
-  ```shell
-  kubectl exec deployment/minio-logger -c redis -it -- redis-cli
-  keys *
-  get deploymentid:minio-metrics:minio1:num_requests_in
-  ```
+Add aliases
+
+```shell
+./mc alias set http http://localhost:8080 dummykey dummypass
+./mc alias set https https://localhost:8443 dummykey dummypass --insecure
+```
+
+Create a bucket and upload a file
+
+```shell
+./mc mb http/test
+./mc cp README.md http/test/
+```
+
+List the files from https endpoint
+
+```shell
+./mc ls https/test --insecure
+```
+
+Set download policy on the bucket
+
+```shell
+./mc policy set download http/test
+```
+
+Add to /etc/hosts file:
+
+```shell
+127.0.0.1 example003.com example002.com
+```
+
+Check virtual hosts serving
+
+```shell
+curl -k -v https://example003.com:8443/test/README.md -o/dev/null 2>&1 | grep CN=example003.com
+curl -k -v https://example002.com:8443/test/README.md -o/dev/null 2>&1 | grep CN=example002.com
+```
+
+Start Redis CLI and check the recorded metrics:
+
+```shell
+kubectl exec deployment/minio-logger -c redis -it -- redis-cli
+keys *
+get deploymentid:minio-metrics:minio1:num_requests_in
+```
 
 ### Manual testing of log providers
 
@@ -392,7 +425,7 @@ docker-compose -f docker-compose-gateway-google.yaml up --build
 
 Add mc alias
 
-```
+```shell
 ./mc alias set minio http://localhost:8080 12345678 12345678
 ```
 
@@ -414,7 +447,7 @@ docker-compose -f docker-compose-gateway-azure.yaml up --build
 
 Add mc alias
 
-```
+```shell
 ./mc alias set minio http://localhost:8080 12345678 12345678
 ```
 
@@ -436,7 +469,7 @@ docker-compose -f docker-compose-gateway-aws.yaml up --build
 
 Add mc alias
 
-```
+```shell
 ./mc alias set minio http://localhost:8080 12345678 12345678
 ```
 
@@ -513,64 +546,34 @@ Wait 1 minute for cache to expire, then file will not be available.
 Run the `docker-compose` environment:
 
 ```shell
-docker-compose up -d --build
+docker-compose up --build
 ```
 
-Create a bucket named `test` and upload a file e.g. `file.txt`.
+Add mc alias, create a bucket, upload a file and set download policy
+
+```shell
+./mc alias set minio http://localhost:8080 12345678 12345678
+./mc mb minio/test
+./mc cp README.md minio/test/
+./mc policy set download minio/test
+```
 
 Add this in `/etc/hosts` file:
 
 ```text
-127.0.0.0 example001.com test.example001.com
+127.0.0.1 example001.com test.example001.com
 ```
 
-Set the download bucket policy to allow unauthenticated download of files:
+Download with `path-style` request i.e. `http://domain/bucket/object`:
 
 ```shell
-docker-compose exec minio-client mc policy set download minio/test
-```
-
-Using the MinIO web UI, click on the share link for a file in the `test` bucket
-to get the direct download link.
-
-Copy the direct download link and download it with `curl`.
-
-With `path-style` request i.e. `http://domain/bucket/object`:
-
-```shell
-curl 'http://example001.com:8080/test/file.txt'
+curl 'http://example001.com:8080/test/README.md'
 ```
 
 With `virtual-host-style` request i.e. `http://bucket.domain/object`:
 
 ```shell
-curl 'http://test.example001.com:8080/file.txt'
-```
-
-## Certificate Challenge
-
-To enable Let's Encrypt SSL certificate registration and renewal, the Nginx
-proxy supports an http challenge response.
-
-### Testing the challenge response using Docker Compose
-
-Run the `docker-compose` environment:
-
-```shell
-docker-compose up -d --build
-```
-
-Verify that the challenge response returns the correct payload:
-
-```shell
-echo "$(curl -s "http://localhost:8080/.well-known/acme-challenge/$(cat tests/hostnames/hostname1.cc_token)")"
-echo "$(cat tests/hostnames/hostname1.cc_payload)"
-```
-
-Access hostname3 which doesn't have a payload/token and verify it returns an error:
-
-```shell
-curl -H "Host: example003.com" "http://localhost:8080/.well-known/acme-challenge/$(cat tests/hostnames/hostname1.cc_token)"
+curl 'http://test.example001.com:8080/README.md'
 ```
 
 ## Generating self-signed certificates and DH key

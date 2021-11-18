@@ -82,7 +82,6 @@ minio:
     after: 3
     watermark_low: 70
     watermark_high: 90
-  browser: true
   access_key: "dummykey"
   secret_key: "dummypass"
   storageVolumeSubPath: ""

@@ -85,8 +85,6 @@ spec:
         - name: MINIO_PROMETHEUS_AUTH_TYPE
           value: "public"
         {{- end }}
-        - name: MINIO_BROWSER
-          value: "{{ if $.Values.minio.browser }}on{{ else }}off{{ end }}"
         - name: INSTANCE_TYPE
           value: {{ $.Values.minio.INSTANCE_TYPE }}
         - name: GATEWAY_ARGS
