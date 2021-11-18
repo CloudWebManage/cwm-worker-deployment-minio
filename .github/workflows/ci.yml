@@ -62,6 +62,8 @@ jobs:
         bin/update_scaler_image.sh && \
         if [ "${SKIP_TESTS}" == "no" ]; then
           bin/minikube_start.sh &&\
+          sleep 10 &&\
+          kubectl -n kube-system rollout status daemonset/calico-node --watch --timeout=2m &&\
           venv/bin/pytest -svvv tests/test_k8s.py
         fi &&\
         if [ "$(uci github actions get-branch-name)" == "main" ] && [ "${NO_DEPLOY}" == "no" ]; then
