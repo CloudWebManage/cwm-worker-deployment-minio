@@ -47,7 +47,7 @@ minio:
     periodSeconds: 1
     timeoutSeconds: 1
     successThreshold: 1
-    failureThreshold: 2
+    failureThreshold: 30
     curlMaxTimeSeconds: "0.9"
     curlConnectTimeoutSeconds: "0.2"
   livenessProbe:
@@ -82,7 +82,6 @@ minio:
     after: 3
     watermark_low: 70
     watermark_high: 90
-  browser: true
   access_key: "dummykey"
   secret_key: "dummypass"
   storageVolumeSubPath: ""

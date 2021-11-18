@@ -39,10 +39,10 @@ spec:
         {{- end }}
         - name: "MINIO_DOMAIN"
           value: {{ $domains | quote }}
-        - name: MINIO_ACCESS_KEY
-          valueFrom: {"secretKeyRef":{"name":"minio-server", "key":"MINIO_ACCESS_KEY"}}
-        - name: MINIO_SECRET_KEY
-          valueFrom: {"secretKeyRef":{"name":"minio-server", "key":"MINIO_SECRET_KEY"}}
+        - name: MINIO_ROOT_USER
+          valueFrom: {"secretKeyRef":{"name":"minio-server", "key":"MINIO_ROOT_USER"}}
+        - name: MINIO_ROOT_PASSWORD
+          valueFrom: {"secretKeyRef":{"name":"minio-server", "key":"MINIO_ROOT_PASSWORD"}}
         {{- if $.Values.minio.cache.enabled }}
         - name: MINIO_CACHE
           value: "on"
@@ -85,8 +85,6 @@ spec:
         - name: MINIO_PROMETHEUS_AUTH_TYPE
           value: "public"
         {{- end }}
-        - name: MINIO_BROWSER
-          value: "{{ if $.Values.minio.browser }}on{{ else }}off{{ end }}"
         - name: INSTANCE_TYPE
           value: {{ $.Values.minio.INSTANCE_TYPE }}
         - name: GATEWAY_ARGS
