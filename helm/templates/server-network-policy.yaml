@@ -25,6 +25,8 @@ spec:
     - protocol: UDP
       port: 53
     - protocol: TCP
+      port: 443
+    - protocol: TCP
       port: 8080
     {{- if .Values.minio.metricsLogger.enable }}
     - protocol: TCP
