@@ -35,6 +35,8 @@
   - [Testing the cache layer locally using Docker Compose](#testing-the-cache-layer-locally-using-docker-compose)
 - [Testing virtual-style-host requests](#testing-virtual-style-host-requests)
 - [Generating self-signed certificates and DH key](#generating-self-signed-certificates-and-dh-key)
+- [Select API Support](#select-api-support)
+  - [Parquet Format](#parquet-format)
 - [Running Tests](#running-tests)
 - [Contribute](#contribute)
 - [License](#license)
@@ -54,9 +56,11 @@ Kubernetes.
 
 The docker-compose examples use the following pattern:
 
-* First, start the environment in the foreground so you can see the logs
-* Then, open a new terminal to interact with the environment (usually using the minio client `./mc`)
-* When done, press CTRL+C in the docker compose environment to stop the environment and remove all containers
+- First, start the environment in the foreground so you can see the logs
+- Then, open a new terminal to interact with the environment (usually using the
+  minio client `./mc`)
+- When done, press CTRL+C in the docker compose environment to stop the
+  environment and remove all containers
 
 Start the default stack:
 
@@ -76,17 +80,17 @@ You can resolve it like this:
 export COMPOSE_TLS_VERSION=TLSv1_2
 ```
 
-Set an alias, create a bucket and upload a file
+Set an alias, create a bucket and upload a file:
 
-```
+```shell
 ./mc alias set minio http://localhost:8080 12345678 12345678
 ./mc mb minio/test
 ./mc cp README.md minio/test/
 ```
 
-List the contents of the bucket
+List the contents of the bucket:
 
-```
+```shell
 ./mc ls minio/test
 ```
 
@@ -138,7 +142,7 @@ List the contents of the bucket
   - `kubectl port-forward service/minio-nginx 8080:8080`
   - `kubectl port-forward service/minio-nginx 8443:8443`
 
-Add aliases
+Add aliases:
 
 ```shell
 ./mc alias set http http://localhost:8080 dummykey dummypass
@@ -299,7 +303,7 @@ Following types of scaling via ScaledObjects are supported:
 
 - `external` (external scaler must be enabled and deployed)
 - `cpu`
-- `memmory`
+- `memory`
 
 For scaling with the external metrics, a custom [KEDA](https://keda.sh/)
 external scaler
@@ -388,7 +392,7 @@ Add aliases for the instances:
 ./mc alias set gateway http://localhost:8082 12345678 12345678
 ```
 
-Create a bucket and upload a file to source insance:
+Create a bucket and upload a file to source instance:
 
 ```shell
 ./mc mb source/test
@@ -581,15 +585,15 @@ curl 'http://test.example001.com:8080/README.md'
 The generated files are committed to Git, so you don't need to re-run the
 following steps, but they are documented here for reference.
 
-Generate DH Key
+Generate DH key:
 
-```
+```shell
 openssl dhparam -out tests/hostnames/dhparam.pem 2048
 ```
 
-Generate self-signed certificates
+Generate self-signed certificates:
 
-```
+```shell
 openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
   -keyout tests/hostnames/hostname2.privkey \
   -out tests/hostnames/hostname2.fullchain \
@@ -600,6 +604,57 @@ openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
   -subj "/C=IL/ST=Center/L=Tel-Aviv/O=Acme/OU=DevOps/CN=example003.com" &&\
 cp tests/hostnames/hostname3.fullchain tests/hostnames/hostname3.chain
 ```
+
+## Select API Support
+
+MinIO instance supports SQL-style SELECT command and API support via its MinIO
+Client (`mc`) and language bindings.
+
+See [MinIO Select API Quickstart Guide](https://docs.min.io/docs/minio-select-api-quickstart-guide.html).
+
+As mentioned in the docs, by default it supports querying of CSV and JSON
+objects in uncompressed and compressed formats. No extra configuration is
+required.
+
+### Parquet Format
+
+The uncompressed [Parquet](https://en.wikipedia.org/wiki/Apache_Parquet) format
+is also supported but it not enabled by default. It can be enabled by setting
+the environment variable i.e. `MINIO_API_SELECT_PARQUET=on`.
+
+For development with [`docker-compose`](#using-docker-compose), it can be set
+like this:
+
+```yaml
+services:
+  # ...
+  minio:
+    image: minio
+    # ...
+    environment:
+      # ...
+      MINIO_API_SELECT_PARQUET: "on"
+```
+
+For development with [`docker-compose-gateway*`](#gateway-mode) , it can be
+enabled like this in the respective `docker-compose-gateway*.yaml` file:
+
+```yaml
+services:
+  # ...
+  minio-gateway:
+    image: minio
+    # ...
+    environment:
+      # ...
+      MINIO_API_SELECT_PARQUET: "on"
+```
+
+For MinIO client (`mc`), `mc sql` subcommand can be used. Follow these links for
+the detailed help and syntax support for SELECT queries:
+
+- [`mc sql` command](https://docs.min.io/docs/minio-client-complete-guide#sql)
+- [AWS S3 SELECT Command](https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-glacier-select-sql-reference-select.html)
 
 ## Running Tests
 
