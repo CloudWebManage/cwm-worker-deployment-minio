@@ -650,8 +650,14 @@ services:
       MINIO_API_SELECT_PARQUET: "on"
 ```
 
-For MinIO client (`mc`), `mc sql` subcommand can be used. Follow these links for
-the detailed help and syntax support for SELECT queries:
+For MinIO client (`mc`), `mc sql` subcommand can be used.
+You need to create alias with `--api s3v4` like this:
+
+```shell
+./mc alias set minio http://localhost:8080 12345678 12345678 --api s3v4
+```
+
+For the detailed help and syntax for SELECT queries, follow these links:
 
 - [`mc sql` command](https://docs.min.io/docs/minio-client-complete-guide#sql)
 - [AWS S3 SELECT Command](https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-glacier-select-sql-reference-select.html)
