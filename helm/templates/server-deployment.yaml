@@ -59,6 +59,10 @@ spec:
         - name: MINIO_CACHE_WATERMARK_HIGH
           value: {{ $.Values.minio.cache.watermark_high | quote }}
         {{- end }}
+        {{- if $.Values.minio.enableParquetFormat }}
+        - name: MINIO_API_SELECT_PARQUET
+          value: "on"
+        {{- end }}
         {{- if $.Values.minio.auditWebhookEndpoint }}
         - name: MINIO_AUDIT_WEBHOOK_ENABLE_target1
           value: "on"

@@ -22,7 +22,7 @@ To configure the minio instance you will need the project ID and the credentials
 1. Follow [this guide](https://docs.microsoft.com/en-us/azure/storage/common/storage-account-create?tabs=azure-portal) to create an Azure Storage Account
 2. Access the created storage account, click on "Access Keys" under "Security + Networking"
 3. Note the storage account name
-3. Click on "Show Keys" to see the storage account key
+4. Click on "Show Keys" to see the storage account key
 
 To configure the minio instance you will need the Storage account name and a key.
 
@@ -30,7 +30,7 @@ To configure the minio instance you will need the Storage account name and a key
 
 1. In the AWS Console: navigate to [IAM Users](https://console.aws.amazon.com/iamv2/home?#/users)
 2. Click on "Add User"
-3. Input User Name and select Programattic Access
+3. Input "User Name" and select "Programmatic Access"
 4. Click on "Next: Permissions"
 5. Click on "Attach existing policies directly"
 6. In the policies search box input "AmazonS3FullAccess" and mark the checkbox next to that policy
