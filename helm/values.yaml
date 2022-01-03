@@ -82,6 +82,7 @@ minio:
     after: 3
     watermark_low: 70
     watermark_high: 90
+  enableParquetFormat: false
   access_key: "dummykey"
   secret_key: "dummypass"
   storageVolumeSubPath: ""

@@ -631,6 +631,15 @@ For development with [`docker-compose`](#using-docker-compose) or
 MINIO_API_SELECT_PARQUET=on
 ```
 
+For development with [helm](#using-helm), you can enable the Parquet format via
+`.value.yaml` file like this:
+
+```yaml
+minio:
+  # ...
+  enableParquetFormat: true
+```
+
 For MinIO client (`mc`), `mc sql` subcommand can be used.
 You need to create alias with `--api s3v4` like this:
 
