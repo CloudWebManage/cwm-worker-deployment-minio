@@ -619,35 +619,16 @@ required.
 ### Parquet Format
 
 The uncompressed [Parquet](https://en.wikipedia.org/wiki/Apache_Parquet) format
-is also supported but it not enabled by default. It can be enabled by setting
-the environment variable i.e. `MINIO_API_SELECT_PARQUET=on`.
+is also supported but it not enabled by default since a crafted input with
+hostile intention can easily crash the server. However, it can be enabled in
+controlled environments by setting the environment variable
+`MINIO_API_SELECT_PARQUET=on`.
 
-For development with [`docker-compose`](#using-docker-compose), it can be set
-like this:
+For development with [`docker-compose`](#using-docker-compose) or
+[`docker-compose-gateway*`](#gateway-mode), enable it like this via `.env` file:
 
-```yaml
-services:
-  # ...
-  minio:
-    image: minio
-    # ...
-    environment:
-      # ...
-      MINIO_API_SELECT_PARQUET: "on"
-```
-
-For development with [`docker-compose-gateway*`](#gateway-mode) , it can be
-enabled like this in the respective `docker-compose-gateway*.yaml` file:
-
-```yaml
-services:
-  # ...
-  minio-gateway:
-    image: minio
-    # ...
-    environment:
-      # ...
-      MINIO_API_SELECT_PARQUET: "on"
+```text
+MINIO_API_SELECT_PARQUET=on
 ```
 
 For MinIO client (`mc`), `mc sql` subcommand can be used.
