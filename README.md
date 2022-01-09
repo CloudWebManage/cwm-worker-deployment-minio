@@ -620,8 +620,9 @@ required.
 
 The uncompressed [Parquet](https://en.wikipedia.org/wiki/Apache_Parquet) format
 is also supported but it not enabled by default since a crafted input with
-hostile intention can easily crash the server. However, it can be enabled in
-controlled environments by setting the environment variable
+hostile intention can easily crash the server. Also, it may not be fully supported
+see [this comment](https://github.com/minio/minio/issues/14016#issuecomment-1003582156).
+However, it can be enabled by setting the environment variable
 `MINIO_API_SELECT_PARQUET=on`.
 
 For development with [`docker-compose`](#using-docker-compose) or
