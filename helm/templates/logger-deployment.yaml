@@ -20,12 +20,24 @@ spec:
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 100
+            - weight: 10
               podAffinityTerm:
                 topologyKey: kubernetes.io/hostname
                 labelSelector:
                   matchLabels:
                     cwm-worker-deployment: minio
+            - weight: 20
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    app: minio-logger
+            - weight: 30
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    app: minio-server
       dnsPolicy: ClusterFirst
       terminationGracePeriodSeconds: {{ $.Values.minio.metricsLogger.terminationGracePeriodSeconds }}
       automountServiceAccountToken: false
