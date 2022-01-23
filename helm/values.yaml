@@ -229,6 +229,7 @@ minio:
       rollingUpdate:
         maxUnavailable: 0
         maxSurge: 1
+    enableNginxAntiAffinityRequired: true
     image: ghcr.io/cloudwebmanage/cwm-worker-deployment-minio/minio-nginx
     terminationGracePeriodSeconds: 5
     preStopDelaySeconds: 2

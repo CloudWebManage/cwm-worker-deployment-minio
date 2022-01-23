@@ -13,9 +13,17 @@ spec:
     metadata:
       labels:
         app: minio-logger
+        cwm-worker-deployment: minio
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/logger-configmap.yaml") . | sha256sum }}
     spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - topologyKey: kubernetes.io/hostname
+              labelSelector:
+                matchLabels:
+                  cwm-worker-deployment: minio
       dnsPolicy: ClusterFirst
       terminationGracePeriodSeconds: {{ $.Values.minio.metricsLogger.terminationGracePeriodSeconds }}
       automountServiceAccountToken: false

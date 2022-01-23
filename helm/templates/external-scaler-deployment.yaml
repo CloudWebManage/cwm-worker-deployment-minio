@@ -13,7 +13,15 @@ spec:
     metadata:
       labels:
         app: minio-external-scaler
+        cwm-worker-deployment: minio
     spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - topologyKey: kubernetes.io/hostname
+              labelSelector:
+                matchLabels:
+                  cwm-worker-deployment: minio
       dnsPolicy: ClusterFirst
       terminationGracePeriodSeconds: {{ $.Values.minio.externalscaler.terminationGracePeriodSeconds }}
       automountServiceAccountToken: false

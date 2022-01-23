@@ -13,16 +13,24 @@ spec:
     metadata:
       labels:
         app: minio-nginx
+        cwm-worker-deployment: minio
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/nginx-hostnames-configmap.yaml") . | sha256sum }}
     spec:
       affinity:
         podAntiAffinity:
+          {{ if $.Values.minio.nginx.enableNginxAntiAffinityRequired }}
           requiredDuringSchedulingIgnoredDuringExecution:
             - topologyKey: kubernetes.io/hostname
               labelSelector:
                 matchLabels:
                   app: minio-nginx
+          {{ end }}
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - topologyKey: kubernetes.io/hostname
+              labelSelector:
+                matchLabels:
+                  cwm-worker-deployment: minio
       dnsPolicy: ClusterFirst
       terminationGracePeriodSeconds: {{ $.Values.minio.nginx.terminationGracePeriodSeconds }}
       automountServiceAccountToken: false
