@@ -13,9 +13,25 @@ spec:
     metadata:
       labels:
         app: minio-external-scaler
+        cwm-worker-deployment: minio
     spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 10
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    cwm-worker-deployment: minio
+            - weight: 20
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    app: minio-external-scaler
       dnsPolicy: ClusterFirst
-      terminationGracePeriodSeconds: {{ $.Values.minio.terminationGracePeriodSeconds }}
+      terminationGracePeriodSeconds: {{ $.Values.minio.externalscaler.terminationGracePeriodSeconds }}
       automountServiceAccountToken: false
       {{- if $.Values.minio.nodeSelector }}
       nodeSelector: {{ $.Values.minio.nodeSelector | nindent 8 }}
@@ -26,6 +42,7 @@ spec:
       containers:
       - name: minio-external-scaler
         image: {{ $.Values.minio.externalscaler.image }}
+        lifecycle: {preStop: {exec: {command: ["sleep", {{ $.Values.minio.externalscaler.preStopDelaySeconds | quote }}]}}}
         imagePullPolicy: {{ $.Values.minio.externalscaler.imagePullPolicy }}
         resources: {{ toYaml $.Values.minio.externalscaler.resources | nindent 10 }}
         env:

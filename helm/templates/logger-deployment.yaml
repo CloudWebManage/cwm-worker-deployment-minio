@@ -13,11 +13,33 @@ spec:
     metadata:
       labels:
         app: minio-logger
+        cwm-worker-deployment: minio
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/logger-configmap.yaml") . | sha256sum }}
     spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 10
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    cwm-worker-deployment: minio
+            - weight: 20
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    app: minio-logger
+            - weight: 30
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    app: minio-server
       dnsPolicy: ClusterFirst
-      terminationGracePeriodSeconds: {{ $.Values.minio.terminationGracePeriodSeconds }}
+      terminationGracePeriodSeconds: {{ $.Values.minio.metricsLogger.terminationGracePeriodSeconds }}
       automountServiceAccountToken: false
       {{- if $.Values.minio.nodeSelector }}
       nodeSelector: {{ $.Values.minio.nodeSelector | nindent 8 }}
@@ -28,6 +50,7 @@ spec:
       containers:
       - name: logger
         image: {{ $.Values.minio.metricsLogger.image }}
+        lifecycle: {preStop: {exec: {command: ["sleep", {{ $.Values.minio.metricsLogger.preStopDelaySeconds | quote }}]}}}
         imagePullPolicy: {{ $.Values.minio.metricsLogger.imagePullPolicy }}
         resources: {{ toYaml $.Values.minio.metricsLogger.resources | nindent 10 }}
         volumeMounts:

@@ -132,6 +132,7 @@ List the contents of the bucket:
     nginx:
       image: nginx
       tag: latest
+      enableNginxAntiAffinityRequired: false
   ```
 
 - You can apply additional configurations to override the configuration at

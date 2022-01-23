@@ -13,7 +13,29 @@ spec:
     metadata:
       labels:
         app: minio-server
+        cwm-worker-deployment: minio
     spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 10
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    cwm-worker-deployment: minio
+            - weight: 20
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    app: minio-server
+            - weight: 30
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    app: minio-logger
       dnsPolicy: ClusterFirst
       terminationGracePeriodSeconds: {{ $.Values.minio.terminationGracePeriodSeconds }}
       automountServiceAccountToken: false
@@ -26,6 +48,7 @@ spec:
       containers:
       - name: http
         image: {{ $.Values.minio.image }}:{{ $.Values.minio.tag | default $.Chart.AppVersion }}
+        lifecycle: {preStop: {exec: {command: ["sleep", {{ $.Values.minio.preStopDelaySeconds | quote }}]}}}
         imagePullPolicy: {{ $.Values.minio.imagePullPolicy }}
         env:
         {{- $domains := list }}
