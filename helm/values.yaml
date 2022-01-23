@@ -2,6 +2,7 @@ minio:
   replicas: 1
   revisionHistoryLimit: 2
   terminationGracePeriodSeconds: 5
+  preStopDelaySeconds: 2
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -95,6 +96,8 @@ minio:
     enabled: false
     image: ghcr.io/cloudwebmanage/cwm-keda-external-scaler
     imagePullPolicy: IfNotPresent
+    terminationGracePeriodSeconds: 5
+    preStopDelaySeconds: 2
     resources:
       requests:
         cpu: "20m"
@@ -135,6 +138,8 @@ minio:
     enable: true
     image: ghcr.io/cloudwebmanage/cwm-worker-logger/cwm-worker-logger
     imagePullPolicy: IfNotPresent
+    terminationGracePeriodSeconds: 5
+    preStopDelaySeconds: 2
     resources:
       requests:
         cpu: "20m"
@@ -225,6 +230,8 @@ minio:
         maxUnavailable: 0
         maxSurge: 1
     image: ghcr.io/cloudwebmanage/cwm-worker-deployment-minio/minio-nginx
+    terminationGracePeriodSeconds: 5
+    preStopDelaySeconds: 2
     tag: ""
     resources:
       requests:

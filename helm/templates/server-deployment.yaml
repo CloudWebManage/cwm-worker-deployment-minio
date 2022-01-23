@@ -26,6 +26,7 @@ spec:
       containers:
       - name: http
         image: {{ $.Values.minio.image }}:{{ $.Values.minio.tag | default $.Chart.AppVersion }}
+        lifecycle: {preStop: {exec: {command: ["sleep", {{ $.Values.minio.preStopDelaySeconds | quote }}]}}}
         imagePullPolicy: {{ $.Values.minio.imagePullPolicy }}
         env:
         {{- $domains := list }}

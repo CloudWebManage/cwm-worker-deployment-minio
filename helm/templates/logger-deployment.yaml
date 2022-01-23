@@ -17,7 +17,7 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/logger-configmap.yaml") . | sha256sum }}
     spec:
       dnsPolicy: ClusterFirst
-      terminationGracePeriodSeconds: {{ $.Values.minio.terminationGracePeriodSeconds }}
+      terminationGracePeriodSeconds: {{ $.Values.minio.metricsLogger.terminationGracePeriodSeconds }}
       automountServiceAccountToken: false
       {{- if $.Values.minio.nodeSelector }}
       nodeSelector: {{ $.Values.minio.nodeSelector | nindent 8 }}
@@ -28,6 +28,7 @@ spec:
       containers:
       - name: logger
         image: {{ $.Values.minio.metricsLogger.image }}
+        lifecycle: {preStop: {exec: {command: ["sleep", {{ $.Values.minio.metricsLogger.preStopDelaySeconds | quote }}]}}}
         imagePullPolicy: {{ $.Values.minio.metricsLogger.imagePullPolicy }}
         resources: {{ toYaml $.Values.minio.metricsLogger.resources | nindent 10 }}
         volumeMounts:

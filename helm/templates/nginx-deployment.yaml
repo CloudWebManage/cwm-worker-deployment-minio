@@ -24,7 +24,7 @@ spec:
                 matchLabels:
                   app: minio-nginx
       dnsPolicy: ClusterFirst
-      terminationGracePeriodSeconds: {{ $.Values.minio.terminationGracePeriodSeconds }}
+      terminationGracePeriodSeconds: {{ $.Values.minio.nginx.terminationGracePeriodSeconds }}
       automountServiceAccountToken: false
       {{- if $.Values.minio.nodeSelector }}
       nodeSelector: {{ $.Values.minio.nodeSelector | nindent 8 }}
@@ -35,6 +35,7 @@ spec:
       containers:
       - name: nginx
         image: {{ $.Values.minio.nginx.image }}:{{ $.Values.minio.nginx.tag | default $.Chart.AppVersion }}
+        lifecycle: {preStop: {exec: {command: ["sleep", {{ $.Values.minio.nginx.preStopDelaySeconds | quote }}]}}}
         imagePullPolicy: {{ $.Values.minio.imagePullPolicy }}
         env:
           - name: HOSTNAMES_DIR
