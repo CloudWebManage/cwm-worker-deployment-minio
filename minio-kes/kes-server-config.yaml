@@ -17,6 +17,10 @@ policy:
     identities:
     - ${MINIO_IDENTITY}
 
+log:
+  error: on
+  audit: on
+
 keystore:
   fs:
     path: ${MINIO_KMS_KES_KEYS_DIR}
