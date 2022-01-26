@@ -1,0 +1,22 @@
+address: 0.0.0.0:7373
+
+admin:
+  identity: disabled
+
+tls:
+  key : ${SERVER_KEY_FILE}
+  cert: ${SERVER_CERT_FILE}
+
+policy:
+  minio-server:
+    allow:
+    - /v1/key/create/__MINIO_KMS_KES_KEY_NAME__
+    - /v1/key/delete/__MINIO_KMS_KES_KEY_NAME__
+    - /v1/key/generate/__MINIO_KMS_KES_KEY_NAME__
+    - /v1/key/decrypt/__MINIO_KMS_KES_KEY_NAME__
+    identities:
+    - ${MINIO_IDENTITY}
+
+keystore:
+  fs:
+    path: ${MINIO_KMS_KES_KEYS_DIR}
