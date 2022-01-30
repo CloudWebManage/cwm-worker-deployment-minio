@@ -7,17 +7,20 @@ tls:
   key : ${SERVER_KEY_FILE}
   cert: ${SERVER_CERT_FILE}
 
+# kes server will auto-create the keys on startup
+# no need to create these manually via kes CLI
+keys:
+  - name: 'minio'
+
+# define allowed policies for the minio
+# with the key already created, only `generate` and `decrypt` are required
 policy:
   minio:
     allow:
-    - /v1/key/create/minio
     - /v1/key/generate/minio
     - /v1/key/decrypt/minio
     identities:
     - ${MINIO_IDENTITY}
-
-keys:
-  - name: 'minio'
 
 log:
   error: on
@@ -25,4 +28,4 @@ log:
 
 keystore:
   fs:
-    path: ${MINIO_KMS_KES_KEYS_DIR}
+    path: ./keys
