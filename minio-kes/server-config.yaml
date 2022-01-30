@@ -8,14 +8,16 @@ tls:
   cert: ${SERVER_CERT_FILE}
 
 policy:
-  minio-server:
+  minio:
     allow:
-    - /v1/key/create/__MINIO_KMS_KES_KEY_NAME__
-    - /v1/key/delete/__MINIO_KMS_KES_KEY_NAME__
-    - /v1/key/generate/__MINIO_KMS_KES_KEY_NAME__
-    - /v1/key/decrypt/__MINIO_KMS_KES_KEY_NAME__
+    - /v1/key/create/minio
+    - /v1/key/generate/minio
+    - /v1/key/decrypt/minio
     identities:
     - ${MINIO_IDENTITY}
+
+keys:
+  - name: 'minio'
 
 log:
   error: on
