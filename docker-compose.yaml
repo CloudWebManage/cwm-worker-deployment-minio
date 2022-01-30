@@ -38,30 +38,11 @@ services:
       MINIO_AUDIT_WEBHOOK_ENDPOINT_target1: http://cwm-worker-logger:8500/logs
       MINIO_GATEWAY_DEPLOYMENT_ID: "docker-compose-http"
       MINIO_API_SELECT_PARQUET: "${MINIO_API_SELECT_PARQUET}"
-      MINIO_KMS_AUTO_ENCRYPTION: "off"
-      MINIO_KMS_KES_ENDPOINT: "https://minio-kes:7373"
-      MINIO_KMS_KES_CERT_FILE: "/kes/certs/minio.cert"
-      MINIO_KMS_KES_KEY_FILE: "/kes/certs/minio.key"
-      MINIO_KMS_KES_CAPATH: "/kes/certs/server.cert"
-      MINIO_KMS_KES_KEY_NAME: minio-encryption-key
     volumes:
       - "storage:/storage"
       - "cache:/cache"
-      - "minio-kes-certs:/kes/certs"
     depends_on:
-      - minio-kes
       - cwm-worker-logger
-
-  minio-kes:
-    image: minio-kes:v0.17.6
-    build: ./minio-kes
-    container_name: minio-kes
-    ports:
-      - "7373:7373"
-    environment:
-      MINIO_KMS_KES_KEY_NAME: minio-encryption-key
-    volumes:
-      - "minio-kes-certs:/kes/certs"
 
   cwm-worker-logger:
     image: ghcr.io/cloudwebmanage/cwm-worker-logger/cwm-worker-logger:latest
@@ -102,4 +83,3 @@ services:
 volumes:
   storage:
   cache:
-  minio-kes-certs:
