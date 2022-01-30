@@ -11,13 +11,20 @@ trap 'failure ${LINENO} "$BASH_COMMAND"' ERR
 
 echo "Running init script... [$(date)]"
 
-MINIO_KMS_KES_KEY_NAME=${MINIO_KMS_KES_KEY_NAME:-'minio'}
 CONFIG_FILE='server-config.yaml'
 MINIO_KES_DIR='/minio-kes'
 
-export MINIO_KMS_KES_KEYS_DIR=${MINIO_KMS_KES_KEYS_DIR:-'./keys'}
+if [[ ! -f $CONFIG_FILE ]]; then
+  echo "[ERROR] Configuration file not found! [$CONFIG_FILE]"
+  exit 1
+fi
 
-# mTLS kes server
+if [[ ! -d $MINIO_KES_DIR ]]; then
+  echo "[ERROR] '$MINIO_KES_DIR' directory not found!"
+  exit 1
+fi
+
+echo 'Generating TLS private key and certificate for KES Server...'
 export SERVER_KEY_FILE="$MINIO_KES_DIR/server.key"
 export SERVER_CERT_FILE="$MINIO_KES_DIR/server.cert"
 ./kes tool identity new \
@@ -26,9 +33,9 @@ export SERVER_CERT_FILE="$MINIO_KES_DIR/server.cert"
   --key $SERVER_KEY_FILE \
   --cert $SERVER_CERT_FILE \
   --ip '127.0.0.1' \
-  --dns 'minio-kes'
+  --dns 'minio-kes' # DNS = service name in the docker-compose-sse.yaml
 
-# mTLS minio server
+echo 'Generating TLS private key and certificate for MinIO...'
 MINIO_KEY_FILE="$MINIO_KES_DIR/minio.key"
 MINIO_CERT_FILE="$MINIO_KES_DIR/minio.cert"
 ./kes tool identity new --force --key $MINIO_KEY_FILE --cert $MINIO_CERT_FILE minio
