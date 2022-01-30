@@ -20,7 +20,7 @@ mc alias set $ALIAS http://localhost:8080 12345678 12345678
 mc mb $ALIAS/$BUCKET
 
 echo "$TEST_DATA" > $TEST_FILE
-mc mv $TEST_FILE $ALIAS/$BUCKET
+mc mv -q $TEST_FILE $ALIAS/$BUCKET
 
 echo 'Checking data with mc cat command via minio server...'
 echo '---'
