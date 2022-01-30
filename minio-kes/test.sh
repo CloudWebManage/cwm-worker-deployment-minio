@@ -16,19 +16,25 @@ BUCKET='bucket'
 TEST_FILE='test.file'
 TEST_DATA='test data'
 
+echo '>> Creating alias...'
 mc alias set $ALIAS http://localhost:8080 12345678 12345678
+
+echo '>> Creating bucket...'
 mc mb $ALIAS/$BUCKET
 
+echo '>> Creating test file and moving to bucket...'
 echo "$TEST_DATA" > $TEST_FILE
 mc mv -q $TEST_FILE $ALIAS/$BUCKET
 
-echo 'Checking data with mc cat command via minio server...'
+echo '>> Checking stat of the uploaded file...'
+mc stat $ALIAS/$BUCKET/$TEST_FILE
+
+echo '>> Checking data with mc cat command via minio server...'
 echo '---'
 mc cat $ALIAS/$BUCKET/$TEST_FILE
 echo '---'
 
-echo 'Checking data with cat command from storage directly...'
-
+echo '>> Checking data with cat command from storage directly...'
 MINIO_STORAGE_MOUNTPOINT=$(docker volume inspect -f '{{ .Mountpoint }}' cwm-worker-deployment-minio_storage)
 echo "MINIO_STORAGE_MOUNTPOINT: $MINIO_STORAGE_MOUNTPOINT"
 
