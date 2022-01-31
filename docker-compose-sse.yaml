@@ -35,7 +35,6 @@ services:
       - minio-kes
 
   minio-kes:
-    # image: minio-kes
     build: ./minio-kes
     ports:
       - "7373:7373"

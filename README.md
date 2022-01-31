@@ -656,7 +656,7 @@ For the detailed help and syntax for SELECT queries, follow these links:
 
 ## Server Side Encryption
 
-See this [document](./SERVER_SIDE_ENCRYPTION.md) for details.
+See [SERVER_SIDE_ENCRYPTION.md](./SERVER_SIDE_ENCRYPTION.md) for details.
 
 ## Running Tests
 
