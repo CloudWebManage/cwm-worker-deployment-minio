@@ -93,6 +93,10 @@ spec:
           value: ""
         - name: MINIO_AUDIT_WEBHOOK_ENDPOINT_target1
           value: {{ if .Values.minio.metricsLogger.enable }}http://minio-logger:8500/logs{{ else }}{{ $.Values.minio.auditWebhookEndpoint | quote }}{{ end }}
+        {{- if .Values.minio.metricsLogger.enable }}
+        - name: CWM_METRICSLOGGER_HEALTH_URL
+          value: http://minio-logger:8500/health
+        {{- end }}
         {{- end }}
         {{- if $.Values.minio.skipWaitForAuditWebhook }}
         - name: SKIP_WAIT_FOR_AUDIT_WEBHOOK
