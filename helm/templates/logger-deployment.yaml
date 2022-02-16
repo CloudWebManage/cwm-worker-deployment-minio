@@ -52,6 +52,7 @@ spec:
         image: {{ $.Values.minio.metricsLogger.image }}
         lifecycle: {preStop: {exec: {command: ["sleep", {{ $.Values.minio.metricsLogger.preStopDelaySeconds | quote }}]}}}
         imagePullPolicy: {{ $.Values.minio.metricsLogger.imagePullPolicy }}
+        {{- include "logger.probes" (dict "root" $) | indent 8 }}
         resources: {{ toYaml $.Values.minio.metricsLogger.resources | nindent 10 }}
         volumeMounts:
         - name: "fluentd-conf-volume"

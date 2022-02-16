@@ -44,29 +44,29 @@ minio:
 
   startupProbe:
     path: /minio/health/live
-    initialDelaySeconds: 1
+    initialDelaySeconds: 0
+    periodSeconds: 1
+    timeoutSeconds: 1
+    successThreshold: 1
+    failureThreshold: 10
+    curlMaxTimeSeconds: "0.9"
+    curlConnectTimeoutSeconds: "0.2"
+  livenessProbe:
+    path: /minio/health/live
+    initialDelaySeconds: 0
     periodSeconds: 1
     timeoutSeconds: 1
     successThreshold: 1
     failureThreshold: 5
     curlMaxTimeSeconds: "0.9"
     curlConnectTimeoutSeconds: "0.2"
-  livenessProbe:
-    path: /minio/health/live
-    initialDelaySeconds: 1
-    periodSeconds: 1
-    timeoutSeconds: 1
-    successThreshold: 1
-    failureThreshold: 2
-    curlMaxTimeSeconds: "0.9"
-    curlConnectTimeoutSeconds: "0.2"
   readinessProbe:
     path: /minio/health/ready
-    initialDelaySeconds: 1
+    initialDelaySeconds: 0
     periodSeconds: 1
     timeoutSeconds: 1
     successThreshold: 1
-    failureThreshold: 2
+    failureThreshold: 1
     curlMaxTimeSeconds: "0.9"
     curlConnectTimeoutSeconds: "0.2"
   resources:
@@ -140,6 +140,18 @@ minio:
     imagePullPolicy: IfNotPresent
     terminationGracePeriodSeconds: 5
     preStopDelaySeconds: 2
+    livenessProbe:
+      initialDelaySeconds: 0
+      periodSeconds: 1
+      timeoutSeconds: 1
+      successThreshold: 1
+      failureThreshold: 10
+    readinessProbe:
+      initialDelaySeconds: 0
+      periodSeconds: 1
+      timeoutSeconds: 1
+      successThreshold: 1
+      failureThreshold: 1
     resources:
       requests:
         cpu: "20m"
@@ -240,6 +252,33 @@ minio:
         memory: "50Mi"
       limits:
         memory: "150Mi"
+    startupProbe:
+      path: /minio/health/live
+      initialDelaySeconds: 0
+      periodSeconds: 1
+      timeoutSeconds: 1
+      successThreshold: 1
+      failureThreshold: 30
+      curlMaxTimeSeconds: "0.9"
+      curlConnectTimeoutSeconds: "0.2"
+    livenessProbe:
+      path: /minio/health/live
+      initialDelaySeconds: 1
+      periodSeconds: 1
+      timeoutSeconds: 1
+      successThreshold: 1
+      failureThreshold: 5
+      curlMaxTimeSeconds: "0.9"
+      curlConnectTimeoutSeconds: "0.2"
+    readinessProbe:
+      path: /minio/health/ready
+      initialDelaySeconds: 1
+      periodSeconds: 1
+      timeoutSeconds: 1
+      successThreshold: 1
+      failureThreshold: 1
+      curlMaxTimeSeconds: "0.9"
+      curlConnectTimeoutSeconds: "0.2"
     # copied from tests/hostnames/dhparam.pem
     dhparam_key: |
       -----BEGIN DH PARAMETERS-----
