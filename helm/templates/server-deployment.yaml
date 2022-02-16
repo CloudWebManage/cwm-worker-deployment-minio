@@ -129,30 +129,7 @@ spec:
         ports:
         - containerPort: 8080
           name: "p8080"
-        startupProbe:
-          exec:
-            command: ["curl", "--max-time", "{{ $.Values.minio.startupProbe.curlMaxTimeSeconds }}", "--connect-timeout", "{{ $.Values.minio.startupProbe.curlConnectTimeoutSeconds }}", "-s", http://localhost:8080{{ $.Values.minio.startupProbe.path }}]
-          initialDelaySeconds: {{ $.Values.minio.startupProbe.initialDelaySeconds }}
-          periodSeconds: {{ $.Values.minio.startupProbe.periodSeconds }}
-          timeoutSeconds: {{ $.Values.minio.startupProbe.timeoutSeconds }}
-          successThreshold: {{ $.Values.minio.startupProbe.successThreshold }}
-          failureThreshold: {{ $.Values.minio.startupProbe.failureThreshold }}
-        livenessProbe:
-          exec:
-            command: ["curl", "--max-time", "{{ $.Values.minio.livenessProbe.curlMaxTimeSeconds }}", "--connect-timeout", "{{ $.Values.minio.livenessProbe.curlConnectTimeoutSeconds }}", "-s", http://localhost:8080{{ $.Values.minio.livenessProbe.path }}]
-          initialDelaySeconds: {{ $.Values.minio.livenessProbe.initialDelaySeconds }}
-          periodSeconds: {{ $.Values.minio.livenessProbe.periodSeconds }}
-          timeoutSeconds: {{ $.Values.minio.livenessProbe.timeoutSeconds }}
-          successThreshold: {{ $.Values.minio.livenessProbe.successThreshold }}
-          failureThreshold: {{ $.Values.minio.livenessProbe.failureThreshold }}
-        readinessProbe:
-          exec:
-            command: ["curl", "--max-time", "{{ $.Values.minio.readinessProbe.curlMaxTimeSeconds }}", "--connect-timeout", "{{ $.Values.minio.readinessProbe.curlConnectTimeoutSeconds }}", "-s", http://localhost:8080{{ $.Values.minio.readinessProbe.path }}]
-          initialDelaySeconds: {{ $.Values.minio.readinessProbe.initialDelaySeconds }}
-          periodSeconds: {{ $.Values.minio.readinessProbe.periodSeconds }}
-          timeoutSeconds: {{ $.Values.minio.readinessProbe.timeoutSeconds }}
-          successThreshold: {{ $.Values.minio.readinessProbe.successThreshold }}
-          failureThreshold: {{ $.Values.minio.readinessProbe.failureThreshold }}
+        {{- include "server.probes" (dict "root" $) | indent 8 }}
         resources: {{ toYaml $.Values.minio.resources | nindent 10 }}
         volumeMounts:
         {{- if eq $.Values.minio.INSTANCE_TYPE "" }}

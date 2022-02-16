@@ -101,6 +101,7 @@ spec:
         ports:
         - containerPort: 8080
         - containerPort: 8443
+        {{- include "nginx.probes" (dict "root" $) | indent 8 }}
         resources: {{ toYaml $.Values.minio.nginx.resources | nindent 10 }}
         volumeMounts:
         - name: hostnames
