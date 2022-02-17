@@ -112,6 +112,8 @@ spec:
         {{- end }}
         - name: CWM_INIT_CURL_MAX_TIME
           value: "{{ $.Values.minio.initCurlMaxTime }}"
+        - name: CWM_INIT_CURL_CONNECT_TIMEOUT
+          value: "{{ $.Values.minio.initCurlConnectTimeout }}"
         {{- if $.Values.minio.enablePrometheusAuthTypePublic }}
         - name: MINIO_PROMETHEUS_AUTH_TYPE
           value: "public"

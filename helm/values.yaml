@@ -19,6 +19,7 @@ minio:
   MINIO_EXTRA_ARGS: ""
   initDebugEnable: false
   initCurlMaxTime: "1.5"
+  initCurlConnectTimeout: "0.2"
   # this exposes prometheus metrics unauthenticated at /minio/v2/metrics/cluster and /minio/v2/metrics/node
   enablePrometheusAuthTypePublic: true
   # it requires prometheus operator version 0.45 (kube-prometheus-stack 13.13)
