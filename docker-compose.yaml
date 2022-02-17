@@ -36,6 +36,7 @@ services:
       MINIO_AUDIT_WEBHOOK_ENABLE_target1: "on"
       MINIO_AUDIT_WEBHOOK_AUTH_TOKEN_target1: ""
       MINIO_AUDIT_WEBHOOK_ENDPOINT_target1: http://cwm-worker-logger:8500/logs
+      CWM_METRICSLOGGER_HEALTH_URL: http://cwm-worker-logger:8500/health
       MINIO_GATEWAY_DEPLOYMENT_ID: "docker-compose-http"
       MINIO_API_SELECT_PARQUET: "${MINIO_API_SELECT_PARQUET}"
     volumes:
