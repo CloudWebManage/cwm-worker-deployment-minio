@@ -18,6 +18,22 @@ services:
     depends_on:
       - minio
 
+  etcd:
+    image: gcr.io/etcd-development/etcd:v3.3.9
+    restart: on-failure
+    ports:
+      - "2379:2379"
+    environment:
+      ETCDCTL_API: "3"
+    entrypoint: /usr/local/bin/etcd
+    command:
+      - '--name=etcd-node-1'
+      - '--data-dir=/etcd-data'
+      - '--listen-client-urls=http://0.0.0.0:2379'
+      - '--advertise-client-urls=http://0.0.0.0:2379'
+    volumes:
+      - "etcd-data:/etcd-data"
+
   minio:
     image: minio
     restart: on-failure
@@ -38,11 +54,15 @@ services:
       MINIO_AUDIT_WEBHOOK_ENDPOINT_target1: http://cwm-worker-logger:8500/logs
       MINIO_GATEWAY_DEPLOYMENT_ID: "docker-compose-http"
       MINIO_API_SELECT_PARQUET: "${MINIO_API_SELECT_PARQUET}"
+      MINIO_DISK_USAGE_CRAWL_DEBUG: "on"
+      MINIO_DISK_USAGE_CRAWL_DELAY: "0"
+      MINIO_ETCD_ENDPOINTS: "http://etcd:2379"
     volumes:
       - "storage:/storage"
       - "cache:/cache"
     depends_on:
       - cwm-worker-logger
+      - etcd
 
   cwm-worker-logger:
     image: ghcr.io/cloudwebmanage/cwm-worker-logger/cwm-worker-logger:latest
@@ -83,3 +103,4 @@ services:
 volumes:
   storage:
   cache:
+  etcd-data:
