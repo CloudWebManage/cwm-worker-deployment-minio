@@ -54,8 +54,6 @@ services:
       MINIO_AUDIT_WEBHOOK_ENDPOINT_target1: http://cwm-worker-logger:8500/logs
       MINIO_GATEWAY_DEPLOYMENT_ID: "docker-compose-http"
       MINIO_API_SELECT_PARQUET: "${MINIO_API_SELECT_PARQUET}"
-      MINIO_DISK_USAGE_CRAWL_DEBUG: "on"
-      MINIO_DISK_USAGE_CRAWL_DELAY: "0"
       MINIO_ETCD_ENDPOINTS: "http://etcd:2379"
     volumes:
       - "storage:/storage"
