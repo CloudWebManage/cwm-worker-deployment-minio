@@ -1,0 +1,46 @@
+version: '3.4'
+
+services:
+
+  nginx:
+    image: nginx
+    restart: on-failure
+    build: nginx
+    ports:
+      - "8080:8080"
+    environment:
+      HOSTNAMES_DIR: "/hostnames"
+    volumes:
+      - "./tests/hostnames:/hostnames"
+    depends_on:
+      - minio
+
+  minio:
+    image: minio
+    restart: on-failure
+    build: .
+    environment:
+      MINIO_ROOT_USER: "12345678"
+      MINIO_ROOT_PASSWORD: "12345678"
+      MINIO_KMS_AUTO_ENCRYPTION: "on"
+      MINIO_KMS_KES_ENDPOINT: "https://minio-kes:7373"
+      MINIO_KMS_KES_CERT_FILE: "/minio-kes/minio.cert"
+      MINIO_KMS_KES_KEY_FILE: "/minio-kes/minio.key"
+      MINIO_KMS_KES_CAPATH: "/minio-kes/server.cert"
+      MINIO_KMS_KES_KEY_NAME: "minio" # configured in `minio-kes/server-config.yaml`
+    volumes:
+      - "storage:/storage"
+      - "minio-kes:/minio-kes"
+    depends_on:
+      - minio-kes
+
+  minio-kes:
+    build: ./minio-kes
+    ports:
+      - "7373:7373"
+    volumes:
+      - "minio-kes:/minio-kes"
+
+volumes:
+  storage:
+  minio-kes:

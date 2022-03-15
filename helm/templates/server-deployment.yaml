@@ -13,7 +13,29 @@ spec:
     metadata:
       labels:
         app: minio-server
+        cwm-worker-deployment: minio
     spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 10
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    cwm-worker-deployment: minio
+            - weight: 20
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    app: minio-server
+            - weight: 30
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    app: minio-logger
       dnsPolicy: ClusterFirst
       terminationGracePeriodSeconds: {{ $.Values.minio.terminationGracePeriodSeconds }}
       automountServiceAccountToken: false
@@ -26,6 +48,7 @@ spec:
       containers:
       - name: http
         image: {{ $.Values.minio.image }}:{{ $.Values.minio.tag | default $.Chart.AppVersion }}
+        lifecycle: {preStop: {exec: {command: ["sleep", {{ $.Values.minio.preStopDelaySeconds | quote }}]}}}
         imagePullPolicy: {{ $.Values.minio.imagePullPolicy }}
         env:
         {{- $domains := list }}
@@ -70,6 +93,10 @@ spec:
           value: ""
         - name: MINIO_AUDIT_WEBHOOK_ENDPOINT_target1
           value: {{ if .Values.minio.metricsLogger.enable }}http://minio-logger:8500/logs{{ else }}{{ $.Values.minio.auditWebhookEndpoint | quote }}{{ end }}
+        {{- if .Values.minio.metricsLogger.enable }}
+        - name: CWM_METRICSLOGGER_HEALTH_URL
+          value: http://minio-logger:8500/health
+        {{- end }}
         {{- end }}
         {{- if $.Values.minio.skipWaitForAuditWebhook }}
         - name: SKIP_WAIT_FOR_AUDIT_WEBHOOK
@@ -85,6 +112,8 @@ spec:
         {{- end }}
         - name: CWM_INIT_CURL_MAX_TIME
           value: "{{ $.Values.minio.initCurlMaxTime }}"
+        - name: CWM_INIT_CURL_CONNECT_TIMEOUT
+          value: "{{ $.Values.minio.initCurlConnectTimeout }}"
         {{- if $.Values.minio.enablePrometheusAuthTypePublic }}
         - name: MINIO_PROMETHEUS_AUTH_TYPE
           value: "public"
@@ -106,30 +135,7 @@ spec:
         ports:
         - containerPort: 8080
           name: "p8080"
-        startupProbe:
-          exec:
-            command: ["curl", "--max-time", "{{ $.Values.minio.startupProbe.curlMaxTimeSeconds }}", "--connect-timeout", "{{ $.Values.minio.startupProbe.curlConnectTimeoutSeconds }}", "-s", http://localhost:8080{{ $.Values.minio.startupProbe.path }}]
-          initialDelaySeconds: {{ $.Values.minio.startupProbe.initialDelaySeconds }}
-          periodSeconds: {{ $.Values.minio.startupProbe.periodSeconds }}
-          timeoutSeconds: {{ $.Values.minio.startupProbe.timeoutSeconds }}
-          successThreshold: {{ $.Values.minio.startupProbe.successThreshold }}
-          failureThreshold: {{ $.Values.minio.startupProbe.failureThreshold }}
-        livenessProbe:
-          exec:
-            command: ["curl", "--max-time", "{{ $.Values.minio.livenessProbe.curlMaxTimeSeconds }}", "--connect-timeout", "{{ $.Values.minio.livenessProbe.curlConnectTimeoutSeconds }}", "-s", http://localhost:8080{{ $.Values.minio.livenessProbe.path }}]
-          initialDelaySeconds: {{ $.Values.minio.livenessProbe.initialDelaySeconds }}
-          periodSeconds: {{ $.Values.minio.livenessProbe.periodSeconds }}
-          timeoutSeconds: {{ $.Values.minio.livenessProbe.timeoutSeconds }}
-          successThreshold: {{ $.Values.minio.livenessProbe.successThreshold }}
-          failureThreshold: {{ $.Values.minio.livenessProbe.failureThreshold }}
-        readinessProbe:
-          exec:
-            command: ["curl", "--max-time", "{{ $.Values.minio.readinessProbe.curlMaxTimeSeconds }}", "--connect-timeout", "{{ $.Values.minio.readinessProbe.curlConnectTimeoutSeconds }}", "-s", http://localhost:8080{{ $.Values.minio.readinessProbe.path }}]
-          initialDelaySeconds: {{ $.Values.minio.readinessProbe.initialDelaySeconds }}
-          periodSeconds: {{ $.Values.minio.readinessProbe.periodSeconds }}
-          timeoutSeconds: {{ $.Values.minio.readinessProbe.timeoutSeconds }}
-          successThreshold: {{ $.Values.minio.readinessProbe.successThreshold }}
-          failureThreshold: {{ $.Values.minio.readinessProbe.failureThreshold }}
+        {{- include "server.probes" (dict "root" $) | indent 8 }}
         resources: {{ toYaml $.Values.minio.resources | nindent 10 }}
         volumeMounts:
         {{- if eq $.Values.minio.INSTANCE_TYPE "" }}

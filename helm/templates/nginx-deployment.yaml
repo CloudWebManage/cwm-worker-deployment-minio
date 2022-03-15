@@ -13,18 +13,34 @@ spec:
     metadata:
       labels:
         app: minio-nginx
+        cwm-worker-deployment: minio
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/nginx-hostnames-configmap.yaml") . | sha256sum }}
     spec:
       affinity:
         podAntiAffinity:
+          {{ if $.Values.minio.nginx.enableNginxAntiAffinityRequired }}
           requiredDuringSchedulingIgnoredDuringExecution:
             - topologyKey: kubernetes.io/hostname
               labelSelector:
                 matchLabels:
                   app: minio-nginx
+          {{ end }}
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 10
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    cwm-worker-deployment: minio
+            - weight: 20
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    app: minio-nginx
       dnsPolicy: ClusterFirst
-      terminationGracePeriodSeconds: {{ $.Values.minio.terminationGracePeriodSeconds }}
+      terminationGracePeriodSeconds: {{ $.Values.minio.nginx.terminationGracePeriodSeconds }}
       automountServiceAccountToken: false
       {{- if $.Values.minio.nodeSelector }}
       nodeSelector: {{ $.Values.minio.nodeSelector | nindent 8 }}
@@ -35,6 +51,7 @@ spec:
       containers:
       - name: nginx
         image: {{ $.Values.minio.nginx.image }}:{{ $.Values.minio.nginx.tag | default $.Chart.AppVersion }}
+        lifecycle: {preStop: {exec: {command: ["sleep", {{ $.Values.minio.nginx.preStopDelaySeconds | quote }}]}}}
         imagePullPolicy: {{ $.Values.minio.imagePullPolicy }}
         env:
           - name: HOSTNAMES_DIR
@@ -84,6 +101,7 @@ spec:
         ports:
         - containerPort: 8080
         - containerPort: 8443
+        {{- include "nginx.probes" (dict "root" $) | indent 8 }}
         resources: {{ toYaml $.Values.minio.nginx.resources | nindent 10 }}
         volumeMounts:
         - name: hostnames

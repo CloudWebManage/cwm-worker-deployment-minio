@@ -1,0 +1,31 @@
+address: 0.0.0.0:7373
+
+admin:
+  identity: disabled
+
+tls:
+  key : ${SERVER_KEY_FILE}
+  cert: ${SERVER_CERT_FILE}
+
+# KES Server will auto-create the keys on startup
+# No need to create keys manually via kes CLI
+keys:
+  - name: 'minio'
+
+# Define allowed policies for MinIO
+# With the key already created, only `generate` and `decrypt` APIs are required
+policy:
+  minio:
+    allow:
+    - /v1/key/generate/minio
+    - /v1/key/decrypt/minio
+    identities:
+    - ${MINIO_IDENTITY}
+
+log:
+  error: on
+  audit: on
+
+keystore:
+  fs:
+    path: ./keys
