@@ -30,7 +30,7 @@ spec:
         resources: {{ toYaml $.Values.minio.externalscaler.resources | nindent 10 }}
         env:
         - name: LOG_LEVEL
-          value: {{ $.Values.minio.metricsLogger.LOG_LEVEL | quote }}
+          value: {{ $.Values.minio.externalscaler.LOG_LEVEL | quote }}
         - name: CWM_REDIS_HOST
           value: {{ $.Values.minio.metricsLogger.REDIS_HOST | quote }}
         - name: CWM_REDIS_PORT
