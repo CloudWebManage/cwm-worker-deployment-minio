@@ -97,6 +97,7 @@ minio:
     enabled: false
     image: ghcr.io/cloudwebmanage/cwm-keda-external-scaler
     imagePullPolicy: IfNotPresent
+    LOG_LEVEL: "warn"
     terminationGracePeriodSeconds: 5
     preStopDelaySeconds: 2
     resources:
