@@ -35,9 +35,7 @@
   - [Testing the cache layer locally using Docker Compose](#testing-the-cache-layer-locally-using-docker-compose)
 - [Testing virtual-style-host requests](#testing-virtual-style-host-requests)
 - [Generating self-signed certificates and DH key](#generating-self-signed-certificates-and-dh-key)
-- [Select API Support](#select-api-support)
-  - [Parquet Format](#parquet-format)
-- [Server Side Encryption](#server-side-encryption)
+- [Optional Features](#optional-features)
 - [Running Tests](#running-tests)
 - [Contribute](#contribute)
 - [License](#license)
@@ -607,57 +605,12 @@ openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
 cp tests/hostnames/hostname3.fullchain tests/hostnames/hostname3.chain
 ```
 
-## Select API Support
+## Optional Features
 
-MinIO instance supports SQL-style SELECT command and API support via its MinIO
-Client (`mc`) and language bindings.
-
-See [MinIO Select API Quickstart Guide](https://docs.min.io/docs/minio-select-api-quickstart-guide.html).
-
-As mentioned in the docs, by default it supports querying of CSV and JSON
-objects in uncompressed and compressed formats. No extra configuration is
-required.
-
-### Parquet Format
-
-The uncompressed [Parquet](https://en.wikipedia.org/wiki/Apache_Parquet) format
-is also supported but it not enabled by default since a crafted input with
-hostile intention can easily crash the server. Also, it may not be fully supported
-see [this comment](https://github.com/minio/minio/issues/14016#issuecomment-1003582156).
-However, it can be enabled by setting the environment variable
-`MINIO_API_SELECT_PARQUET=on`.
-
-For development with [`docker-compose`](#using-docker-compose) or
-[`docker-compose-gateway*`](#gateway-mode), enable it like this via `.env` file:
-
-```text
-MINIO_API_SELECT_PARQUET=on
-```
-
-For development with [helm](#using-helm), you can enable the Parquet format via
-`.value.yaml` file like this:
-
-```yaml
-minio:
-  # ...
-  enableParquetFormat: true
-```
-
-For MinIO client (`mc`), `mc sql` subcommand can be used.
-You need to create alias with `--api s3v4` like this:
-
-```shell
-./mc alias set minio http://localhost:8080 12345678 12345678 --api s3v4
-```
-
-For the detailed help and syntax for SELECT queries, follow these links:
-
-- [`mc sql` command](https://docs.min.io/docs/minio-client-complete-guide#sql)
-- [AWS S3 SELECT Command](https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-glacier-select-sql-reference-select.html)
-
-## Server Side Encryption
-
-See [SERVER_SIDE_ENCRYPTION.md](./SERVER_SIDE_ENCRYPTION.md) for details.
+* [Select API Support](/docs/Select%20API%20Support.md)
+* [Parquet Format](/docs/Parquet%20Format.md)
+* [Server Side Encryption](/docs/Server%20Side%20Encryption.md)
+* [Identity and Access Management](/docs/Identity%20and%20Access%20Management.md)
 
 ## Running Tests
 
