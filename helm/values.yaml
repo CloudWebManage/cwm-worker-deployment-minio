@@ -2,6 +2,7 @@ minio:
   replicas: 1
   revisionHistoryLimit: 2
   terminationGracePeriodSeconds: 5
+  preStopDelaySeconds: 2
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -18,6 +19,7 @@ minio:
   MINIO_EXTRA_ARGS: ""
   initDebugEnable: false
   initCurlMaxTime: "1.5"
+  initCurlConnectTimeout: "0.2"
   # this exposes prometheus metrics unauthenticated at /minio/v2/metrics/cluster and /minio/v2/metrics/node
   enablePrometheusAuthTypePublic: true
   # it requires prometheus operator version 0.45 (kube-prometheus-stack 13.13)
@@ -43,29 +45,29 @@ minio:
 
   startupProbe:
     path: /minio/health/live
-    initialDelaySeconds: 1
+    initialDelaySeconds: 0
+    periodSeconds: 1
+    timeoutSeconds: 1
+    successThreshold: 1
+    failureThreshold: 10
+    curlMaxTimeSeconds: "0.9"
+    curlConnectTimeoutSeconds: "0.2"
+  livenessProbe:
+    path: /minio/health/live
+    initialDelaySeconds: 0
     periodSeconds: 1
     timeoutSeconds: 1
     successThreshold: 1
     failureThreshold: 5
     curlMaxTimeSeconds: "0.9"
     curlConnectTimeoutSeconds: "0.2"
-  livenessProbe:
-    path: /minio/health/live
-    initialDelaySeconds: 1
-    periodSeconds: 1
-    timeoutSeconds: 1
-    successThreshold: 1
-    failureThreshold: 2
-    curlMaxTimeSeconds: "0.9"
-    curlConnectTimeoutSeconds: "0.2"
   readinessProbe:
     path: /minio/health/ready
-    initialDelaySeconds: 1
+    initialDelaySeconds: 0
     periodSeconds: 1
     timeoutSeconds: 1
     successThreshold: 1
-    failureThreshold: 2
+    failureThreshold: 1
     curlMaxTimeSeconds: "0.9"
     curlConnectTimeoutSeconds: "0.2"
   resources:
@@ -95,6 +97,9 @@ minio:
     enabled: false
     image: ghcr.io/cloudwebmanage/cwm-keda-external-scaler
     imagePullPolicy: IfNotPresent
+    LOG_LEVEL: "warn"
+    terminationGracePeriodSeconds: 5
+    preStopDelaySeconds: 2
     resources:
       requests:
         cpu: "20m"
@@ -135,6 +140,20 @@ minio:
     enable: true
     image: ghcr.io/cloudwebmanage/cwm-worker-logger/cwm-worker-logger
     imagePullPolicy: IfNotPresent
+    terminationGracePeriodSeconds: 5
+    preStopDelaySeconds: 2
+    livenessProbe:
+      initialDelaySeconds: 0
+      periodSeconds: 1
+      timeoutSeconds: 1
+      successThreshold: 1
+      failureThreshold: 10
+    readinessProbe:
+      initialDelaySeconds: 0
+      periodSeconds: 1
+      timeoutSeconds: 1
+      successThreshold: 1
+      failureThreshold: 1
     resources:
       requests:
         cpu: "20m"
@@ -224,7 +243,10 @@ minio:
       rollingUpdate:
         maxUnavailable: 0
         maxSurge: 1
+    enableNginxAntiAffinityRequired: true
     image: ghcr.io/cloudwebmanage/cwm-worker-deployment-minio/minio-nginx
+    terminationGracePeriodSeconds: 5
+    preStopDelaySeconds: 2
     tag: ""
     resources:
       requests:
@@ -232,6 +254,33 @@ minio:
         memory: "50Mi"
       limits:
         memory: "150Mi"
+    startupProbe:
+      path: /minio/health/live
+      initialDelaySeconds: 0
+      periodSeconds: 1
+      timeoutSeconds: 1
+      successThreshold: 1
+      failureThreshold: 30
+      curlMaxTimeSeconds: "0.9"
+      curlConnectTimeoutSeconds: "0.2"
+    livenessProbe:
+      path: /minio/health/live
+      initialDelaySeconds: 1
+      periodSeconds: 1
+      timeoutSeconds: 1
+      successThreshold: 1
+      failureThreshold: 5
+      curlMaxTimeSeconds: "0.9"
+      curlConnectTimeoutSeconds: "0.2"
+    readinessProbe:
+      path: /minio/health/ready
+      initialDelaySeconds: 1
+      periodSeconds: 1
+      timeoutSeconds: 1
+      successThreshold: 1
+      failureThreshold: 1
+      curlMaxTimeSeconds: "0.9"
+      curlConnectTimeoutSeconds: "0.2"
     # copied from tests/hostnames/dhparam.pem
     dhparam_key: |
       -----BEGIN DH PARAMETERS-----

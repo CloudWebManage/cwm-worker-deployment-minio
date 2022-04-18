@@ -37,6 +37,7 @@
 - [Generating self-signed certificates and DH key](#generating-self-signed-certificates-and-dh-key)
 - [Select API Support](#select-api-support)
   - [Parquet Format](#parquet-format)
+- [Server Side Encryption](#server-side-encryption)
 - [Running Tests](#running-tests)
 - [Contribute](#contribute)
 - [License](#license)
@@ -132,6 +133,7 @@ List the contents of the bucket:
     nginx:
       image: nginx
       tag: latest
+      enableNginxAntiAffinityRequired: false
   ```
 
 - You can apply additional configurations to override the configuration at
@@ -652,6 +654,10 @@ For the detailed help and syntax for SELECT queries, follow these links:
 
 - [`mc sql` command](https://docs.min.io/docs/minio-client-complete-guide#sql)
 - [AWS S3 SELECT Command](https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-glacier-select-sql-reference-select.html)
+
+## Server Side Encryption
+
+See [SERVER_SIDE_ENCRYPTION.md](./SERVER_SIDE_ENCRYPTION.md) for details.
 
 ## Running Tests
 
