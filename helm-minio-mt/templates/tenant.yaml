@@ -1,0 +1,74 @@
+{{ range $.Values.tenants }}
+apiVersion: minio.min.io/v2
+kind: Tenant
+metadata:
+  name: {{ .name }}
+  namespace: {{ .name }}
+spec:
+  configuration:
+    name: {{ .name }}-env-configuration
+  credsSecret:
+    name: {{ .name }}-secret
+  image: minio/minio:RELEASE.2023-08-29T23-07-35Z
+  mountPath: /export
+  pools:
+    {{ if eq .name "simple" }}
+    - name: pool-0
+      servers: 1
+      tolerations:
+        - effect: NoSchedule
+          key: cwmc-role
+          operator: Equal
+          value: worker
+      volumeClaimTemplate:
+        metadata:
+          name: data
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: "10Gi"
+          storageClassName: directpv-min-io
+      volumesPerServer: 1
+    {{ else }}
+    - name: pool-1
+      servers: 2
+      tolerations:
+        - effect: NoSchedule
+          key: cwmc-role
+          operator: Equal
+          value: worker
+      volumeClaimTemplate:
+        metadata:
+          name: data1
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: "10Gi"
+          storageClassName: directpv-min-io
+      volumesPerServer: 2
+    - name: pool-2
+      servers: 2
+      tolerations:
+        - effect: NoSchedule
+          key: cwmc-role
+          operator: Equal
+          value: worker
+      volumeClaimTemplate:
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: "10Gi"
+          storageClassName: directpv-min-io
+      volumesPerServer: 2
+    {{ end }}
+  requestAutoCert: false
+  users:
+    - name: storage-user
+---
+{{ end }}

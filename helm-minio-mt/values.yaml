@@ -1,0 +1,15 @@
+operator:
+  operator:
+    tolerations:
+      - key: cwmc-role
+        value: worker
+        effect: NoSchedule
+  console:
+    ingress:
+      enabled: true
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt
+    tolerations:
+      - key: cwmc-role
+        value: worker
+        effect: NoSchedule
