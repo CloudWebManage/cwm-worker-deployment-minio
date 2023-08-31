@@ -1,0 +1,39 @@
+{{ range $.Values.tenants }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .name }}-ingress
+  namespace: {{ .name }}
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+    nginx.ingress.kubernetes.io/proxy-body-size: 5t
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - minio-tenant-{{ .name }}{{ .domain_suffix }}
+        - minio-tenant-{{ .name }}-console{{ .domain_suffix }}
+      secretName: tenant-tls
+  rules:
+    - host: minio-tenant-{{ .name }}{{ .domain_suffix }}
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: minio
+                port:
+                  number: 80
+    - host: minio-tenant-{{ .name }}-console{{ .domain_suffix }}
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: {{ .name }}-console
+                port:
+                  number: 9090
+---
+{{ end }}
